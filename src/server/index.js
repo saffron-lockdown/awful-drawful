@@ -1,27 +1,35 @@
-var express = require('express');
-var app = express();
-var expressWs = require('express-ws')(app);
+const express = require('express');
+const cookieSession = require('cookie-session')
+const app = express();
+const expressWs = require('express-ws')(app);
+const { v4: uuid } = require('uuid');
 
-app.use(function (req, res, next) {
-  console.log('middleware');
-  req.testing = 'testing';
+app.use(cookieSession({
+  name: 'session',
+  secret: 'secret1234',
+  maxAge: 24 * 60 * 60 * 1000 // 24 hours
+}))
+
+app.use((req, res, next) => {
+  if (req.session.isNew) {
+    req.session.id = uuid();
+  }
   return next();
-});
+})
 
-app.get('/', function(req, res, next){
-  console.log('get route', req.testing);
+app.get('/', function (req, res, next) {
+  console.log(`GET on /, user id: ${req.session.id}`);
   res.end();
 });
 
-
-
 app.ws('/', function (ws, req) {
-  const id = String(Math.random());
+  const id = req.session.id;
+  console.log('user connected to websocket with id: ', id);
+
   ws.on('message', function(msg) {
     console.log(`from id ${id}: ${msg}`);
   });
 
-  console.log('id: ', id);
 });
 
 app.listen(3000);
