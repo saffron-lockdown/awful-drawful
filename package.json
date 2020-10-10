@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/server/index.js"
   },
   "repository": {
     "type": "git",
@@ -15,5 +15,9 @@
   "bugs": {
     "url": "https://github.com/weizhongtan/drawful-clone/issues"
   },
-  "homepage": "https://github.com/weizhongtan/drawful-clone#readme"
+  "homepage": "https://github.com/weizhongtan/drawful-clone#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "express-ws": "^4.0.0"
+  }
 }
