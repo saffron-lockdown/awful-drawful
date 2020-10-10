@@ -10,7 +10,7 @@
     "type": "git",
     "url": "git+https://github.com/weizhongtan/drawful-clone.git"
   },
-  "author": "weizhongtan",
+  "author": "weizhongtan, tjperr",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/weizhongtan/drawful-clone/issues"
