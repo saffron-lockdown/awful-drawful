@@ -3,7 +3,11 @@
 
   <input type="text" id="name" name="name" required size="10" />
   <button type="button" id="submit">submit</button>
+  <br />
+  <br />
   <div id="name-display"></div>
+  <br />
+  <div id="prompt-display"></div>
 
   <script>
     const socket = new WebSocket('ws://localhost:3000');
@@ -17,10 +21,19 @@
       socket.send(JSON.stringify(msg));
     };
 
+    const promptDisplay = document.querySelector('#prompt-display');
     const nameDisplay = document.querySelector('#name-display');
+
     socket.onmessage = ({ data }) => {
-      nameDisplay.innerText = data;
       console.log(data);
+      const parsed = JSON.parse(data);
+      if (parsed.type === 'NAME') {
+        nameDisplay.innerText = 'Hello ' + parsed.payload + '!';
+      } else if (parsed.type === 'PROMPT') {
+        promptDisplay.innerText = parsed.payload;
+      } else {
+        console.log('type not recognised', parsed.type);
+      }
     };
   </script>
 </html>

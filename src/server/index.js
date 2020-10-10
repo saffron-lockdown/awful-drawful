@@ -40,9 +40,26 @@ app.ws('/', function (ws, req) {
   if (!users[req.session.id]) {
     users[req.session.id] = { name: 'no name set ' };
   }
-  const user = users[req.session.id];
 
-  ws.send(user.name);
+  const user = users[req.session.id];
+  const prompt = getPrompt();
+
+  ws.send(returnJson('NAME', user.name));
+  ws.send(returnJson('PROMPT', prompt));
 });
 
 app.listen(3000);
+
+function returnJson(type, payload) {
+  return JSON.stringify({ type, payload });
+}
+
+function randomChoice(arr) {
+  return arr[Math.floor(arr.length * Math.random())];
+}
+
+function getPrompt() {
+  var descriptions = ['man-eating', 'hairless', 'cardboard', 'vegan'];
+  var nouns = ['bicycle', 'yoghurt', 'cloud', 'Harry Potter'];
+  return randomChoice(descriptions) + ' ' + randomChoice(nouns);
+}
