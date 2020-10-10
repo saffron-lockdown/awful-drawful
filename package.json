@@ -1,0 +1,19 @@
+{
+  "name": "drawful-clone",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/weizhongtan/drawful-clone.git"
+  },
+  "author": "weizhongtan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/weizhongtan/drawful-clone/issues"
+  },
+  "homepage": "https://github.com/weizhongtan/drawful-clone#readme"
+}
