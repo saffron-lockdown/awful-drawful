@@ -3,6 +3,7 @@ const cookieSession = require('cookie-session')
 const app = express();
 const expressWs = require('express-ws')(app);
 const { v4: uuid } = require('uuid');
+const serveStatic = require('serve-static')
 
 app.use(cookieSession({
   name: 'session',
@@ -17,10 +18,7 @@ app.use((req, res, next) => {
   return next();
 })
 
-app.get('/', function (req, res, next) {
-  console.log(`GET on /, user id: ${req.session.id}`);
-  res.end();
-});
+app.use(serveStatic('src/client/'));
 
 app.ws('/', function (ws, req) {
   const id = req.session.id;

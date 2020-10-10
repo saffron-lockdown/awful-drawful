@@ -22,5 +22,8 @@
     "express-ws": "^4.0.0",
     "serve-static": "^1.14.1",
     "uuid": "^8.3.1"
+  },
+  "devDependencies": {
+    "prettier": "^2.1.2"
   }
 }
