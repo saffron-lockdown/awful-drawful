@@ -1,10 +1,11 @@
 {
   "name": "drawful-clone",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Clone of Drawful",
+  "main": "src/server/index.js",
+  "type": "module",
   "scripts": {
-    "start": "nodemon -r esm src/server/index.js",
+    "start": "nodemon  src/server/index.js",
     "lint": "eslint ."
   },
   "repository": {
@@ -18,7 +19,6 @@
   },
   "homepage": "https://github.com/weizhongtan/drawful-clone#readme",
   "dependencies": {
-    "esm": "^3.2.25",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "nodemon": "^2.0.4",
