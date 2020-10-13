@@ -1,8 +1,12 @@
-const app = require('express')();
-const serveStatic = require('serve-static');
+import express from 'express';
+import { getPrompt } from './prompt.js';
+import serveStatic from 'serve-static';
+import session from 'express-session';
+import sio from 'socket.io';
+
+const app = express();
 const http = require('http').createServer(app);
-const io = require('socket.io')(http);
-const session = require('express-session');
+const io = sio(http);
 
 const sesh = session({
   secret: 'keyboard cat',
@@ -10,8 +14,6 @@ const sesh = session({
   saveUninitialized: true,
   cookie: { path: '/', httpOnly: true, secure: false, maxAge: null },
 });
-
-const getPrompt = require('./prompt.js');
 
 const users = {};
 
