@@ -6,6 +6,7 @@
       integrity="sha512-AcZyhRP/tbAEsXCCGlziPun5iFvcSUpEz2jKkx0blkYKbxU81F+iq8FURwPn1sYFeksJ+sDDrI5XujsqSobWdQ=="
       crossorigin="anonymous"
     ></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.2.0/fabric.min.js"></script>
   </head>
   <body>
     <h1>Room ID: <span id="room-display"></span></h1>
@@ -26,6 +27,29 @@
       <input type="text" id="room" name="room" required size="10" />
       <button type="submit">Join</button>
     </form>
+
+    <div
+      class="canvas-container"
+      style="width: 500px; height: 500px; position: relative; user-select: none"
+    >
+      <canvas
+        id="c"
+        width="500"
+        height="500"
+        style="
+          border: 1px solid rgb(170, 170, 170);
+          position: absolute;
+          width: 500px;
+          height: 500px;
+          left: 0px;
+          top: 0px;
+          touch-action: none;
+          user-select: none;
+        "
+        class="lower-canvas"
+      ></canvas>
+    </div>
+    <button id="serialise">serialise</button>
 
     <script>
       const socket = io();
@@ -58,6 +82,16 @@
         console.log({ 'set-room-id': data });
         document.querySelector('#room-display').innerText = data;
       });
+
+      const canvas = (this.__canvas = new fabric.Canvas('c', {
+        isDrawingMode: true,
+      }));
+      canvas.freeDrawingBrush.width = 10;
+      document.querySelector('#serialise').onclick = () => {
+        const out = JSON.stringify(canvas);
+        console.log(out);
+        socket.
+      };
     </script>
   </body>
 </html>
