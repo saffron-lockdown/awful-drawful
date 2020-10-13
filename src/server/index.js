@@ -4,7 +4,7 @@ const app = express();
 const expressWs = require('express-ws')(app);
 const { v4: uuid } = require('uuid');
 const serveStatic = require('serve-static');
-
+const getPrompt = require('./prompt.js');
 const users = {};
 
 app.use(
@@ -52,14 +52,4 @@ app.listen(3000);
 
 function returnJson(type, payload) {
   return JSON.stringify({ type, payload });
-}
-
-function randomChoice(arr) {
-  return arr[Math.floor(arr.length * Math.random())];
-}
-
-function getPrompt() {
-  var descriptions = ['man-eating', 'hairless', 'cardboard', 'vegan'];
-  var nouns = ['bicycle', 'yoghurt', 'cloud', 'Harry Potter'];
-  return randomChoice(descriptions) + ' ' + randomChoice(nouns);
 }
