@@ -1,39 +1,43 @@
 <html>
-  <label for="name">Name</label>
+  <head>
+    <title>Drawful clone</title>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.1/socket.io.js"
+      integrity="sha512-AcZyhRP/tbAEsXCCGlziPun5iFvcSUpEz2jKkx0blkYKbxU81F+iq8FURwPn1sYFeksJ+sDDrI5XujsqSobWdQ=="
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <label for="name">Name</label>
 
-  <input type="text" id="name" name="name" required size="10" />
-  <button type="button" id="submit">submit</button>
-  <br />
-  <br />
-  <div id="name-display"></div>
-  <br />
-  <div id="prompt-display"></div>
+    <input type="text" id="name" name="name" required size="10" />
+    <button type="button" id="submit">submit</button>
+    <br />
+    <br />
+    <div id="name-display"></div>
+    <br />
+    <div id="prompt-display"></div>
 
-  <script>
-    const socket = new WebSocket('ws://localhost:3000');
-    const nameInput = document.querySelector('#name');
-    const submitButton = document.querySelector('#submit');
-    submitButton.onclick = () => {
-      const msg = {
-        name: nameInput.value,
+    <script>
+      const socket = io();
+      const nameInput = document.querySelector('#name');
+      const submitButton = document.querySelector('#submit');
+      submitButton.onclick = () => {
+        socket.emit('set-name', nameInput.value);
       };
-      console.log(msg);
-      socket.send(JSON.stringify(msg));
-    };
 
-    const promptDisplay = document.querySelector('#prompt-display');
-    const nameDisplay = document.querySelector('#name-display');
+      const promptDisplay = document.querySelector('#prompt-display');
+      const nameDisplay = document.querySelector('#name-display');
 
-    socket.onmessage = ({ data }) => {
-      console.log(data);
-      const parsed = JSON.parse(data);
-      if (parsed.type === 'NAME') {
-        nameDisplay.innerText = 'Hello ' + parsed.payload + '!';
-      } else if (parsed.type === 'PROMPT') {
-        promptDisplay.innerText = parsed.payload;
-      } else {
-        console.log('type not recognised', parsed.type);
-      }
-    };
-  </script>
+      socket.on('set-prompt', (data) => {
+        console.log(data);
+        promptDisplay.innerText = data;
+      });
+
+      socket.on('set-name', (data) => {
+        console.log(data);
+        nameDisplay.innerText = 'Hello ' + data + '!';
+      });
+    </script>
+  </body>
 </html>

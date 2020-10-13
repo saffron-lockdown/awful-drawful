@@ -1,60 +1,44 @@
-const express = require('express');
-const cookieSession = require('cookie-session');
-
-const app = express();
-require('express-ws')(app);
-const { v4: uuid } = require('uuid');
+const app = require('express')();
 const serveStatic = require('serve-static');
+const http = require('http').createServer(app);
+const io = require('socket.io')(http);
+const session = require('express-session');
+
+const sesh = session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { path: '/', httpOnly: true, secure: false, maxAge: null },
+});
+
 const getPrompt = require('./prompt.js');
+
 const users = {};
 
-function returnJson(type, payload) {
-  return JSON.stringify({ type, payload });
-}
+const wrap = (middleware) => (socket, next) =>
+  middleware(socket.request, {}, next);
 
-app.use(
-  cookieSession({
-    name: 'session',
-    secret: 'secret1234',
-    maxAge: 24 * 60 * 60 * 1000, // 24 hours
-  })
-);
+app.use(sesh);
+io.use(wrap(sesh));
 
-app.use((req, res, next) => {
-  if (req.session.isNew) {
-    req.session.id = uuid();
-  }
-  return next();
+io.on('connect', (socket) => {
+  const prompt = getPrompt();
+  socket.emit('set-prompt', prompt);
+  socket.emit('set-name', socket.request.session.name || 'no name set');
+
+  socket.on('set-name', (name) => {
+    socket.request.session.name = name;
+    socket.request.session.save((err) => {
+      if (err) {
+        throw err;
+      }
+      socket.emit('set-name', socket.request.session.name);
+    });
+  });
 });
 
 app.use(serveStatic('src/client/'));
 
-app.ws('/', (ws, req) => {
-  const { id } = req.session;
-  console.log('user connected to websocket with id: ', id);
-
-  console.log(
-    `websocket is connecting, req.session.name is ${req.session.name}`
-  );
-
-  ws.on('message', (msg) => {
-    console.log(`from id ${id}: ${msg}`);
-    users[req.session.id].name = JSON.parse(msg).name;
-  });
-
-  if (!users[req.session.id]) {
-    users[req.session.id] = { name: 'no name set ' };
-  }
-
-  const user = users[req.session.id];
-  const prompt = getPrompt();
-
-  ws.send(returnJson('NAME', user.name));
-  ws.send(returnJson('PROMPT', prompt));
+http.listen(3000, () => {
+  console.log('listening on http://localhost:3000');
 });
-
-app.listen(3000);
-
-function returnJson(type, payload) {
-  return JSON.stringify({ type, payload });
-}
