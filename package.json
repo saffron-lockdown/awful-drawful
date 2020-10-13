@@ -3,21 +3,10 @@
   "version": "1.0.0",
   "description": "Clone of Drawful",
   "main": "src/server/index.js",
-  "type": "module",
   "scripts": {
     "start": "nodemon  src/server/index.js",
     "lint": "eslint ."
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/weizhongtan/drawful-clone.git"
-  },
-  "author": "weizhongtan, tjperr",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/weizhongtan/drawful-clone/issues"
-  },
-  "homepage": "https://github.com/weizhongtan/drawful-clone#readme",
   "dependencies": {
     "express": "^4.17.1",
     "express-session": "^1.17.1",
@@ -31,5 +20,16 @@
     "eslint-config-prettier": "^6.12.0",
     "eslint-plugin-import": "^2.22.1",
     "prettier": "^2.1.2"
-  }
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/weizhongtan/drawful-clone.git"
+  },
+  "author": "weizhongtan, tjperr",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/weizhongtan/drawful-clone/issues"
+  },
+  "homepage": "https://github.com/weizhongtan/drawful-clone#readme"
 }
