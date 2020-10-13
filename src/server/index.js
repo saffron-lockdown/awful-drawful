@@ -8,16 +8,6 @@ const serveStatic = require('serve-static');
 const getPrompt = require('./prompt.js');
 const users = {};
 
-function randomChoice(arr) {
-  return arr[Math.floor(arr.length * Math.random())];
-}
-
-function getPrompt() {
-  const descriptions = ['man-eating', 'hairless', 'cardboard', 'vegan'];
-  const nouns = ['bicycle', 'yoghurt', 'cloud', 'Harry Potter'];
-  return `${randomChoice(descriptions)} ${randomChoice(nouns)}`;
-}
-
 function returnJson(type, payload) {
   return JSON.stringify({ type, payload });
 }
