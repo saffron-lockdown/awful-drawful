@@ -24,17 +24,37 @@ app.use(sesh);
 io.use(wrap(sesh));
 
 io.on('connect', (socket) => {
+  const { session } = socket.request;
+
   const prompt = getPrompt();
   socket.emit('set-prompt', prompt);
-  socket.emit('set-name', socket.request.session.name || 'no name set');
+  socket.emit('set-name', session.name || 'no name set');
+
+  // reconnect to room
+  if (session.roomId) {
+    socket.join(session.roomId);
+    socket.emit('set-room-id', session.roomId);
+  }
 
   socket.on('set-name', (name) => {
-    socket.request.session.name = name;
-    socket.request.session.save((err) => {
+    session.name = name;
+    session.socketId = socket.id;
+    session.save((err) => {
       if (err) {
         throw err;
       }
       socket.emit('set-name', socket.request.session.name);
+    });
+  });
+
+  socket.on('join-room', (roomId) => {
+    socket.join(roomId);
+    session.roomId = roomId;
+    session.save((err) => {
+      if (err) {
+        throw err;
+      }
+      socket.emit('set-room-id', session.roomId);
     });
   });
 });

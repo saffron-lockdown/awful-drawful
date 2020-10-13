@@ -8,23 +8,38 @@
     ></script>
   </head>
   <body>
-    <label for="name">Name</label>
+    <h1>Room ID: <span id="room-display"></span></h1>
 
-    <input type="text" id="name" name="name" required size="10" />
-    <button type="button" id="submit">submit</button>
-    <br />
-    <br />
+    <form id="set-name" onsubmit="return false">
+      <label for="name">Name</label>
+      <input type="text" id="name" name="name" required size="10" />
+      <button type="submit">submit</button>
+    </form>
+
     <div id="name-display"></div>
     <br />
     <div id="prompt-display"></div>
+    <br />
+
+    <form id="join-room" onsubmit="return false">
+      <label for="room">Room ID</label>
+      <input type="text" id="room" name="room" required size="10" />
+      <button type="submit">Join</button>
+    </form>
 
     <script>
       const socket = io();
-      const nameInput = document.querySelector('#name');
-      const submitButton = document.querySelector('#submit');
-      submitButton.onclick = () => {
-        socket.emit('set-name', nameInput.value);
-      };
+      const setNameForm = document.querySelector('#set-name');
+      setNameForm.addEventListener('submit', (e) => {
+        e.preventDefault;
+        socket.emit('set-name', document.querySelector('#name').value);
+      });
+
+      const joinRoomForm = document.querySelector('#join-room');
+      joinRoomForm.addEventListener('submit', (e) => {
+        e.preventDefault;
+        socket.emit('join-room', document.querySelector('#room').value);
+      });
 
       const promptDisplay = document.querySelector('#prompt-display');
       const nameDisplay = document.querySelector('#name-display');
@@ -37,6 +52,11 @@
       socket.on('set-name', (data) => {
         console.log(data);
         nameDisplay.innerText = 'Hello ' + data + '!';
+      });
+
+      socket.on('set-room-id', (data) => {
+        console.log({ 'set-room-id': data });
+        document.querySelector('#room-display').innerText = data;
       });
     </script>
   </body>
