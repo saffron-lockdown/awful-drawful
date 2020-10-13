@@ -1,11 +1,26 @@
 const express = require('express');
 const cookieSession = require('cookie-session');
+
 const app = express();
-const expressWs = require('express-ws')(app);
+require('express-ws')(app);
 const { v4: uuid } = require('uuid');
 const serveStatic = require('serve-static');
 
 const users = {};
+
+function randomChoice(arr) {
+  return arr[Math.floor(arr.length * Math.random())];
+}
+
+function getPrompt() {
+  const descriptions = ['man-eating', 'hairless', 'cardboard', 'vegan'];
+  const nouns = ['bicycle', 'yoghurt', 'cloud', 'Harry Potter'];
+  return `${randomChoice(descriptions)} ${randomChoice(nouns)}`;
+}
+
+function returnJson(type, payload) {
+  return JSON.stringify({ type, payload });
+}
 
 app.use(
   cookieSession({
@@ -24,15 +39,15 @@ app.use((req, res, next) => {
 
 app.use(serveStatic('src/client/'));
 
-app.ws('/', function (ws, req) {
-  const id = req.session.id;
+app.ws('/', (ws, req) => {
+  const { id } = req.session;
   console.log('user connected to websocket with id: ', id);
 
   console.log(
     `websocket is connecting, req.session.name is ${req.session.name}`
   );
 
-  ws.on('message', function (msg) {
+  ws.on('message', (msg) => {
     console.log(`from id ${id}: ${msg}`);
     users[req.session.id].name = JSON.parse(msg).name;
   });
@@ -49,17 +64,3 @@ app.ws('/', function (ws, req) {
 });
 
 app.listen(3000);
-
-function returnJson(type, payload) {
-  return JSON.stringify({ type, payload });
-}
-
-function randomChoice(arr) {
-  return arr[Math.floor(arr.length * Math.random())];
-}
-
-function getPrompt() {
-  var descriptions = ['man-eating', 'hairless', 'cardboard', 'vegan'];
-  var nouns = ['bicycle', 'yoghurt', 'cloud', 'Harry Potter'];
-  return randomChoice(descriptions) + ' ' + randomChoice(nouns);
-}
