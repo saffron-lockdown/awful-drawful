@@ -25,22 +25,22 @@ app.use(sesh);
 io.use(wrap(sesh));
 
 io.on('connect', (socket) => {
-  const { session } = socket.request;
+  const { session: user } = socket.request;
 
   const prompt = getPrompt();
   socket.emit('set-prompt', prompt);
-  socket.emit('set-name', session.name || 'no name set');
+  socket.emit('set-name', user.name || 'no name set');
 
   // reconnect to room
-  if (session.roomId) {
-    socket.join(session.roomId);
-    socket.emit('set-room-id', session.roomId);
+  if (user.roomId) {
+    socket.join(user.roomId);
+    socket.emit('set-room-id', user.roomId);
   }
 
   socket.on('set-name', (name) => {
-    session.name = name;
-    session.socketId = socket.id;
-    session.save((err) => {
+    user.name = name;
+    user.socketId = socket.id;
+    user.save((err) => {
       if (err) {
         throw err;
       }
@@ -50,13 +50,17 @@ io.on('connect', (socket) => {
 
   socket.on('join-room', (roomId) => {
     socket.join(roomId);
-    session.roomId = roomId;
-    session.save((err) => {
+    user.roomId = roomId;
+    user.save((err) => {
       if (err) {
         throw err;
       }
-      socket.emit('set-room-id', session.roomId);
+      socket.emit('set-room-id', user.roomId);
     });
+  });
+
+  socket.on('post-drawing', (drawing) => {
+    io.to(user.roomId).emit('update-feed', drawing);
   });
 });
 
