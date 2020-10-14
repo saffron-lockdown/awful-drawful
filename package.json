@@ -4,7 +4,7 @@
   "description": "Clone of Drawful",
   "main": "src/server/index.js",
   "scripts": {
-    "start": "nodemon  src/server/index.js",
+    "start": "nodemon --watch src/server src/server/index.js",
     "lint": "eslint ."
   },
   "dependencies": {
