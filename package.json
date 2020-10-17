@@ -5,7 +5,8 @@
   "main": "src/server/index.js",
   "scripts": {
     "start": "nodemon --watch src/server src/server/index.js",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "jest --verbose"
   },
   "dependencies": {
     "express": "^4.17.1",
@@ -15,10 +16,14 @@
     "socket.io": "^2.3.0"
   },
   "devDependencies": {
+    "@babel/core": "^7.11.6",
+    "@babel/preset-env": "^7.11.5",
+    "babel-jest": "^26.5.2",
     "eslint": "^7.11.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-config-prettier": "^6.12.0",
     "eslint-plugin-import": "^2.22.1",
+    "jest": "^26.5.3",
     "prettier": "^2.1.2"
   },
   "type": "module",
@@ -31,5 +36,10 @@
   "bugs": {
     "url": "https://github.com/weizhongtan/drawful-clone/issues"
   },
-  "homepage": "https://github.com/weizhongtan/drawful-clone#readme"
+  "homepage": "https://github.com/weizhongtan/drawful-clone#readme",
+  "jest": {
+    "transform": {
+      "^.+\\.jsx?$": "babel-jest"
+    }
+  }
 }

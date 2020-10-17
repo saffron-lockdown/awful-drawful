@@ -11,6 +11,7 @@ const app = new Vue({
     name: '',
     roomId: '',
     prompt: '',
+    playerList: '',
   },
   methods: {
     joinRoom() {
@@ -25,6 +26,7 @@ const app = new Vue({
 bindSocket('set-prompt', 'prompt');
 bindSocket('set-name', 'name');
 bindSocket('set-room-id', 'roomId');
+bindSocket('set-player-list', 'playerList');
 
 socket.on('update-feed', (data) => {
   console.log({ data });

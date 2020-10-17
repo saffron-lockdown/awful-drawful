@@ -1,6 +1,6 @@
 import { createServer } from 'http';
 import express from 'express';
-import { getPrompt } from './prompt.js';
+import { Game, getPrompt } from './game.js';
 import serveStatic from 'serve-static';
 import session from 'express-session';
 import sio from 'socket.io';
@@ -16,7 +16,7 @@ const sesh = session({
   cookie: { path: '/', httpOnly: true, secure: false, maxAge: null },
 });
 
-const users = {};
+const games = {};
 
 const wrap = (middleware) => (socket, next) =>
   middleware(socket.request, {}, next);
@@ -29,6 +29,11 @@ io.on('connect', (socket) => {
 
   const prompt = getPrompt();
   socket.emit('set-prompt', prompt);
+
+  // giving this another name so its seen in the console output
+  user.uuid = user.id;
+  user.socketId = socket.id;
+
   socket.emit('set-name', user.name || 'no name set');
 
   // reconnect to room
@@ -39,7 +44,6 @@ io.on('connect', (socket) => {
 
   socket.on('set-name', (name) => {
     user.name = name;
-    user.socketId = socket.id;
     user.save((err) => {
       if (err) {
         throw err;
@@ -57,6 +61,18 @@ io.on('connect', (socket) => {
       }
       socket.emit('set-room-id', user.roomId);
     });
+
+    // Create game if doesnt exist
+    if (!games[roomId]) {
+      games[roomId] = new Game(roomId, { [user.uuid]: user });
+    }
+
+    // add user if not in game
+    if (!(user.uuid in games[roomId].players)) {
+      games[roomId].players[user.uuid] = user;
+    }
+
+    socket.emit('set-player-list', games[roomId].playerNames());
   });
 
   socket.on('post-drawing', (drawing) => {
