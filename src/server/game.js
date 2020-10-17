@@ -5,12 +5,26 @@ export class Game {
     this.stage = 'draw'; // draw, caption, vote, standings, etc
   }
 
+  playerNames() {
+    var id;
+    var result = '';
+    for (id in this.players) {
+      result += this.players[id].name + ',\n';
+    }
+
+    return result;
+  }
+
   run() {}
 
   draw() {
-    // send prompt to all devices
-    for (player of this.players) {
-      player.prompt = getPrompt();
+    const prompts = getUniquePrompts(this.players.length);
+
+    var i;
+    for (i = 0; i < this.players.length; i++) {
+      console.log(
+        'sent prompt ' + prompts[i] + ' to player ' + this.players[i] // TODO
+      );
     }
   }
 }

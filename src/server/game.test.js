@@ -10,5 +10,10 @@ test('get-unique-prompts-returns-prompts', () => {
 });
 
 test('initialise-game', () => {
-  const game = new Game(101, ['tom', 'wei-zhong', 'lucas']);
+  const game = new Game(101, {
+    a: { name: 'tom' },
+    b: { name: 'wei-zhong' },
+    c: { name: 'lucas' },
+  });
+  expect(game.playerNames()).toBe('tom,\nwei-zhong,\nlucas,\n');
 });
