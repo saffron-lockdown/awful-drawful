@@ -27,11 +27,11 @@ io.use(wrap(sesh));
 io.on('connect', (socket) => {
   const { session: user } = socket.request;
 
+  //  const prompt = getPrompt();
+  //  socket.emit('set-prompt', prompt);
   // giving this another name so its seen in the console output
   user.uuid = user.id;
   user.socketId = socket.id;
-  //  const prompt = getPrompt();
-  //  socket.emit('set-prompt', prompt);
 
   socket.emit('set-name', user.name || 'no name set');
 

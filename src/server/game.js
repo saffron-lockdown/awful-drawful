@@ -15,8 +15,7 @@ export class Game {
     return result;
   }
 
-  run() {}
-
+  // In development - not used
   draw() {
     const prompts = getUniquePrompts(this.players.length);
 
@@ -29,6 +28,7 @@ export class Game {
   }
 }
 
+// Return a list of n unique prompts
 export function getUniquePrompts(nPrompts) {
   var prompts = [];
 
@@ -43,6 +43,7 @@ export function getUniquePrompts(nPrompts) {
   return prompts;
 }
 
+// Return a random prompt
 export function getPrompt() {
   var descriptions = ['man-eating', 'hairless', 'cardboard', 'vegan'];
   var nouns = ['bicycle', 'yoghurt', 'cloud', 'Harry Potter'];
