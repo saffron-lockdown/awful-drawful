@@ -22,7 +22,7 @@
       <section>
         <label for="gameId">Game ID:</label>
         <input name="gameId" v-model="gameId" class="editable-field" />
-        <button v-on:click="joinGame">Join game</button>
+        <button id="join-game-button" v-on:click="joinGame">Join game</button>
       </section>
       <section>
         <button v-on:click="createGame">Create game</button>
@@ -31,7 +31,7 @@
         <button v-on:click="leaveGame">Leave game</button>
       </section>
       <p>Random prompt: {{ prompt }}</p>
-      <p v:if="error">Error: {{ error }}</p>
+      <p id="error-display" v:if="error">Error: {{ error }}</p>
     </div>
 
     <div
