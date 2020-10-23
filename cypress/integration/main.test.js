@@ -3,6 +3,7 @@
 describe('Main', () => {
   beforeEach(() => {
     cy.visit('/');
+    cy.wait(500);
   });
 
   it('sets a default name', () => {
