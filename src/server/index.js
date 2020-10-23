@@ -38,11 +38,8 @@ io.on('connect', (socket) => {
 
     // If the player is in a game, update the list of players on everyones screen
     if (player.gameId) {
-      mgr.messageGame(
-        player.gameId,
-        'set-player-list',
-        mgr.listPlayersInGame(player.gameId)
-      );
+      const game = mgr.games[player.gameId];
+      game.emit('set-player-list', game.listPlayersInGame(player.gameId));
     }
   });
 
@@ -57,12 +54,12 @@ io.on('connect', (socket) => {
     const game = mgr.getOrCreateGame(gameId);
 
     // Add user if not in game
-    if (!game.players.includes(player.id)) {
-      game.addPlayer(player.id);
+    if (!game.players[player.id]) {
+      game.addPlayer(player);
     }
 
     // Update list of player names
-    mgr.messageGame(gameId, 'set-player-list', mgr.listPlayersInGame(gameId));
+    game.emit('set-player-list', game.listPlayersInGame());
   });
 
   socket.on('post-drawing', (drawing) => {

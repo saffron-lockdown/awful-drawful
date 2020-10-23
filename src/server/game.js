@@ -58,8 +58,24 @@ export class Game {
     this.gameplan = gameplan(this.players, this.nRounds); // TODO this needs to be done once game is started, not while players are joining
   }
 
-  addPlayer(id) {
-    this.players.push(id);
+  addPlayer(player) {
+    this.players.push(player);
+  }
+
+  // emit a message to all players in a game
+  emit(tag, message) {
+    this.players.forEach((player) => {
+      player.emit(tag, message);
+    });
+  }
+
+  // output a list of all the players in the specified game
+  listPlayersInGame() {
+    let playerList = '';
+    this.players.forEach((player) => {
+      playerList += `${player.name}, `;
+    });
+    return playerList;
   }
 
   draw() {
