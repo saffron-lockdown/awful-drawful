@@ -16,4 +16,6 @@ test('initialise-game', () => {
     c: { name: 'lucas' },
   });
   expect(game.playerNames()).toBe('tom,\nwei-zhong,\nlucas,\n');
+  expect(game.gameplan.length).toBe(game.nRounds);
+  expect(game.gameplan[0].length).toBe(3);
 });
