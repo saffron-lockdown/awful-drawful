@@ -16,22 +16,22 @@ export class Player {
     this.update();
   }
 
+  getGame() {
+    if (this.game) {
+      return this.game.id;
+    }
+    return undefined;
+  }
+
   joinGame(game) {
     this.game = game;
     this.update();
   }
 
   update() {
-    let gameId;
-    if (this.game) {
-      gameId = this.game.id;
-    } else {
-      gameId = undefined;
-    }
-
     this.emit('sync', {
       name: this.name,
-      gameId,
+      gameId: this.getGame(),
     });
   }
 
