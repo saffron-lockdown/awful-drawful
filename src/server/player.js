@@ -16,7 +16,7 @@ export class Player {
     this.update();
   }
 
-  getGame() {
+  getGameId() {
     if (this.game) {
       return this.game.id;
     }
@@ -31,7 +31,7 @@ export class Player {
   update() {
     this.emit('sync', {
       name: this.name,
-      gameId: this.getGame(),
+      gameId: this.getGameId(),
     });
   }
 
