@@ -58,7 +58,8 @@ describe('Main', () => {
   });
 
   it('sets name', () => {
-    cy.get('input[name=name]').clear().type('wz');
+    cy.get('input[name=name]').clear();
+    cy.get('input[name=name]').type('wz');
 
     cy.get('#set-name-button').click();
 
