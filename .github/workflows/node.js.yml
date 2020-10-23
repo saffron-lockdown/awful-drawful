@@ -35,4 +35,5 @@ jobs:
         with:
           browser: chrome
           headless: true
+          start: npm start
           spec: cypress/integration/main.test.js
