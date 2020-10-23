@@ -27,23 +27,16 @@ function gameplan(players, nRounds) {
 }
 
 export class Game {
-  constructor(roomId, players) {
-    this.roomId = roomId;
-    this.players = players;
+  constructor(gameId) {
+    this.gameId = gameId;
+    this.players = [];
     this.stage = 'draw'; // draw, caption, vote, standings, etc
     this.nRounds = 3;
-    this.gameplan = gameplan(this.players, this.nRounds);
+    this.gameplan = gameplan(this.players, this.nRounds); // TODO this needs to be done once game is started, not while players are joining
   }
 
-  // return player names as a string to display
-  playerNames() {
-    var id;
-    var result = '';
-    for (id in this.players) {
-      result += this.players[id].name + ',\n';
-    }
-
-    return result;
+  addPlayer(id) {
+    this.players.push(id);
   }
 
   draw(round) {
