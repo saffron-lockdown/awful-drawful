@@ -3,6 +3,9 @@
 describe('Main', () => {
   beforeEach(() => {
     cy.visit('/');
+
+    // wait for server to sync with client
+    // TODO: find a better way to do this
     cy.wait(500);
   });
 
