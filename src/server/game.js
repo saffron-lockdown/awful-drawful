@@ -74,6 +74,10 @@ export class Game {
     return this.players.map((player) => player.name).join(', ');
   }
 
+  update() {
+    this.emit('set-player-list', this.listPlayers());
+  }
+
   draw() {
     // TODO
     let i;

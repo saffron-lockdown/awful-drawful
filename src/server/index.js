@@ -18,6 +18,21 @@ const sesh = session({
 
 const mgr = new Manager();
 
+function addPlayerToGame(player, game) {
+  // Add player if not in game
+  if (!game.players.includes(player)) {
+    player.leaveGame();
+
+    // Record which game this player is in
+    player.joinGame(game);
+
+    // Add player reference in game
+    game.addPlayer(player);
+  }
+
+  game.emit('set-player-list', game.listPlayers());
+}
+
 const wrap = (middleware) => (socket, next) =>
   middleware(socket.request, {}, next);
 
@@ -33,7 +48,7 @@ io.on('connect', (socket) => {
 
   // If the player is in a game, update the list of players on everyones screen
   if (player.game) {
-    player.game.emit('set-player-list', player.game.listPlayers());
+    player.game.update();
   }
 
   socket.on('set-name', (name) => {
@@ -42,26 +57,28 @@ io.on('connect', (socket) => {
 
     // If the player is in a game, update the list of players on everyones screen
     if (player.game) {
-      player.game.emit('set-player-list', player.game.listPlayers());
+      player.game.update();
     }
   });
 
-  socket.on('join-room', (gameId) => {
-    // TODO: if player is already in game, then leave it
+  socket.on('create-game', () => {
+    const game = mgr.createGame();
 
-    // Create game if doesn't exist
-    const game = mgr.getOrCreateGame(gameId);
+    addPlayerToGame(player, game);
+  });
 
-    // Record which game this player is in
-    player.joinGame(game);
-
-    // Add user if not in game
-    if (!game.players.includes(player)) {
-      game.addPlayer(player);
+  socket.on('join-game', (gameId) => {
+    const game = mgr.getGame(gameId);
+    if (!game) {
+      player.setError('game does not exist');
+      return;
     }
 
-    // Update list of player names
-    game.emit('set-player-list', game.listPlayers());
+    addPlayerToGame(player, game);
+  });
+
+  socket.on('leave-game', () => {
+    player.leaveGame();
   });
 
   socket.on('post-drawing', (drawing) => {

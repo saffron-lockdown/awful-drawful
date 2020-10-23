@@ -28,6 +28,17 @@ export class Player {
     this.update();
   }
 
+  leaveGame() {
+    if (this.game) {
+      this.game = undefined;
+      this.update();
+    }
+  }
+
+  setError(err) {
+    this.emit('client-error', err);
+  }
+
   update() {
     this.emit('sync', {
       name: this.name,

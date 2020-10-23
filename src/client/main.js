@@ -2,15 +2,22 @@ const socket = io();
 
 const app = new Vue({
   el: '#app',
-  data: {
+  data: () => ({
     name: '',
     gameId: '',
     prompt: '',
     playerList: '',
-  },
+    error: null,
+  }),
   methods: {
-    joinRoom() {
-      socket.emit('join-room', this.gameId);
+    createGame() {
+      socket.emit('create-game');
+    },
+    joinGame() {
+      socket.emit('join-game', this.gameId);
+    },
+    leaveGame() {
+      socket.emit('leave-game');
     },
     setName() {
       socket.emit('set-name', this.name);
@@ -27,6 +34,11 @@ socket.on('sync', (data) => {
   app.name = data.name;
   app.gameId = data.gameId;
 });
+
+socket.on('client-error', (data) => {
+  app.error = data;
+});
+
 bindSocket('set-player-list', 'playerList');
 
 socket.on('update-feed', (data) => {

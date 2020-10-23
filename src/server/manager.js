@@ -1,5 +1,6 @@
 import { Game } from './game.js';
 import { Player } from './player.js';
+import { v4 as uuidv4 } from 'uuid';
 
 export class Manager {
   constructor() {
@@ -16,6 +17,21 @@ export class Manager {
     }
     const game = new Game(gameId);
     this.games[gameId] = game;
+    return game;
+  }
+
+  getGame(gameId) {
+    if (gameId in this.games) {
+      console.log(`getting existing game ${gameId}`);
+      return this.games[gameId];
+    }
+    return null;
+  }
+
+  createGame() {
+    const id = uuidv4().substring(0, 4);
+    const game = new Game(id);
+    this.games[id] = game;
     return game;
   }
 
