@@ -33,7 +33,7 @@ io.on('connect', (socket) => {
 
   // If the player is in a game, update the list of players on everyones screen
   if (player.game) {
-    player.game.emit('set-player-list', player.game.listPlayers());
+    player.game.update();
   }
 
   socket.on('set-name', (name) => {
@@ -42,7 +42,7 @@ io.on('connect', (socket) => {
 
     // If the player is in a game, update the list of players on everyones screen
     if (player.game) {
-      player.game.emit('set-player-list', player.game.listPlayers());
+      player.game.update();
     }
   });
 
