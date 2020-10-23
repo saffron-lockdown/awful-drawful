@@ -1,9 +1,4 @@
 const socket = io();
-const bindSocket = (event, prop) => {
-  socket.on(event, (data) => {
-    app[prop] = data;
-  });
-};
 
 const app = new Vue({
   el: '#app',
@@ -22,6 +17,11 @@ const app = new Vue({
     },
   },
 });
+const bindSocket = (event, prop) => {
+  socket.on(event, (data) => {
+    app[prop] = data;
+  });
+};
 
 bindSocket('set-prompt', 'prompt');
 bindSocket('set-name', 'name');
@@ -47,9 +47,9 @@ socket.on('update-feed', (data) => {
   canvas.loadFromJSON(data);
 });
 
-const canvas = (this.__canvas = new fabric.Canvas('c', {
+const canvas = new fabric.Canvas('c', {
   isDrawingMode: true,
-}));
+});
 canvas.freeDrawingBrush.width = 10;
 document.querySelector('#post').onclick = () => {
   const out = JSON.stringify(canvas);
