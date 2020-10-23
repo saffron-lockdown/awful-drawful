@@ -10,5 +10,5 @@ test('get-unique-prompts-returns-prompts', () => {
 });
 
 test('initialise-game', () => {
-  Game(101);
+  expect(new Game(101)).toBeInstanceOf(Game);
 });
