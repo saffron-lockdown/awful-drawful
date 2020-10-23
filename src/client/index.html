@@ -27,6 +27,9 @@
       <section>
         <button v-on:click="createGame">Create game</button>
       </section>
+      <section>
+        <button v-on:click="leaveGame">Leave game</button>
+      </section>
       <p>Random prompt: {{ prompt }}</p>
       <p v:if="error">Error: {{ error }}</p>
     </div>

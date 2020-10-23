@@ -77,6 +77,10 @@ io.on('connect', (socket) => {
     game.emit('set-player-list', game.listPlayers());
   });
 
+  socket.on('leave-game', () => {
+    player.leaveGame();
+  });
+
   socket.on('post-drawing', (drawing) => {
     player.game.emit('update-feed', drawing);
   });

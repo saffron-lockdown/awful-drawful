@@ -16,6 +16,9 @@ const app = new Vue({
     joinGame() {
       socket.emit('join-game', this.gameId);
     },
+    leaveGame() {
+      socket.emit('leave-game');
+    },
     setName() {
       socket.emit('set-name', this.name);
     },
