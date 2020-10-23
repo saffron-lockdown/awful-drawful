@@ -32,20 +32,18 @@ function gameplan(players, nRounds) {
   // Prompts are ensured to be unique over the whole game
   const prompts = getUniquePrompts(Object.keys(players).length * nRounds);
   const rounds = [];
-  let i;
-  for (i = 0; i < nRounds; i += 1) {
+
+  for (let i = 0; i < nRounds; i += 1) {
     const round = [];
 
-    var player;
-    for (player in players) {
+    players.forEach((player) => {
       round.push({
-        player: player,
+        player,
         prompt: prompts.pop(),
         image: '',
         captions: {}, // will be submitting_player: caption
       });
-    }
-
+    });
     rounds.push(round);
   }
   return rounds;
