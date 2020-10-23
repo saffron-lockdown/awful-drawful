@@ -1,4 +1,3 @@
-/* eslint-disable no-undef */
 import { Game, getPrompt, getUniquePrompts } from './game.js';
 
 test('get-prompt-returns-prompt', () => {

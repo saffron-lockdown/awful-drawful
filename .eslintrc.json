@@ -3,7 +3,8 @@
     "browser": true,
     "commonjs": true,
     "es2021": true,
-    "node": true
+    "node": true,
+    "jest/globals": true
   },
   "extends": ["airbnb-base", "prettier"],
   "parserOptions": {
@@ -13,5 +14,6 @@
     "import/prefer-default-export": "off",
     "import/extensions": "off",
     "no-console": "off"
-  }
+  },
+  "plugins": ["jest"]
 }
