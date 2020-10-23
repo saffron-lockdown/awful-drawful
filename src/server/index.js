@@ -46,11 +46,24 @@ io.on('connect', (socket) => {
     }
   });
 
-  socket.on('join-room', (gameId) => {
-    // TODO: if player is already in game, then leave it
+  socket.on('create-game', () => {
+    player.leaveGame();
 
-    // Create game if doesn't exist
-    const game = mgr.getOrCreateGame(gameId);
+    const game = mgr.createGame();
+
+    player.joinGame(game);
+    game.addPlayer(player);
+    game.emit('set-player-list', game.listPlayers());
+  });
+
+  socket.on('join-game', (gameId) => {
+    const game = mgr.getGame(gameId);
+    if (!game) {
+      player.setError('game does not exist');
+      return;
+    }
+
+    player.leaveGame();
 
     // Record which game this player is in
     player.joinGame(game);

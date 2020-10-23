@@ -21,6 +21,17 @@ export class Player {
     this.update();
   }
 
+  leaveGame() {
+    if (this.game) {
+      this.game = undefined;
+      this.update();
+    }
+  }
+
+  setError(err) {
+    this.emit('client_error', err);
+  }
+
   update() {
     let gameId;
     if (this.game) {
