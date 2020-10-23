@@ -2,6 +2,7 @@ export class Player {
   constructor(id) {
     this.id = id;
     this.socket = undefined;
+    this.game = null;
     this.name = 'No name set';
   }
 
@@ -15,15 +16,22 @@ export class Player {
     this.update();
   }
 
-  joinGame(gameId) {
-    this.gameId = gameId;
+  joinGame(game) {
+    this.game = game;
     this.update();
   }
 
   update() {
+    let gameId;
+    if (this.game) {
+      gameId = this.game.id;
+    } else {
+      gameId = undefined;
+    }
+
     this.emit('sync', {
       name: this.name,
-      gameId: this.gameId,
+      gameId,
     });
   }
 

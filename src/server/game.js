@@ -51,7 +51,7 @@ function gameplan(players, nRounds) {
 
 export class Game {
   constructor(gameId) {
-    this.gameId = gameId;
+    this.id = gameId;
     this.players = [];
     this.stage = 'draw'; // draw, caption, vote, standings, etc
     this.nRounds = 3;
@@ -70,7 +70,7 @@ export class Game {
   }
 
   // output a list of all the players in the specified game
-  listPlayersInGame() {
+  listPlayers() {
     let playerList = '';
     this.players.forEach((player) => {
       playerList += `${player.name}, `;

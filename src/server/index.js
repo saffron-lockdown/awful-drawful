@@ -32,12 +32,8 @@ io.on('connect', (socket) => {
   player.setSocket(socket);
 
   // If the player is in a game, update the list of players on everyones screen
-  if (player.gameId) {
-    mgr.messageGame(
-      player.gameId,
-      'set-player-list',
-      mgr.listPlayersInGame(player.gameId)
-    );
+  if (player.game) {
+    player.game.emit('set-player-list', player.game.listPlayers());
   }
 
   socket.on('set-name', (name) => {
@@ -45,32 +41,31 @@ io.on('connect', (socket) => {
     player.setName(name);
 
     // If the player is in a game, update the list of players on everyones screen
-    if (player.gameId) {
-      const game = mgr.games[player.gameId];
-      game.emit('set-player-list', game.listPlayersInGame(player.gameId));
+    if (player.game) {
+      player.game.emit('set-player-list', player.game.listPlayers());
     }
   });
 
   socket.on('join-room', (gameId) => {
     // TODO: if player is already in game, then leave it
 
-    // Record which game this player is in
-    player.joinGame(gameId);
-
     // Create game if doesn't exist
     const game = mgr.getOrCreateGame(gameId);
 
+    // Record which game this player is in
+    player.joinGame(game);
+
     // Add user if not in game
-    if (!game.players[player.id]) {
+    if (!game.players.includes(player)) {
       game.addPlayer(player);
     }
 
     // Update list of player names
-    game.emit('set-player-list', game.listPlayersInGame());
+    game.emit('set-player-list', game.listPlayers());
   });
 
   socket.on('post-drawing', (drawing) => {
-    mgr.messageGame(player.gameId, 'update-feed', drawing);
+    player.game.emit('update-feed', drawing);
   });
 });
 
