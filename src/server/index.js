@@ -1,9 +1,9 @@
 import { createServer } from 'http';
 import express from 'express';
-import { Game, getPrompt } from './game.js';
 import serveStatic from 'serve-static';
 import session from 'express-session';
 import sio from 'socket.io';
+import { Manager } from './manager.js';
 
 const app = express();
 const server = createServer(app);
@@ -16,7 +16,7 @@ const sesh = session({
   cookie: { path: '/', httpOnly: true, secure: false, maxAge: null },
 });
 
-const games = {};
+const mgr = new Manager();
 
 const wrap = (middleware) => (socket, next) =>
   middleware(socket.request, {}, next);
@@ -26,57 +26,47 @@ io.use(wrap(sesh));
 
 io.on('connect', (socket) => {
   const { session: user } = socket.request;
+  console.log(`User ${user.id.substring(1, 6)}... connected`);
 
-  const prompt = getPrompt();
-  socket.emit('set-prompt', prompt);
-
-  // giving this another name so its seen in the console output
-  user.uuid = user.id;
-  user.socketId = socket.id;
-
-  socket.emit('set-name', user.name || 'no name set');
-
-  // reconnect to room
-  if (user.roomId) {
-    socket.join(user.roomId);
-    socket.emit('set-room-id', user.roomId);
-  }
+  const player = mgr.getOrCreatePlayer(user.id);
+  player.socket = socket;
 
   socket.on('set-name', (name) => {
-    user.name = name;
-    user.save((err) => {
-      if (err) {
-        throw err;
-      }
-      socket.emit('set-name', socket.request.session.name);
-    });
+    console.log(`nice name - ${name}`);
+    player.name = name;
+    player.update();
+
+    // If the player is in a game, update the list of players on everyones screen
+    if (player.gameId) {
+      mgr.messageGame(
+        player.gameId,
+        'set-player-list',
+        mgr.listPlayersInGame(player.gameId)
+      );
+    }
   });
 
-  socket.on('join-room', (roomId) => {
-    socket.join(roomId);
-    user.roomId = roomId;
-    user.save((err) => {
-      if (err) {
-        throw err;
-      }
-      socket.emit('set-room-id', user.roomId);
-    });
+  socket.on('join-room', (gameId) => {
+    // TODO: if player is already in game, then leave it
 
-    // Create game if doesnt exist
-    if (!games[roomId]) {
-      games[roomId] = new Game(roomId, { [user.uuid]: user });
+    // Record which game this player is in
+    player.gameId = gameId;
+    player.update();
+
+    // Create game if doesn't exist
+    const game = mgr.getOrCreateGame(gameId);
+
+    // Add user if not in game
+    if (!game.players.includes(player.id)) {
+      game.addPlayer(player.id);
     }
 
-    // add user if not in game
-    if (!(user.uuid in games[roomId].players)) {
-      games[roomId].players[user.uuid] = user;
-    }
-
-    socket.emit('set-player-list', games[roomId].playerNames());
+    // Update list of player names
+    mgr.messageGame(gameId, 'set-player-list', mgr.listPlayersInGame(gameId));
   });
 
   socket.on('post-drawing', (drawing) => {
-    io.to(user.roomId).emit('update-feed', drawing);
+    mgr.messageGame(player.gameId, 'update-feed', drawing);
   });
 });
 
