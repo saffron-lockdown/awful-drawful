@@ -36,7 +36,7 @@ export class Player {
   }
 
   setError(err) {
-    this.emit('client_error', err);
+    this.emit('client-error', err);
   }
 
   update() {

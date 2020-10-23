@@ -35,7 +35,7 @@ socket.on('sync', (data) => {
   app.gameId = data.gameId;
 });
 
-socket.on('client_error', (data) => {
+socket.on('client-error', (data) => {
   app.error = data;
 });
 
