@@ -18,6 +18,21 @@ const sesh = session({
 
 const mgr = new Manager();
 
+function addPlayerToGame(player, game) {
+  // Add player if not in game
+  if (!game.players.includes(player)) {
+    player.leaveGame();
+
+    // Record which game this player is in
+    player.joinGame(game);
+
+    // Add player reference in game
+    game.addPlayer(player);
+  }
+
+  game.emit('set-player-list', game.listPlayers());
+}
+
 const wrap = (middleware) => (socket, next) =>
   middleware(socket.request, {}, next);
 
@@ -47,13 +62,9 @@ io.on('connect', (socket) => {
   });
 
   socket.on('create-game', () => {
-    player.leaveGame();
-
     const game = mgr.createGame();
 
-    player.joinGame(game);
-    game.addPlayer(player);
-    game.emit('set-player-list', game.listPlayers());
+    addPlayerToGame(player, game);
   });
 
   socket.on('join-game', (gameId) => {
@@ -63,18 +74,7 @@ io.on('connect', (socket) => {
       return;
     }
 
-    player.leaveGame();
-
-    // Record which game this player is in
-    player.joinGame(game);
-
-    // Add user if not in game
-    if (!game.players.includes(player)) {
-      game.addPlayer(player);
-    }
-
-    // Update list of player names
-    game.emit('set-player-list', game.listPlayers());
+    addPlayerToGame(player, game);
   });
 
   socket.on('leave-game', () => {
