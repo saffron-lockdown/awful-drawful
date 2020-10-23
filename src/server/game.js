@@ -1,10 +1,41 @@
+// return a plan of the game based on the number
+// of rounds and players.
+// each round has one object per player. The object contains
+// the player id, prompt, and spaces for the image and captions.
+function gameplan(players, nRounds) {
+  // Prompts are ensured to be unique over the whole game
+  var prompts = getUniquePrompts(Object.keys(players).length * nRounds);
+
+  var rounds = [];
+  var i;
+  for (i = 0; i < nRounds; i++) {
+    var round = [];
+    var player;
+
+    for (player in players) {
+      round.push({
+        player: player,
+        prompt: prompts.pop(),
+        image: '',
+        captions: {}, // will be submitting_player: caption
+      });
+    }
+
+    rounds.push(round);
+  }
+  return rounds;
+}
+
 export class Game {
   constructor(roomId, players) {
     this.roomId = roomId;
     this.players = players;
     this.stage = 'draw'; // draw, caption, vote, standings, etc
+    this.nRounds = 3;
+    this.gameplan = gameplan(this.players, this.nRounds);
   }
 
+  // return player names as a string to display
   playerNames() {
     var id;
     var result = '';
@@ -15,10 +46,7 @@ export class Game {
     return result;
   }
 
-  // In development - not used
-  draw() {
-    const prompts = getUniquePrompts(this.players.length);
-
+  draw(round) {
     var i;
     for (i = 0; i < this.players.length; i++) {
       console.log(
