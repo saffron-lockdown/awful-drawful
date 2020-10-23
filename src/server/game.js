@@ -1,17 +1,42 @@
+function randomChoice(arr) {
+  return arr[Math.floor(arr.length * Math.random())];
+}
+
+// Return a random prompt
+export function getPrompt() {
+  const descriptions = ['man-eating', 'hairless', 'cardboard', 'vegan'];
+  const nouns = ['bicycle', 'yoghurt', 'cloud', 'Harry Potter'];
+  return `${randomChoice(descriptions)} ${randomChoice(nouns)}`;
+}
+
+// Return a list of n unique prompts
+export function getUniquePrompts(nPrompts) {
+  const prompts = [];
+
+  while (prompts.length < nPrompts) {
+    const newPrompt = getPrompt();
+
+    if (!prompts.includes(newPrompt)) {
+      prompts.push(newPrompt);
+    }
+  }
+
+  return prompts;
+}
+
 // return a plan of the game based on the number
 // of rounds and players.
 // each round has one object per player. The object contains
 // the player id, prompt, and spaces for the image and captions.
 function gameplan(players, nRounds) {
   // Prompts are ensured to be unique over the whole game
-  var prompts = getUniquePrompts(Object.keys(players).length * nRounds);
+  const prompts = getUniquePrompts(Object.keys(players).length * nRounds);
+  const rounds = [];
+  let i;
+  for (i = 0; i < nRounds; i += 1) {
+    const round = [];
 
-  var rounds = [];
-  var i;
-  for (i = 0; i < nRounds; i++) {
-    var round = [];
     var player;
-
     for (player in players) {
       round.push({
         player: player,
@@ -39,38 +64,13 @@ export class Game {
     this.players.push(id);
   }
 
-  draw(round) {
-    var i;
-    for (i = 0; i < this.players.length; i++) {
+  draw() {
+    // TODO
+    let i;
+    for (i = 0; i < this.players.length; i += 1) {
       console.log(
-        'sent prompt ' + prompts[i] + ' to player ' + this.players[i] // TODO
+        `sent prompt to player ${this.players[i]}` // TODO
       );
     }
   }
-}
-
-// Return a list of n unique prompts
-export function getUniquePrompts(nPrompts) {
-  var prompts = [];
-
-  while (prompts.length < nPrompts) {
-    const newPrompt = getPrompt();
-
-    if (!prompts.includes(newPrompt)) {
-      prompts.push(newPrompt);
-    }
-  }
-
-  return prompts;
-}
-
-// Return a random prompt
-export function getPrompt() {
-  var descriptions = ['man-eating', 'hairless', 'cardboard', 'vegan'];
-  var nouns = ['bicycle', 'yoghurt', 'cloud', 'Harry Potter'];
-  return randomChoice(descriptions) + ' ' + randomChoice(nouns);
-}
-
-function randomChoice(arr) {
-  return arr[Math.floor(arr.length * Math.random())];
 }
