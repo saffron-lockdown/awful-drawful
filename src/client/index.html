@@ -12,7 +12,7 @@
   </head>
   <body>
     <div id="app">
-      <h1>Room ID: {{ roomId }}</h1>
+      <h1>Game ID: {{ gameId }}</h1>
       <h2>Players: {{playerList}}</h2>
       <section>
         <label for="name">Name:</label>
@@ -20,8 +20,8 @@
         <button v-on:click="setName">Set name</button>
       </section>
       <section>
-        <label for="roomId">Room ID:</label>
-        <input name="roomId" v-model="roomId" class="editable-field" />
+        <label for="gameId">Game ID:</label>
+        <input name="gameId" v-model="gameId" class="editable-field" />
         <button v-on:click="joinRoom">Join room</button>
       </section>
       <p>Random prompt: {{ prompt }}</p>
