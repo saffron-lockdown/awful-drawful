@@ -39,11 +39,17 @@ export class Player {
     this.emit('client-error', err);
   }
 
+  // Update everything about the player on the client side
   update() {
     this.emit('sync', {
       name: this.name,
       gameId: this.getGameId(),
     });
+
+    // Update everything about the game
+    if (this.game) {
+      this.game.update();
+    }
   }
 
   emit(tag, message) {

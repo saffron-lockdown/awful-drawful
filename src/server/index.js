@@ -23,7 +23,7 @@ function addPlayerToGame(player, game) {
   if (!game.players.includes(player)) {
     player.leaveGame();
 
-    // Record which game this player is in
+    // Add game reference to player
     player.joinGame(game);
 
     // Add player reference in game
@@ -46,19 +46,9 @@ io.on('connect', (socket) => {
   const player = mgr.getOrCreatePlayer(user.id);
   player.setSocket(socket);
 
-  // If the player is in a game, update the list of players on everyones screen
-  if (player.game) {
-    player.game.update();
-  }
-
   socket.on('set-name', (name) => {
     console.log(`nice name - ${name}`);
     player.setName(name);
-
-    // If the player is in a game, update the list of players on everyones screen
-    if (player.game) {
-      player.game.update();
-    }
   });
 
   socket.on('create-game', () => {
@@ -81,8 +71,12 @@ io.on('connect', (socket) => {
     player.leaveGame();
   });
 
+  socket.on('start-game', () => {
+    player.game.start();
+  });
+
   socket.on('post-drawing', (drawing) => {
-    player.game.emit('update-feed', drawing);
+    player.game.postDrawing(player, drawing);
   });
 });
 

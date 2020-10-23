@@ -30,6 +30,9 @@
       <section>
         <button v-on:click="leaveGame">Leave game</button>
       </section>
+      <section>
+        <button v-on:click="startGame">Everybody's in!</button>
+      </section>
       <p>Random prompt: {{ prompt }}</p>
       <p v:if="error">Error: {{ error }}</p>
     </div>

@@ -22,6 +22,9 @@ const app = new Vue({
     setName() {
       socket.emit('set-name', this.name);
     },
+    startGame() {
+      socket.emit('start-game');
+    },
   },
 });
 const bindSocket = (event, prop) => {
@@ -40,6 +43,7 @@ socket.on('client-error', (data) => {
 });
 
 bindSocket('set-player-list', 'playerList');
+bindSocket('set-prompt', 'prompt');
 
 socket.on('update-feed', (data) => {
   console.log({ data });

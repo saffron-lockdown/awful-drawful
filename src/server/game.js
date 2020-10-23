@@ -34,15 +34,15 @@ function gameplan(players, nRounds) {
   const rounds = [];
 
   for (let i = 0; i < nRounds; i += 1) {
-    const round = [];
+    const round = {};
 
     players.forEach((player) => {
-      round.push({
+      round[player.id] = {
         player,
         prompt: prompts.pop(),
-        image: '',
+        drawing: '',
         captions: {}, // will be submitting_player: caption
-      });
+      };
     });
     rounds.push(round);
   }
@@ -53,9 +53,9 @@ export class Game {
   constructor(id) {
     this.id = id;
     this.players = [];
-    this.stage = 'draw'; // draw, caption, vote, standings, etc
+    this.roundNum = 0;
+    this.stageNum = 0; // 0: prompt
     this.nRounds = 3;
-    this.gameplan = gameplan(this.players, this.nRounds); // TODO this needs to be done once game is started, not while players are joining
   }
 
   addPlayer(player) {
@@ -78,13 +78,19 @@ export class Game {
     this.emit('set-player-list', this.listPlayers());
   }
 
-  draw() {
-    // TODO
-    let i;
-    for (i = 0; i < this.players.length; i += 1) {
-      console.log(
-        `sent prompt to player ${this.players[i]}` // TODO
-      );
-    }
+  start() {
+    this.gameplan = gameplan(this.players, this.nRounds);
+    console.log(this.gameplan);
+
+    const round = this.gameplan[this.roundNum];
+
+    Object.values(round).forEach((element) => {
+      element.player.emit('set-prompt', element.prompt);
+    });
+  }
+
+  postDrawing(player, drawing) {
+    const round = this.gameplan[this.roundNum];
+    round[player.id].drawing = drawing;
   }
 }
