@@ -1,9 +1,9 @@
+import { Manager } from './manager.js';
 import { createServer } from 'http';
 import express from 'express';
 import serveStatic from 'serve-static';
 import session from 'express-session';
 import sio from 'socket.io';
-import { Manager } from './manager.js';
 
 const app = express();
 const server = createServer(app);
@@ -29,12 +29,20 @@ io.on('connect', (socket) => {
   console.log(`User ${user.id.substring(1, 6)}... connected`);
 
   const player = mgr.getOrCreatePlayer(user.id);
-  player.socket = socket;
+  player.setSocket(socket);
+
+  // If the player is in a game, update the list of players on everyones screen
+  if (player.gameId) {
+    mgr.messageGame(
+      player.gameId,
+      'set-player-list',
+      mgr.listPlayersInGame(player.gameId)
+    );
+  }
 
   socket.on('set-name', (name) => {
     console.log(`nice name - ${name}`);
-    player.name = name;
-    player.update();
+    player.setName(name);
 
     // If the player is in a game, update the list of players on everyones screen
     if (player.gameId) {
@@ -50,8 +58,7 @@ io.on('connect', (socket) => {
     // TODO: if player is already in game, then leave it
 
     // Record which game this player is in
-    player.gameId = gameId;
-    player.update();
+    player.joinGame(gameId);
 
     // Create game if doesn't exist
     const game = mgr.getOrCreateGame(gameId);

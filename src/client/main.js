@@ -4,13 +4,13 @@ const app = new Vue({
   el: '#app',
   data: {
     name: '',
-    roomId: '',
+    gameId: '',
     prompt: '',
     playerList: '',
   },
   methods: {
     joinRoom() {
-      socket.emit('join-room', this.roomId);
+      socket.emit('join-room', this.gameId);
     },
     setName() {
       socket.emit('set-name', this.name);
@@ -23,9 +23,10 @@ const bindSocket = (event, prop) => {
   });
 };
 
-bindSocket('set-prompt', 'prompt');
-bindSocket('set-name', 'name');
-bindSocket('set-room-id', 'roomId');
+socket.on('sync', (data) => {
+  app.name = data.name;
+  app.gameId = data.gameId;
+});
 bindSocket('set-player-list', 'playerList');
 
 socket.on('update-feed', (data) => {
