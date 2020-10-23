@@ -31,22 +31,4 @@ export class Manager {
     this.players[id] = player;
     return player;
   }
-
-  // emit a message to all players in a game
-  messageGame(gameId, tag, message) {
-    const game = this.games[gameId];
-
-    game.players.forEach((playerId) => {
-      this.players[playerId].emit(tag, message);
-    });
-  }
-
-  // output a list of all the players in the specified game
-  listPlayersInGame(gameId) {
-    let playerList = '';
-    this.games[gameId].players.forEach((element) => {
-      playerList += `${this.players[element].name}, `;
-    });
-    return playerList;
-  }
 }
