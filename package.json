@@ -6,7 +6,7 @@
   "scripts": {
     "start": "nodemon -r esm --watch src/server src/server/index.js",
     "lint": "eslint .",
-    "test": "jest --verbose",
+    "test": "jest --verbose src",
     "test:integration": "cypress open"
   },
   "dependencies": {
