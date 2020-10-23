@@ -12,12 +12,12 @@
   </head>
   <body>
     <div id="app">
-      <h1>Game ID: {{ gameId }}</h1>
-      <h2>Players: {{playerList}}</h2>
+      <h1 id="game-id-display">Game ID: {{ gameId }}</h1>
+      <h2 id="player-list-display">Players: {{playerList}}</h2>
       <section>
         <label for="name">Name:</label>
         <input name="name" v-model="name" class="editable-field" />
-        <button v-on:click="setName">Set name</button>
+        <button id="set-name-button" v-on:click="setName">Set name</button>
       </section>
       <section>
         <label for="gameId">Game ID:</label>
@@ -25,10 +25,14 @@
         <button id="join-game-button" v-on:click="joinGame">Join game</button>
       </section>
       <section>
-        <button v-on:click="createGame">Create game</button>
+        <button id="create-game-button" v-on:click="createGame">
+          Create game
+        </button>
       </section>
       <section>
-        <button v-on:click="leaveGame">Leave game</button>
+        <button id="leave-game-button" v-on:click="leaveGame">
+          Leave game
+        </button>
       </section>
       <p>Random prompt: {{ prompt }}</p>
       <p id="error-display" v:if="error">Error: {{ error }}</p>
