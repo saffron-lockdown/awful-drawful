@@ -53,8 +53,8 @@ export class Game {
   constructor(id) {
     this.id = id;
     this.players = [];
-    this.roundNum = 0;
-    this.stageNum = 0; // 0: prompt
+    this.roundNum = 0; // defines which round is currently being played
+    this.captionRoundNum = 0; // defines which drawing is currently being captioned/voted on
     this.nRounds = 3;
   }
 
@@ -81,9 +81,12 @@ export class Game {
   start() {
     this.gameplan = gameplan(this.players, this.nRounds);
     console.log(this.gameplan);
+    this.startDrawingPhase();
+  }
 
+  startDrawingPhase() {
+    // send each player their prompt
     const round = this.gameplan[this.roundNum];
-
     Object.values(round).forEach((element) => {
       element.player.emit('set-prompt', element.prompt);
     });
@@ -92,5 +95,30 @@ export class Game {
   postDrawing(player, drawing) {
     const round = this.gameplan[this.roundNum];
     round[player.id].drawing = drawing;
+
+    console.log(`wow ${player.id.substring(1, 6)}, thats beautiful!`);
+    if (this.allDrawingsIn()) {
+      console.log('all the artwork has been collected');
+      this.startCaptioningPhase();
+    }
+  }
+
+  allDrawingsIn() {
+    const round = this.gameplan[this.roundNum];
+
+    return Object.values(round).every((element) => {
+      return element.drawing !== '';
+    });
+  }
+
+  startCaptioningPhase() {
+    console.log('Time to caption these masterpieces!');
+
+    const round = this.gameplan[this.roundNum];
+    const submittingPlayer = Object.keys(round)[this.captionRoundNum];
+    const element = round[submittingPlayer];
+
+    this.emit('update-feed', element.drawing);
+    this.captionRoundNum += 1;
   }
 }
