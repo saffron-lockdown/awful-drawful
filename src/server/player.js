@@ -1,9 +1,12 @@
+import { createLogger } from './logger';
+
 export class Player {
   constructor(id) {
     this.id = id;
     this.socket = undefined;
     this.game = null;
     this.name = 'No name set';
+    this.log = createLogger(this.id);
   }
 
   setSocket(socket) {
@@ -54,9 +57,7 @@ export class Player {
 
   emit(tag, message) {
     this.socket.emit(tag, message);
-    console.log(
-      `sending player ${this.id.substring(1, 6)} the message ${tag}:`
-    );
-    console.log(message);
+    this.log(`sending player ${this.id.substring(1, 6)} the message ${tag}:`);
+    this.log(message);
   }
 }

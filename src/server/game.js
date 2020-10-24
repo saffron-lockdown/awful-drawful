@@ -1,3 +1,5 @@
+import { createLogger } from './logger';
+
 function randomChoice(arr) {
   return arr[Math.floor(arr.length * Math.random())];
 }
@@ -56,6 +58,7 @@ export class Game {
     this.roundNum = 0; // defines which round is currently being played
     this.captionRoundNum = 0; // defines which drawing is currently being captioned/voted on
     this.nRounds = 3;
+    this.log = createLogger(this.id);
   }
 
   addPlayer(player) {
