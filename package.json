@@ -4,18 +4,20 @@
   "description": "Clone of Drawful",
   "main": "src/server/index.js",
   "scripts": {
-    "start": "nodemon -r esm --watch src/server src/server/index.js",
+    "start": "DEBUG=app* nodemon -r esm --watch src/server src/server/index.js",
     "lint": "eslint .",
     "test": "jest --verbose src",
     "test:integration": "cypress open"
   },
   "dependencies": {
+    "debug": "^4.2.0",
     "esm": "^3.2.25",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "nodemon": "^2.0.4",
     "serve-static": "^1.14.1",
     "socket.io": "^2.3.0",
+    "source-map-support": "^0.5.19",
     "uuid": "^8.3.1"
   },
   "devDependencies": {

@@ -1,3 +1,5 @@
+import { createLogger } from './logger';
+
 function randomChoice(arr) {
   return arr[Math.floor(arr.length * Math.random())];
 }
@@ -56,6 +58,7 @@ export class Game {
     this.stage = 'draw'; // draw, caption, vote, standings, etc
     this.nRounds = 3;
     this.gameplan = gameplan(this.players, this.nRounds); // TODO this needs to be done once game is started, not while players are joining
+    this.log = createLogger(this.id);
   }
 
   addPlayer(player) {
@@ -82,7 +85,7 @@ export class Game {
     // TODO
     let i;
     for (i = 0; i < this.players.length; i += 1) {
-      console.log(
+      this.log(
         `sent prompt to player ${this.players[i]}` // TODO
       );
     }

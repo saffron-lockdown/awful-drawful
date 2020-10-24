@@ -1,18 +1,20 @@
 import { Game } from './game.js';
 import { Player } from './player.js';
+import { createLogger } from './logger';
 import { v4 as uuidv4 } from 'uuid';
 
 export class Manager {
   constructor() {
     this.games = {}; // id to game object dictionary (games have references to player ids)
     this.players = {}; // id to player object dictionary
+    this.log = createLogger();
   }
 
   // given an id, return the game object if it exists in the manager
   // otherwise create/store a new game object and return that
   getOrCreateGame(gameId) {
     if (gameId in this.games) {
-      console.log(`getting existing game ${gameId}`);
+      this.log(`getting existing game ${gameId}`);
       return this.games[gameId];
     }
     const game = new Game(gameId);
@@ -22,7 +24,7 @@ export class Manager {
 
   getGame(gameId) {
     if (gameId in this.games) {
-      console.log(`getting existing game ${gameId}`);
+      this.log(`getting existing game ${gameId}`);
       return this.games[gameId];
     }
     return null;
@@ -39,10 +41,10 @@ export class Manager {
   // otherwise create/store a new player object and return that
   getOrCreatePlayer(id) {
     if (id in this.players) {
-      console.log('seen you before');
+      this.log('seen you before');
       return this.players[id];
     }
-    console.log('hello noob');
+    this.log('hello noob');
     const player = new Player(id);
     this.players[id] = player;
     return player;
