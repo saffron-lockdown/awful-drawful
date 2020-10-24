@@ -10,5 +10,9 @@ test('get-unique-prompts-returns-prompts', () => {
 });
 
 test('initialise-game', () => {
-  expect(new Game(101)).toBeInstanceOf(Game);
+  const game = new Game(101);
+  game.addPlayer({ name: 'tom' });
+  game.addPlayer({ name: 'wz' });
+
+  expect(game.listPlayers()).toBe('tom, wz');
 });
