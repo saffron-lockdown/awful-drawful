@@ -4,7 +4,7 @@
   "description": "Clone of Drawful",
   "main": "src/server/index.js",
   "scripts": {
-    "start": "nodemon -r esm --watch src/server src/server/index.js",
+    "start": "DEBUG=app* nodemon -r esm --watch src/server src/server/index.js",
     "lint": "eslint .",
     "test": "jest --verbose src",
     "test:integration": "cypress open"
