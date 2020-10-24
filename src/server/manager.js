@@ -10,18 +10,6 @@ export class Manager {
     this.log = createLogger();
   }
 
-  // given an id, return the game object if it exists in the manager
-  // otherwise create/store a new game object and return that
-  getOrCreateGame(gameId) {
-    if (gameId in this.games) {
-      this.log(`getting existing game ${gameId}`);
-      return this.games[gameId];
-    }
-    const game = new Game(gameId);
-    this.games[gameId] = game;
-    return game;
-  }
-
   getGame(gameId) {
     if (gameId in this.games) {
       this.log(`getting existing game ${gameId}`);
@@ -34,6 +22,7 @@ export class Manager {
     const id = uuidv4().substring(0, 4);
     const game = new Game(id);
     this.games[id] = game;
+    this.log(`created game with id: ${id}`);
     return game;
   }
 

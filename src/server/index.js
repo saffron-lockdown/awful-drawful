@@ -26,12 +26,7 @@ function addPlayerToGame(player, game) {
 
     // Add game reference to player
     player.joinGame(game);
-
-    // Add player reference in game
-    game.addPlayer(player);
   }
-
-  game.emit('set-player-list', game.listPlayers());
 }
 
 const wrap = (middleware) => (socket, next) =>

@@ -38,7 +38,7 @@
         <button v-on:click="startGame">Everybody's in!</button>
       </section>
       <p>Random prompt: {{ prompt }}</p>
-      <p id="error-display" v:if="error">Error: {{ error }}</p>
+      <p id="error-display" v:if="errorMessage">Error: {{ errorMessage }}</p>
     </div>
 
     <div
