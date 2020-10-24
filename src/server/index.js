@@ -1,4 +1,5 @@
 import { Manager } from './manager.js';
+import { createLogger } from './logger';
 import { createServer } from 'http';
 import express from 'express';
 import serveStatic from 'serve-static';
@@ -41,7 +42,8 @@ io.use(wrap(sesh));
 
 io.on('connect', (socket) => {
   const { session: user } = socket.request;
-  console.log(`User ${user.id.substring(1, 6)}... connected`);
+  const log = createLogger(user.id);
+  log('User connected');
 
   const player = mgr.getOrCreatePlayer(user.id);
   player.setSocket(socket);
@@ -52,7 +54,7 @@ io.on('connect', (socket) => {
   }
 
   socket.on('set-name', (name) => {
-    console.log(`nice name - ${name}`);
+    log(`nice name - ${name}`);
     player.setName(name);
 
     // If the player is in a game, update the list of players on everyones screen
@@ -88,6 +90,8 @@ io.on('connect', (socket) => {
 
 app.use(serveStatic('src/client/'));
 
+const log = createLogger();
+
 server.listen(3000, () => {
-  console.log('listening on http://localhost:3000');
+  log('listening on http://localhost:3000');
 });
