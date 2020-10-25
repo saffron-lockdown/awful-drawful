@@ -6,7 +6,9 @@
   "scripts": {
     "start": "DEBUG=app* nodemon -r esm --watch src/server src/server/index.js",
     "lint": "eslint .",
-    "test": "jest --verbose src",
+    "test": "npm run test:unit",
+    "test:unit": "jest --verbose src",
+    "test:unit:watch": "npm run test:unit -- --watch",
     "test:integration": "cypress open"
   },
   "dependencies": {

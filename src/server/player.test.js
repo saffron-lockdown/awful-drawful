@@ -7,7 +7,11 @@ test('should send message to socket', () => {
   };
   player.setSocket(mockSocket);
   expect(mockSocket.emit).toHaveBeenCalledWith('sync', {
-    gameId: undefined,
     name: 'No name set',
+    errorMessage: null,
+    prompt: null,
+    viewDrawing: null,
+    gameId: undefined,
+    playerList: null,
   });
 });
