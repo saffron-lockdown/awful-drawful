@@ -30,7 +30,7 @@ export function getUniquePrompts(nPrompts) {
 // of rounds and players.
 // each round has one object per player. The object contains
 // the player id, prompt, and spaces for the image and captions.
-function gameplan(players, nRounds) {
+export function gameplan(players, nRounds) {
   // Prompts are ensured to be unique over the whole game
   const prompts = getUniquePrompts(Object.keys(players).length * nRounds);
   const rounds = [];
@@ -82,6 +82,21 @@ export class Game {
     Object.values(round).forEach(({ player, prompt }) => {
       player.setPrompt(prompt);
     });
+
+    // start a 30 second timer
+    let time = 30;
+    this.timer = setInterval(() => {
+      time -= 1;
+
+      this.players.forEach((player) => {
+        player.setPrompt(time);
+      });
+
+      if (time === 0) {
+        clearInterval(this.timer);
+        this.startCaptioningPhase();
+      }
+    }, 1000);
   }
 
   postDrawing(player, drawing) {
@@ -89,8 +104,10 @@ export class Game {
     round[player.id].drawing = drawing;
 
     this.log(`wow ${player.id.substring(1, 6)}, thats beautiful!`);
+
     if (this.allDrawingsIn()) {
       this.log('all the artwork has been collected');
+      clearInterval(this.timer);
       this.startCaptioningPhase();
     }
   }
