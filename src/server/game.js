@@ -65,33 +65,22 @@ export class Game {
     this.players.push(player);
   }
 
-  // emit a message to all players in a game
-  emit(tag, message) {
-    this.players.forEach((player) => {
-      player.emit(tag, message);
-    });
-  }
-
   // output a list of all the players in the specified game
   listPlayers() {
-    return this.players.map((player) => player.name).join(', ');
-  }
-
-  update() {
-    this.emit('set-player-list', this.listPlayers());
+    return this.players.map((player) => player.getName()).join(', ');
   }
 
   start() {
     this.gameplan = gameplan(this.players, this.nRounds);
-    console.log(this.gameplan);
+    this.log(this.gameplan);
     this.startDrawingPhase();
   }
 
   startDrawingPhase() {
     // send each player their prompt
     const round = this.gameplan[this.roundNum];
-    Object.values(round).forEach((element) => {
-      element.player.emit('set-prompt', element.prompt);
+    Object.values(round).forEach(({ player, prompt }) => {
+      player.setPrompt(prompt);
     });
   }
 
@@ -99,9 +88,9 @@ export class Game {
     const round = this.gameplan[this.roundNum];
     round[player.id].drawing = drawing;
 
-    console.log(`wow ${player.id.substring(1, 6)}, thats beautiful!`);
+    this.log(`wow ${player.id.substring(1, 6)}, thats beautiful!`);
     if (this.allDrawingsIn()) {
-      console.log('all the artwork has been collected');
+      this.log('all the artwork has been collected');
       this.startCaptioningPhase();
     }
   }
@@ -115,13 +104,23 @@ export class Game {
   }
 
   startCaptioningPhase() {
-    console.log('Time to caption these masterpieces!');
+    this.log('Time to caption these masterpieces!');
 
     const round = this.gameplan[this.roundNum];
     const submittingPlayer = Object.keys(round)[this.captionRoundNum];
     const element = round[submittingPlayer];
 
-    this.emit('update-feed', element.drawing);
+    this.players.forEach((player) => {
+      player.setViewDrawing(element.drawing);
+    });
     this.captionRoundNum += 1;
+  }
+
+  // syncs players state for all players in the game
+  sync() {
+    this.log('syncing all players');
+    this.players.forEach((player) => {
+      player.sync();
+    });
   }
 }

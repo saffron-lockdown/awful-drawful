@@ -3,10 +3,15 @@ import { createLogger } from './logger';
 export class Player {
   constructor(id) {
     this.id = id;
-    this.socket = undefined;
-    this.game = null;
-    this.name = 'No name set';
+    this.socket = null;
     this.log = createLogger(this.id);
+    this.game = null;
+    this.state = {
+      name: 'No name set',
+      errorMessage: null,
+      prompt: null,
+      viewDrawing: null,
+    };
   }
 
   setSocket(socket) {
@@ -15,8 +20,12 @@ export class Player {
   }
 
   setName(name) {
-    this.name = name;
+    this.state.name = name;
     this.update();
+  }
+
+  getName() {
+    return this.state.name;
   }
 
   getGameId() {
@@ -28,36 +37,64 @@ export class Player {
 
   joinGame(game) {
     this.game = game;
+    // Add player reference in game
+    game.addPlayer(this);
+
     this.update();
   }
 
   leaveGame() {
     if (this.game) {
-      this.game = undefined;
+      this.game = null;
       this.update();
     }
   }
 
   setError(err) {
-    this.emit('client-error', err);
+    this.state.errorMessage = err;
+    this.sync();
   }
 
-  // Update everything about the player on the client side
-  update() {
-    this.emit('sync', {
-      name: this.name,
-      gameId: this.getGameId(),
-    });
+  setPrompt(prompt) {
+    this.state.prompt = prompt;
 
-    // Update everything about the game
+    // prompt is secret to player, so only sync required
+    this.sync();
+  }
+
+  setViewDrawing(drawing) {
+    this.state.viewDrawing = drawing;
+
+    this.sync();
+  }
+
+  // syncs the player and any game are in
+  update() {
     if (this.game) {
-      this.game.update();
+      this.game.sync();
+    } else {
+      this.sync();
     }
+  }
+
+  // syncs the player state with the client
+  sync() {
+    this.emit('sync', {
+      ...this.state,
+      gameId: this.getGameId(),
+      playerList: this.game && this.game.listPlayers(),
+    });
   }
 
   emit(tag, message) {
     this.socket.emit(tag, message);
     this.log(`sending player ${this.id.substring(1, 6)} the message ${tag}:`);
-    this.log(message);
+
+    // remove viewDrawing because it's too big
+    const strippedMessage = {
+      ...message,
+      viewDrawing: message.viewDrawing ? 'TRUNCATED' : message.viewDrawing,
+    };
+    this.log(strippedMessage);
   }
 }
