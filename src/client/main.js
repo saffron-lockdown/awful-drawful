@@ -1,15 +1,22 @@
 const socket = io();
 
+const canvas = new fabric.Canvas('c', {
+  isDrawingMode: true,
+});
+canvas.freeDrawingBrush.width = 10;
+
 const app = new Vue({
   el: '#app',
-  data: () => ({
-    name: '',
-    gameId: '',
-    prompt: '',
-    playerList: '',
-    errorMessage: null,
-    viewDrawing: null,
-  }),
+  data() {
+    return {
+      name: '',
+      gameId: '',
+      prompt: '',
+      playerList: '',
+      errorMessage: null,
+      viewDrawing: null,
+    };
+  },
   watch: {
     viewDrawing(newDrawing) {
       console.log('displaying drawing');
@@ -26,8 +33,8 @@ const app = new Vue({
         Math.random().toString(36).substring(2, 15);
       document.querySelector('#feed-container').appendChild(c);
 
-      const canvas = new fabric.Canvas(c.id);
-      canvas.loadFromJSON(newDrawing);
+      const drawing = new fabric.Canvas(c.id);
+      drawing.loadFromJSON(newDrawing);
     },
   },
   methods: {
@@ -46,6 +53,9 @@ const app = new Vue({
     startGame() {
       socket.emit('start-game');
     },
+    postDrawing() {
+      socket.emit('post-drawing', JSON.stringify(canvas));
+    },
   },
 });
 
@@ -54,13 +64,3 @@ socket.on('sync', (data) => {
     app[key] = val;
   });
 });
-
-const canvas = new fabric.Canvas('c', {
-  isDrawingMode: true,
-});
-canvas.freeDrawingBrush.width = 10;
-document.querySelector('#post').onclick = () => {
-  const out = JSON.stringify(canvas);
-  console.log(out);
-  socket.emit('post-drawing', out);
-};
