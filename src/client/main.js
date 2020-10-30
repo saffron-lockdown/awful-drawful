@@ -1,14 +1,12 @@
 const socket = io();
 
-const canvas = new fabric.Canvas('c', {
-  isDrawingMode: true,
-});
-canvas.freeDrawingBrush.width = 10;
+let canvas;
 
 const app = new Vue({
   el: '#app',
   data() {
     return {
+      page: '',
       name: '',
       gameId: '',
       prompt: '',
@@ -19,7 +17,6 @@ const app = new Vue({
   },
   watch: {
     viewDrawing(newDrawing) {
-      console.log('displaying drawing');
       const c = document.createElement('canvas');
       c.width = '500';
       c.height = '500';
@@ -57,10 +54,29 @@ const app = new Vue({
       socket.emit('post-drawing', JSON.stringify(canvas));
     },
   },
+  updated() {
+    const ref = this.$refs.easel;
+    if (ref) {
+      canvas = new fabric.Canvas(ref, {
+        isDrawingMode: true,
+      });
+      canvas.freeDrawingBrush.color = 'purple';
+      canvas.freeDrawingBrush.width = 10;
+    }
+  },
 });
 
 socket.on('sync', (data) => {
   Object.entries(data).forEach(([key, val]) => {
     app[key] = val;
   });
+  if (app.gameId) {
+    if (app.prompt) {
+      app.page = 'ingame';
+    } else {
+      app.page = 'waiting';
+    }
+  } else {
+    app.page = 'landing';
+  }
 });

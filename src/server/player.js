@@ -7,7 +7,7 @@ export class Player {
     this.log = createLogger(this.id);
     this.game = null;
     this.state = {
-      name: 'No name set',
+      name: '',
       errorMessage: null,
       prompt: null,
       viewDrawing: null,
