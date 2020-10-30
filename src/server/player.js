@@ -4,7 +4,7 @@ export class Player {
   constructor(id) {
     this.id = id;
     this.socket = null;
-    this.log = createLogger(this.id);
+    this.log = createLogger(this.id.substring(0, 5));
     this.game = null;
     this.state = {
       name: 'No name set',
