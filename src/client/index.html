@@ -1,74 +1,62 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
   <head>
     <title>Drawful clone</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <link href="/main.css" rel="stylesheet" />
+    <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
+    <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.1/socket.io.js"
       integrity="sha512-AcZyhRP/tbAEsXCCGlziPun5iFvcSUpEz2jKkx0blkYKbxU81F+iq8FURwPn1sYFeksJ+sDDrI5XujsqSobWdQ=="
       crossorigin="anonymous"
     ></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.2.0/fabric.min.js"></script>
-    <link href="/main.css" rel="stylesheet" />
   </head>
   <body>
     <div id="app">
-      <h1 id="game-id-display">Game ID: {{ gameId }}</h1>
-      <h2 id="player-list-display">Players: {{playerList}}</h2>
-      <section>
-        <label for="name">Name:</label>
-        <input name="name" v-model="name" class="editable-field" />
-        <button id="set-name-button" v-on:click="setName">Set name</button>
-      </section>
-      <section>
-        <label for="gameId">Game ID:</label>
-        <input name="gameId" v-model="gameId" class="editable-field" />
-        <button id="join-game-button" v-on:click="joinGame">Join game</button>
-      </section>
-      <section>
-        <button id="create-game-button" v-on:click="createGame">
-          Create game
-        </button>
-      </section>
-      <section>
-        <button id="leave-game-button" v-on:click="leaveGame">
-          Leave game
-        </button>
-      </section>
-      <section>
-        <button v-on:click="startGame">Everybody's in!</button>
-      </section>
-      <p>Random prompt: {{ prompt }}</p>
-      <p id="error-display" v:if="errorMessage">Error: {{ errorMessage }}</p>
+      <b-container>
+        <b-alert id="game-id-display" show>Game ID: {{ gameId }}</b-alert>
+        <b-alert id="player-list-display" show>Players: {{playerList}}</b-alert>
+      </b-container>
+      <b-container>
+        <b-form-group label="Name">
+          <b-form-input name="name" v-model="name" class="editable-field"></b-form-input>
+          <b-button id="set-name-button" v-on:click="setName">Set name</b-button>
+        </b-form-group>
+        <b-form-group label="Game ID">
+          <b-form-input name="gameId" v-model="gameId" class="editable-field"></b-form-input>
+          <b-button id="join-game-button" v-on:click="joinGame">Join game</b-button>
+        </b-form-group>
+        <b-button id="create-game-button" v-on:click="createGame"> Create game </b-button>
+        <b-button id="leave-game-button" v-on:click="leaveGame"> Leave game </b-button>
+        <b-button v-on:click="startGame">Everybody's in!</b-button>
+        <b-alert show>Random prompt: {{ prompt }}</b-alert>
+        <b-alert id="error-display" show>Error: {{ errorMessage }}</b-alert>
+        <div class="canvas-container" style="width: 500px; height: 500px; position: relative; user-select: none">
+          <canvas
+            id="c"
+            width="500"
+            height="500"
+            style="
+              border: 1px solid rgb(170, 170, 170);
+              position: absolute;
+              width: 500px;
+              height: 500px;
+              left: 0px;
+              top: 0px;
+              touch-action: none;
+              user-select: none;
+            "
+          ></canvas>
+        </div>
+        <b-button id="post" v-on:click="postDrawing">post</b-button>
+        <h2>Feed</h2>
+        <div id="feed-container" class="canvas-container" style="width: 500px; height: 500px; user-select: none"></div>
+      </b-container>
     </div>
-
-    <div
-      class="canvas-container"
-      style="width: 500px; height: 500px; position: relative; user-select: none"
-    >
-      <canvas
-        id="c"
-        width="500"
-        height="500"
-        style="
-          border: 1px solid rgb(170, 170, 170);
-          position: absolute;
-          width: 500px;
-          height: 500px;
-          left: 0px;
-          top: 0px;
-          touch-action: none;
-          user-select: none;
-        "
-      ></canvas>
-    </div>
-    <button id="post">post</button>
-
-    <h2>Feed</h2>
-    <div
-      id="feed-container"
-      class="canvas-container"
-      style="width: 500px; height: 500px; user-select: none"
-    ></div>
 
     <script src="main.js"></script>
   </body>
