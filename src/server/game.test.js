@@ -1,4 +1,4 @@
-import { Game, gameplan, getPrompt, getUniquePrompts } from './game.js';
+import { Game, getPrompt, getUniquePrompts } from './game.js';
 
 import { Player } from './player.js';
 
