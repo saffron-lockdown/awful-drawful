@@ -16,6 +16,10 @@ const app = new Vue({
       },
       // local client state
       editName: true,
+      localState: {
+        name: '',
+        gameId: '',
+      },
     };
   },
   computed: {
@@ -57,13 +61,13 @@ const app = new Vue({
       socket.emit('create-game');
     },
     joinGame() {
-      socket.emit('join-game', this.state.gameId);
+      socket.emit('join-game', this.localState.gameId);
     },
     leaveGame() {
       socket.emit('leave-game');
     },
     setName() {
-      const { name } = this.state;
+      const { name } = this.localState;
       if (!name.length) {
         return;
       }
@@ -96,4 +100,7 @@ socket.on('sync', (data) => {
   Object.entries(data).forEach(([key, val]) => {
     app.state[key] = val;
   });
+  if (app.state.name) {
+    app.localState.name = app.state.name;
+  }
 });

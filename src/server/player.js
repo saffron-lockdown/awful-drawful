@@ -32,7 +32,7 @@ export class Player {
     if (this.game) {
       return this.game.id;
     }
-    return undefined;
+    return null;
   }
 
   joinGame(game) {
@@ -45,6 +45,7 @@ export class Player {
 
   leaveGame() {
     if (this.game) {
+      this.game.removePlayer(this);
       this.game = null;
       this.update();
     }

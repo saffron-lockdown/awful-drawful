@@ -24,13 +24,13 @@
         </b-alert>
         <template id="page-set-name" v-else>
           <b-form-group label="Name">
-            <b-form-input name="name" v-model="state.name"></b-form-input>
+            <b-form-input name="name" v-model="localState.name"></b-form-input>
           </b-form-group>
           <b-button id="set-name-button" v-on:click="setName" variant="primary">Set name</b-button>
         </template>
         <template id="page-landing" v-if="page === 'landing'">
           <b-form-group label="Game ID">
-            <b-form-input name="gameId" v-model="state.gameId"></b-form-input>
+            <b-form-input name="gameId" v-model="localState.gameId"></b-form-input>
           </b-form-group>
           <b-button id="join-game-button" v-on:click="joinGame" variant="success">Join game</b-button>
           <b-button id="create-game-button" v-on:click="createGame" variant="info"> Create game </b-button>
