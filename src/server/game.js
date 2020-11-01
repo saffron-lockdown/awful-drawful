@@ -5,6 +5,7 @@ const PHASES = {
   DRAW: 'DRAW',
   CAPTION: 'CAPTION',
   GUESS: 'GUESS',
+  REVEAL: 'REVEAL',
 };
 
 function randomChoice(arr) {
@@ -133,6 +134,17 @@ export class Game {
     return subRound.captions;
   }
 
+  getRealPrompt() {
+    this.log('getRealPrompt');
+    const round = this.getCurrentRound();
+    if (!round || this.getPhase() !== PHASES.REVEAL) {
+      return null;
+    }
+
+    const subRound = round[this.captionRoundNum];
+    return subRound.prompt;
+  }
+
   // returns true if the player has completed their actions for the current game phase
   isPlayerWaiting(player) {
     this.log('isPlayerWaiting');
@@ -153,7 +165,6 @@ export class Game {
     }
     // otherwise PHASE.GUESS
     const subRound = round[this.captionRoundNum];
-
     // player is waiting if they have selected a caption
     return subRound.captions.find((caption) =>
       caption.chosenBy.includes(player.getId())
@@ -232,6 +243,24 @@ export class Game {
       (caption) => caption.text === captionText
     );
     chosenCaption.chosenBy.push(player.getId());
+
+    if (this.allPlayersChosen(subRound)) {
+      this.startRevealPhase();
+    }
+  }
+
+  allPlayersChosen(subRound) {
+    const totalChoices = subRound.captions.reduce((acc, caption) => {
+      return acc + caption.chosenBy.length;
+    }, 0);
+    return totalChoices === this.players.length;
+  }
+
+  startRevealPhase() {
+    this.phase = PHASES.REVEAL;
+    this.log('revealing real prompt!');
+
+    this.sync();
   }
 
   // syncs players state for all players in the game

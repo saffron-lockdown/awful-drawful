@@ -84,6 +84,12 @@
               </b-list-group>
             </template>
           </template>
+          <template v-if="state.phase === 'REVEAL'">
+            <div key="gallery">
+              <canvas id="gallery" width="500" height="500"></canvas>
+            </div>
+            <b-alert show variant="success"> The real prompt was: {{ state.realPrompt }} </b-alert>
+          </template>
         </template>
         <b-alert id="error-display" show fade v-if="state.errorMessage" variant="danger"
           >Error: {{ state.errorMessage }}</b-alert
