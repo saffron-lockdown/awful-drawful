@@ -67,6 +67,23 @@
               <b-button id="caption-button" v-on:click="postCaption" variant="primary">Submit</b-button>
             </template>
           </template>
+          <template v-if="state.phase === 'GUESS'">
+            <template v-if="state.isWaiting">
+              <span>waiting for the other players to pick their caption</span>
+            </template>
+            <template v-else>
+              <div key="gallery">
+                <canvas id="gallery" width="500" height="500"></canvas>
+              </div>
+              <b-list-group>
+                <b-form-group label="What was the real prompt?">
+                  <b-list-group-item v-for="caption in state.captions" button @click="console.log('clicked')">
+                    {{ caption.caption }}
+                  </b-list-group-item>
+                </b-form-group>
+              </b-list-group>
+            </template>
+          </template>
         </template>
         <b-alert id="error-display" show fade v-if="state.errorMessage" variant="danger"
           >Error: {{ state.errorMessage }}</b-alert

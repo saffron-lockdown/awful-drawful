@@ -84,8 +84,9 @@ const app = new Vue({
       if (this.state.viewDrawing) {
         if (!gallery) {
           gallery = new fabric.Canvas(ref);
-          gallery.loadFromJSON(this.state.viewDrawing);
         }
+        gallery.clear();
+        gallery.loadFromJSON(this.state.viewDrawing);
       }
     } else {
       gallery = null;

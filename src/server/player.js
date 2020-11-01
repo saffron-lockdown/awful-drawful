@@ -9,9 +9,6 @@ export class Player {
     this.state = {
       name: '',
       errorMessage: null,
-      prompt: null,
-      viewDrawing: null,
-      isWaiting: false,
     };
   }
 
@@ -65,15 +62,13 @@ export class Player {
     this.sync();
   }
 
-  setViewDrawing(drawing) {
-    this.state.isWaiting = false;
-    this.state.viewDrawing = drawing;
+  setCaptions(captions) {
+    this.state.captions = captions;
     this.sync();
   }
 
   postDrawing(drawing) {
     if (this.game) {
-      this.state.isWaiting = true;
       this.game.postDrawing(this, drawing);
       this.sync();
     }
@@ -81,7 +76,6 @@ export class Player {
 
   postCaption(caption) {
     if (this.game) {
-      this.state.isWaiting = true;
       this.game.postCaption(this, caption);
       this.sync();
     }
@@ -98,23 +92,23 @@ export class Player {
 
   // syncs the player state with the client
   sync() {
-    this.emit('sync', {
+    const isWaiting = this.game && this.game.isPlayerWaiting(this);
+    const data = {
       ...this.state,
       gameId: this.getGameId(),
       playerList: this.game && this.game.listPlayers(),
+      prompt: this.game && this.game.getPrompt(this),
+      viewDrawing: this.game && this.game.getViewDrawing(),
+      viewDrawingFrom: this.game && this.game.getViewDrawingFrom(),
       phase: this.game && this.game.getPhase(),
-    });
+      isWaiting,
+    };
+    this.log('sync:');
+    this.log(data);
+    this.emit('sync', data);
   }
 
   emit(tag, message) {
     this.socket.emit(tag, message);
-    this.log(`emit [${tag}]:`);
-
-    // remove viewDrawing because it's too big
-    const strippedMessage = {
-      ...message,
-      viewDrawing: message.viewDrawing ? 'TRUNCATED' : message.viewDrawing,
-    };
-    this.log(strippedMessage);
   }
 }
