@@ -7,7 +7,7 @@ export class Player {
     this.log = createLogger(this.id.substring(0, 5));
     this.game = null;
     this.state = {
-      name: 'No name set',
+      name: '',
       errorMessage: null,
       prompt: null,
       viewDrawing: null,
@@ -32,7 +32,7 @@ export class Player {
     if (this.game) {
       return this.game.id;
     }
-    return undefined;
+    return null;
   }
 
   joinGame(game) {
@@ -45,14 +45,16 @@ export class Player {
 
   leaveGame() {
     if (this.game) {
+      this.game.removePlayer(this);
       this.game = null;
       this.update();
     }
   }
 
-  setError(err) {
+  sendError(err) {
     this.state.errorMessage = err;
     this.sync();
+    this.state.errorMessage = null;
   }
 
   setPrompt(prompt) {
@@ -88,7 +90,7 @@ export class Player {
 
   emit(tag, message) {
     this.socket.emit(tag, message);
-    this.log(`sending player ${this.id.substring(1, 6)} the message ${tag}:`);
+    this.log(`emit [${tag}]:`);
 
     // remove viewDrawing because it's too big
     const strippedMessage = {

@@ -6,55 +6,53 @@
     <link href="/main.css" rel="stylesheet" />
     <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
     <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
-    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="//cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
     <script
-      src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.1/socket.io.js"
+      src="//cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.1/socket.io.js"
       integrity="sha512-AcZyhRP/tbAEsXCCGlziPun5iFvcSUpEz2jKkx0blkYKbxU81F+iq8FURwPn1sYFeksJ+sDDrI5XujsqSobWdQ=="
       crossorigin="anonymous"
     ></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.2.0/fabric.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/fabric.js/4.2.0/fabric.min.js"></script>
   </head>
   <body>
-    <div id="app">
+    <div id="app" v-cloak>
       <b-container>
-        <b-alert id="game-id-display" show>Game ID: {{ gameId }}</b-alert>
-        <b-alert id="player-list-display" show>Players: {{playerList}}</b-alert>
-      </b-container>
-      <b-container>
-        <b-form-group label="Name">
-          <b-form-input name="name" v-model="name" class="editable-field"></b-form-input>
-          <b-button id="set-name-button" v-on:click="setName">Set name</b-button>
-        </b-form-group>
-        <b-form-group label="Game ID">
-          <b-form-input name="gameId" v-model="gameId" class="editable-field"></b-form-input>
-          <b-button id="join-game-button" v-on:click="joinGame">Join game</b-button>
-        </b-form-group>
-        <b-button id="create-game-button" v-on:click="createGame"> Create game </b-button>
-        <b-button id="leave-game-button" v-on:click="leaveGame"> Leave game </b-button>
-        <b-button v-on:click="startGame">Everybody's in!</b-button>
-        <b-alert show>Random prompt: {{ prompt }}</b-alert>
-        <b-alert id="error-display" show>Error: {{ errorMessage }}</b-alert>
-        <div class="canvas-container" style="width: 500px; height: 500px; position: relative; user-select: none">
-          <canvas
-            id="c"
-            width="500"
-            height="500"
-            style="
-              border: 1px solid rgb(170, 170, 170);
-              position: absolute;
-              width: 500px;
-              height: 500px;
-              left: 0px;
-              top: 0px;
-              touch-action: none;
-              user-select: none;
-            "
-          ></canvas>
-        </div>
-        <b-button id="post" v-on:click="postDrawing">post</b-button>
-        <h2>Feed</h2>
-        <div id="feed-container" class="canvas-container" style="width: 500px; height: 500px; user-select: none"></div>
+        <b-alert show variant="success" v-if="page !== 'set-name'">
+          <span id="name-display">{{ state.name }}</span>
+          <b-button v-on:click="editName = true" v-if="page !== 'ingame'">Edit name</b-button>
+        </b-alert>
+        <template id="page-set-name" v-else>
+          <b-form-group label="Name">
+            <b-form-input name="name" v-model="localState.name"></b-form-input>
+          </b-form-group>
+          <b-button id="set-name-button" v-on:click="setName" variant="primary">Set name</b-button>
+        </template>
+        <template id="page-landing" v-if="page === 'landing'">
+          <b-form-group label="Game ID">
+            <b-form-input name="gameId" v-model="localState.gameId"></b-form-input>
+          </b-form-group>
+          <b-button id="join-game-button" v-on:click="joinGame" variant="success">Join game</b-button>
+          <b-button id="create-game-button" v-on:click="createGame" variant="info"> Create game </b-button>
+        </template>
+        <template id="page-waiting" v-else-if="page === 'waiting'">
+          <b-alert id="game-id-display" show>Game ID: {{ state.gameId }}</b-alert>
+          <b-alert id="player-list-display" show>Players: {{ state.playerList }}</b-alert>
+          <b-button id="start-game-button" v-on:click="startGame">Everybody's in!</b-button>
+        </template>
+        <template id="page-ingame" v-else-if="page === 'ingame'">
+          <b-alert id="prompt-display" show>Random prompt: {{ state.prompt }}</b-alert>
+          <canvas ref="easel" width="500" height="500"></canvas>
+          <b-button id="post" v-on:click="postDrawing" variant="success">post</b-button>
+          <h2>Feed</h2>
+          <canvas ref="gallery" width="500" height="500"></canvas>
+        </template>
+        <b-alert id="error-display" show fade v-if="state.errorMessage" variant="danger"
+          >Error: {{ state.errorMessage }}</b-alert
+        >
+        <b-button id="leave-game-button" v-if="state.gameId" v-on:click="leaveGame" variant="danger"
+          >Leave game</b-button
+        >
       </b-container>
     </div>
 

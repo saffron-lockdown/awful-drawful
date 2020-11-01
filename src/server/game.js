@@ -65,6 +65,10 @@ export class Game {
     this.players.push(player);
   }
 
+  removePlayer(player) {
+    this.players = this.players.filter((p) => p !== player);
+  }
+
   // output a list of all the players in the specified game
   listPlayers() {
     return this.players.map((player) => player.getName()).join(', ');

@@ -57,7 +57,7 @@ io.on('connect', (socket) => {
   socket.on('join-game', (gameId) => {
     const game = mgr.getGame(gameId);
     if (!game) {
-      player.setError('game does not exist');
+      player.sendError('game does not exist');
       return;
     }
 
