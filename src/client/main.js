@@ -6,14 +6,32 @@ const app = new Vue({
   el: '#app',
   data() {
     return {
-      page: '',
-      name: '',
-      gameId: '',
-      prompt: '',
-      playerList: '',
-      errorMessage: null,
-      viewDrawing: null,
+      state: {
+        name: '',
+        gameId: '',
+        prompt: '',
+        playerList: '',
+        errorMessage: null,
+        viewDrawing: null,
+      },
+      // local client state
+      editName: true,
     };
+  },
+  computed: {
+    page() {
+      // force player to set name
+      if (!this.state.name.length || this.editName) {
+        return 'set-name';
+      }
+      if (this.state.gameId) {
+        if (this.state.prompt) {
+          return 'ingame';
+        }
+        return 'waiting';
+      }
+      return 'landing';
+    },
   },
   watch: {
     viewDrawing(newDrawing) {
@@ -39,19 +57,27 @@ const app = new Vue({
       socket.emit('create-game');
     },
     joinGame() {
-      socket.emit('join-game', this.gameId);
+      socket.emit('join-game', this.state.gameId);
     },
     leaveGame() {
       socket.emit('leave-game');
     },
     setName() {
-      socket.emit('set-name', this.name);
+      const { name } = this.state;
+      if (!name.length) {
+        return;
+      }
+      socket.emit('set-name', name);
+      this.toggleEditName();
     },
     startGame() {
       socket.emit('start-game');
     },
     postDrawing() {
       socket.emit('post-drawing', JSON.stringify(canvas));
+    },
+    toggleEditName() {
+      this.editName = !this.editName;
     },
   },
   updated() {
@@ -68,15 +94,6 @@ const app = new Vue({
 
 socket.on('sync', (data) => {
   Object.entries(data).forEach(([key, val]) => {
-    app[key] = val;
+    app.state[key] = val;
   });
-  if (app.gameId) {
-    if (app.prompt) {
-      app.page = 'ingame';
-    } else {
-      app.page = 'waiting';
-    }
-  } else {
-    app.page = 'landing';
-  }
 });

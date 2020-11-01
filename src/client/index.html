@@ -16,34 +16,46 @@
     <script src="//cdnjs.cloudflare.com/ajax/libs/fabric.js/4.2.0/fabric.min.js"></script>
   </head>
   <body>
-    <div id="app">
-      <b-container id="page-set-name">
-        <b-form-group label="Name">
-          <b-form-input name="name" v-model="name"></b-form-input>
-        </b-form-group>
-        <b-button id="set-name-button" v-on:click="setName" variant="primary">Set name</b-button>
-      </b-container>
-      <b-container id="page-landing" v-if="page === 'landing'">
-        <b-form-group label="Game ID">
-          <b-form-input name="gameId" v-model="gameId"></b-form-input>
+    <div id="app" v-cloak>
+      <b-container>
+        <b-alert show variant="success" v-if="page !== 'set-name'">
+          <span>{{ state.name }}</span>
+          <b-button v-on:click="toggleEditName" v-if="page !== 'ingame'">Edit name</b-button>
+        </b-alert>
+        <template id="page-set-name" v-else>
+          <b-form-group label="Name">
+            <b-form-input name="name" v-model="state.name"></b-form-input>
+          </b-form-group>
+          <b-button id="set-name-button" v-on:click="setName" variant="primary">Set name</b-button>
+        </template>
+        <template id="page-landing" v-if="page === 'landing'">
+          <b-form-group label="Game ID">
+            <b-form-input name="gameId" v-model="state.gameId"></b-form-input>
+          </b-form-group>
           <b-button id="join-game-button" v-on:click="joinGame" variant="success">Join game</b-button>
           <b-button id="create-game-button" v-on:click="createGame" variant="info"> Create game </b-button>
-        </b-form-group>
+        </template>
+        <template id="page-waiting" v-else-if="page === 'waiting'">
+          <b-alert id="game-id-display" show>Game ID: {{ state.gameId }}</b-alert>
+          <b-alert id="player-list-display" show>Players: {{ state.playerList }}</b-alert>
+          <b-button v-on:click="startGame">Everybody's in!</b-button>
+        </template>
+        <template id="page-ingame" v-else-if="page === 'ingame'">
+          <b-alert show>Random prompt: {{ state.prompt }}</b-alert>
+          <canvas ref="easel" width="500" height="500"></canvas>
+          <b-button id="post" v-on:click="postDrawing" variant="success">post</b-button>
+          <h2>Feed</h2>
+          <div
+            id="feed-container"
+            class="canvas-container"
+            style="width: 500px; height: 500px; user-select: none"
+          ></div>
+        </template>
+        <b-alert id="error-display" v-model="state.errorMessage">Error: {{ state.errorMessage }}</b-alert>
+        <b-button id="leave-game-button" v-if="state.gameId" v-on:click="leaveGame" variant="danger"
+          >Leave game</b-button
+        >
       </b-container>
-      <b-container id="page-waiting" v-else-if="page === 'waiting'">
-        <b-alert id="game-id-display" show>Game ID: {{ gameId }}</b-alert>
-        <b-alert id="player-list-display" show>Players: {{playerList}}</b-alert>
-        <b-button v-on:click="startGame">Everybody's in!</b-button>
-      </b-container>
-      <b-container id="page-ingame" v-else-if="page === 'ingame'">
-        <b-alert show>Random prompt: {{ prompt }}</b-alert>
-        <canvas ref="easel" width="500" height="500"></canvas>
-        <b-button id="post" v-on:click="postDrawing" variant="success">post</b-button>
-        <h2>Feed</h2>
-        <div id="feed-container" class="canvas-container" style="width: 500px; height: 500px; user-select: none"></div>
-      </b-container>
-      <b-alert id="error-display" v-model="errorMessage">Error: {{ errorMessage }}</b-alert>
-      <b-button id="leave-game-button" v-if="gameId" v-on:click="leaveGame" variant="danger">Leave game</b-button>
     </div>
 
     <script src="main.js"></script>
