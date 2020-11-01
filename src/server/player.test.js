@@ -13,5 +13,6 @@ test('should send message to socket', () => {
     viewDrawing: null,
     gameId: null,
     playerList: null,
+    timeRemaining: null,
   });
 });
