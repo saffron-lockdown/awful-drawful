@@ -68,7 +68,7 @@ describe('Main', () => {
         });
     });
 
-    describe('in waiting room', () => {
+    describe('in lobby', () => {
       beforeEach(() => {
         cy.get('#create-game-button').click();
       });

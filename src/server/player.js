@@ -11,6 +11,7 @@ export class Player {
       errorMessage: null,
       prompt: null,
       viewDrawing: null,
+      isWaiting: false,
     };
   }
 
@@ -65,9 +66,25 @@ export class Player {
   }
 
   setViewDrawing(drawing) {
+    this.state.isWaiting = false;
     this.state.viewDrawing = drawing;
-
     this.sync();
+  }
+
+  postDrawing(drawing) {
+    if (this.game) {
+      this.state.isWaiting = true;
+      this.game.postDrawing(this, drawing);
+      this.sync();
+    }
+  }
+
+  postCaption(caption) {
+    if (this.game) {
+      this.state.isWaiting = true;
+      this.game.postCaption(this, caption);
+      this.sync();
+    }
   }
 
   // syncs the player and any game are in
@@ -85,6 +102,7 @@ export class Player {
       ...this.state,
       gameId: this.getGameId(),
       playerList: this.game && this.game.listPlayers(),
+      phase: this.game && this.game.getPhase(),
     });
   }
 
