@@ -32,6 +32,12 @@ export function getUniquePrompts(nPrompts) {
   return prompts;
 }
 
+function allDrawingsIn(round) {
+  return Object.values(round).every((element) => {
+    return element.drawing !== '';
+  });
+}
+
 // return a plan of the game based on the number
 // of rounds and players.
 // each round has one object per player. The object contains
@@ -42,15 +48,16 @@ function gameplan(players, nRounds) {
   const rounds = [];
 
   for (let i = 0; i < nRounds; i += 1) {
-    const round = {};
+    const round = [];
 
     players.forEach((player) => {
-      round[player.id] = {
+      // shape of a subRound
+      round.push({
         player,
         prompt: prompts.pop(),
         drawing: '',
         captions: {}, // will be submitting_player: caption
-      };
+      });
     });
     rounds.push(round);
   }
@@ -85,6 +92,10 @@ export class Game {
     return this.phase;
   }
 
+  getCurrentRound() {
+    return this.gameplan[this.roundNum];
+  }
+
   start() {
     this.gameplan = gameplan(this.players, this.nRounds);
     this.log(this.gameplan);
@@ -102,36 +113,42 @@ export class Game {
   }
 
   postDrawing(player, drawing) {
-    const round = this.gameplan[this.roundNum];
-    round[player.id].drawing = drawing;
+    const round = this.getCurrentRound();
+    round.find((r) => r.player === player).drawing = drawing;
 
     this.log(`wow ${player.id.substring(1, 6)}, thats beautiful!`);
-    if (this.allDrawingsIn()) {
+    if (allDrawingsIn(round)) {
       this.log('all the artwork has been collected');
       this.startCaptioningPhase();
     }
-  }
-
-  allDrawingsIn() {
-    const round = this.gameplan[this.roundNum];
-
-    return Object.values(round).every((element) => {
-      return element.drawing !== '';
-    });
   }
 
   startCaptioningPhase() {
     this.phase = PHASES.CAPTION;
     this.log('Time to caption these masterpieces!');
 
-    const round = this.gameplan[this.roundNum];
-    const submittingPlayer = Object.keys(round)[this.captionRoundNum];
-    const element = round[submittingPlayer];
+    const round = this.getCurrentRound();
+    const subRound = round[this.captionRoundNum];
 
     this.players.forEach((player) => {
-      player.setViewDrawing(element.drawing);
+      player.setViewDrawing(subRound.drawing);
     });
     this.captionRoundNum += 1;
+  }
+
+  postCaption(player, caption) {
+    const round = this.getCurrentRound();
+    const subRound = round[this.captionRoundNum];
+
+    subRound.captions[player.id] = caption;
+
+    if (this.allCaptionsIn(subRound)) {
+      this.log('all captions are in: ', subRound.captions);
+    }
+  }
+
+  allCaptionsIn(subRound) {
+    return Object.values(subRound.captions).length === this.players.length;
   }
 
   // syncs players state for all players in the game

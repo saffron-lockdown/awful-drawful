@@ -11,7 +11,6 @@ export class Player {
       errorMessage: null,
       prompt: null,
       viewDrawing: null,
-      phase: null,
       isWaiting: false,
     };
   }
@@ -76,6 +75,14 @@ export class Player {
     if (this.game) {
       this.state.isWaiting = true;
       this.game.postDrawing(this, drawing);
+      this.sync();
+    }
+  }
+
+  postCaption(caption) {
+    if (this.game) {
+      this.state.isWaiting = true;
+      this.game.postCaption(this, caption);
       this.sync();
     }
   }

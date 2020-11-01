@@ -61,7 +61,7 @@ const app = new Vue({
       socket.emit('post-drawing', JSON.stringify(easel));
     },
     postCaption() {
-      socket.emit('caption', this.caption);
+      socket.emit('post-caption', this.caption);
     },
   },
   updated() {

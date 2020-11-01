@@ -54,13 +54,18 @@
             </template>
           </template>
           <template v-if="state.phase === 'CAPTION'">
-            <div key="gallery">
-              <canvas id="gallery" width="500" height="500"></canvas>
-            </div>
-            <b-form-group label="What is this?">
-              <b-form-input v-model="caption"></b-form-input>
-            </b-form-group>
-            <b-button id="caption-button" v-on:click="postCaption" variant="primary">Submit</b-button>
+            <template v-if="state.isWaiting">
+              <span>that makes no sense, but ok</span>
+            </template>
+            <template v-else>
+              <div key="gallery">
+                <canvas id="gallery" width="500" height="500"></canvas>
+              </div>
+              <b-form-group label="What is this?">
+                <b-form-input v-model="caption"></b-form-input>
+              </b-form-group>
+              <b-button id="caption-button" v-on:click="postCaption" variant="primary">Submit</b-button>
+            </template>
           </template>
         </template>
         <b-alert id="error-display" show fade v-if="state.errorMessage" variant="danger"
