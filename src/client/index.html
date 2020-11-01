@@ -19,7 +19,7 @@
     <div id="app" v-cloak>
       <b-container>
         <b-alert show variant="success" v-if="page !== 'set-name'">
-          <span>{{ state.name }}</span>
+          <span id="name-display">{{ state.name }}</span>
           <b-button v-on:click="editName = true" v-if="page !== 'ingame'">Edit name</b-button>
         </b-alert>
         <template id="page-set-name" v-else>
@@ -38,10 +38,10 @@
         <template id="page-waiting" v-else-if="page === 'waiting'">
           <b-alert id="game-id-display" show>Game ID: {{ state.gameId }}</b-alert>
           <b-alert id="player-list-display" show>Players: {{ state.playerList }}</b-alert>
-          <b-button v-on:click="startGame">Everybody's in!</b-button>
+          <b-button id="start-game-button" v-on:click="startGame">Everybody's in!</b-button>
         </template>
         <template id="page-ingame" v-else-if="page === 'ingame'">
-          <b-alert show>Random prompt: {{ state.prompt }}</b-alert>
+          <b-alert id="prompt-display" show>Random prompt: {{ state.prompt }}</b-alert>
           <canvas ref="easel" width="500" height="500"></canvas>
           <b-button id="post" v-on:click="postDrawing" variant="success">post</b-button>
           <h2>Feed</h2>
