@@ -100,6 +100,14 @@ export class Game {
     return this.gameplan[this.roundNum];
   }
 
+  getCurrentSubRound() {
+    const round = this.getCurrentRound();
+    if (!round) {
+      return null;
+    }
+    return round[this.captionRoundNum];
+  }
+
   // get the prompt for a specific player for the current round
   getPrompt(player) {
     this.log('getPrompt');
@@ -118,7 +126,7 @@ export class Game {
       return null;
     }
 
-    const subRound = round[this.captionRoundNum];
+    const subRound = this.getCurrentSubRound();
     return subRound.drawing;
   }
 
@@ -130,7 +138,7 @@ export class Game {
       return null;
     }
 
-    const subRound = round[this.captionRoundNum];
+    const subRound = this.getCurrentSubRound();
     return subRound.captions;
   }
 
@@ -141,7 +149,7 @@ export class Game {
       return null;
     }
 
-    const subRound = round[this.captionRoundNum];
+    const subRound = this.getCurrentSubRound();
     return subRound.prompt;
   }
 
@@ -158,13 +166,13 @@ export class Game {
         .drawingSubmitted;
     }
     if (phase === PHASES.CAPTION) {
-      const subRound = round[this.captionRoundNum];
+      const subRound = this.getCurrentSubRound();
       return !!subRound.captions.find(
         (caption) => caption.playerId === player.getId()
       );
     }
     // otherwise PHASE.GUESS
-    const subRound = round[this.captionRoundNum];
+    const subRound = this.getCurrentSubRound();
     // player is waiting if they have selected a caption
     return subRound.captions.find((caption) =>
       caption.chosenBy.includes(player.getId())
@@ -210,7 +218,7 @@ export class Game {
   // submit a caption for a player in the current subRound
   postCaption(player, caption) {
     const round = this.getCurrentRound();
-    const subRound = round[this.captionRoundNum];
+    const subRound = this.getCurrentSubRound();
 
     subRound.captions.push({
       playerId: player.getId(),
@@ -237,7 +245,7 @@ export class Game {
 
   chooseCaption(player, captionText) {
     const round = this.getCurrentRound();
-    const subRound = round[this.captionRoundNum];
+    const subRound = this.getCurrentSubRound();
 
     const chosenCaption = subRound.captions.find(
       (caption) => caption.text === captionText
