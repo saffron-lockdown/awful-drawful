@@ -32,7 +32,10 @@ function addPlayerToGame(player, game) {
 const wrap = (middleware) => (socket, next) =>
   middleware(socket.request, {}, next);
 
+// attach session middleware to app so that cookies are set on page GETs
 app.use(sesh);
+
+// also attach to session middleware to make the session available on socket.request
 io.use(wrap(sesh));
 
 io.on('connect', (socket) => {
@@ -69,7 +72,7 @@ io.on('connect', (socket) => {
   });
 
   socket.on('start-game', () => {
-    player.game.start();
+    player.startGame();
   });
 
   socket.on('post-drawing', (drawing) => {

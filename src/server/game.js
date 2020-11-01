@@ -88,6 +88,18 @@ export class Game {
     return this.players.map((player) => player.getName()).join(', ');
   }
 
+  getPhase() {
+    return this.phase;
+  }
+
+  getCurrentRound() {
+    if (!this.gameplan) {
+      return null;
+    }
+    return this.gameplan[this.roundNum];
+  }
+
+  // get the prompt for a specific player for the current round
   getPrompt(player) {
     this.log('getPrompt');
     const round = this.getCurrentRound();
@@ -97,6 +109,7 @@ export class Game {
     return round.find((subRound) => subRound.player === player).prompt;
   }
 
+  // get the current drawing to be either captioned or guessed for the current subRound
   getViewDrawing() {
     this.log('getViewDrawing');
     const round = this.getCurrentRound();
@@ -108,17 +121,19 @@ export class Game {
     return subRound.drawing;
   }
 
-  getViewDrawingFrom() {
-    this.log('getViewDrawingFrom');
+  // get the captions from the current subRound
+  getCaptions() {
+    this.log('getCaptions');
     const round = this.getCurrentRound();
     if (!round) {
       return null;
     }
 
     const subRound = round[this.captionRoundNum];
-    return subRound.player.getName();
+    return subRound.captions;
   }
 
+  // returns true if the player has completed their actions for the current game phase
   isPlayerWaiting(player) {
     this.log('isPlayerWaiting');
     const round = this.getCurrentRound();
@@ -133,21 +148,16 @@ export class Game {
     if (phase === PHASES.CAPTION) {
       const subRound = round[this.captionRoundNum];
       return !!subRound.captions.find(
-        (caption) => caption.playerId === player.id
+        (caption) => caption.playerId === player.getId()
       );
     }
     // otherwise PHASE.GUESS
-  }
+    const subRound = round[this.captionRoundNum];
 
-  getPhase() {
-    return this.phase;
-  }
-
-  getCurrentRound() {
-    if (!this.gameplan) {
-      return null;
-    }
-    return this.gameplan[this.roundNum];
+    // player is waiting if they have selected a caption
+    return subRound.captions.find((caption) =>
+      caption.chosenBy.includes(player.getId())
+    );
   }
 
   start() {
@@ -164,13 +174,14 @@ export class Game {
     this.sync();
   }
 
+  // submit a drawing for a player in the current round
   postDrawing(player, drawing) {
     const round = this.getCurrentRound();
     const subRound = round.find((r) => r.player === player);
     subRound.drawing = drawing;
     subRound.drawingSubmitted = true;
 
-    this.log(`wow ${player.id.substring(1, 6)}, thats beautiful!`);
+    this.log(`wow ${player.getId().substring(1, 6)}, thats beautiful!`);
     if (allDrawingsIn(round)) {
       this.log('all the artwork has been collected');
       this.startCaptioningPhase();
@@ -185,13 +196,15 @@ export class Game {
     // this.captionRoundNum += 1;
   }
 
+  // submit a caption for a player in the current subRound
   postCaption(player, caption) {
     const round = this.getCurrentRound();
     const subRound = round[this.captionRoundNum];
 
     subRound.captions.push({
-      playerId: player.id,
+      playerId: player.getId(),
       caption,
+      chosenBy: [], // ids of the players who choose this caption
     });
 
     if (this.allCaptionsIn(subRound)) {
@@ -208,12 +221,7 @@ export class Game {
     this.phase = PHASES.GUESS;
     this.log('Guess the correct caption!');
 
-    const round = this.getCurrentRound();
-    const subRound = round[this.captionRoundNum];
-
-    this.players.forEach((player) => {
-      player.setCaptions(subRound.captions);
-    });
+    this.sync();
   }
 
   // syncs players state for all players in the game

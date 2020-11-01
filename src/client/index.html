@@ -20,25 +20,25 @@
       <b-container>
         <b-alert show variant="success" v-if="page !== 'set-name'">
           <span id="name-display">{{ state.name }}</span>
-          <b-button v-on:click="editName = true" v-if="page !== 'ingame'">Edit name</b-button>
+          <b-button @click="editName = true" v-if="page !== 'ingame'">Edit name</b-button>
         </b-alert>
         <template id="page-set-name" v-else>
           <b-form-group label="Name">
             <b-form-input name="name" v-model="name"></b-form-input>
           </b-form-group>
-          <b-button id="set-name-button" v-on:click="setName" variant="primary">Set name</b-button>
+          <b-button id="set-name-button" @click="setName" variant="primary">Set name</b-button>
         </template>
         <template id="page-landing" v-if="page === 'landing'">
           <b-form-group label="Game ID">
             <b-form-input name="gameId" v-model="gameId"></b-form-input>
           </b-form-group>
-          <b-button id="join-game-button" v-on:click="joinGame" variant="success">Join game</b-button>
-          <b-button id="create-game-button" v-on:click="createGame" variant="info"> Create game </b-button>
+          <b-button id="join-game-button" @click="joinGame" variant="success">Join game</b-button>
+          <b-button id="create-game-button" @click="createGame" variant="info"> Create game </b-button>
         </template>
         <template id="page-lobby" v-else-if="page === 'lobby'">
           <b-alert id="game-id-display" show>Game ID: {{ state.gameId }}</b-alert>
           <b-alert id="player-list-display" show>Players: {{ state.playerList }}</b-alert>
-          <b-button id="start-game-button" v-on:click="startGame">Everybody's in!</b-button>
+          <b-button id="start-game-button" @click="startGame">Everybody's in!</b-button>
         </template>
         <template id="page-ingame" v-else-if="page === 'ingame'">
           <template v-if="state.phase === 'DRAW'">
@@ -50,7 +50,7 @@
               <div key="easel">
                 <canvas id="easel" width="500" height="500"></canvas>
               </div>
-              <b-button id="post" v-on:click="postDrawing" variant="success">post</b-button>
+              <b-button id="post" @click="postDrawing" variant="success">post</b-button>
             </template>
           </template>
           <template v-if="state.phase === 'CAPTION'">
@@ -64,7 +64,7 @@
               <b-form-group label="What is this?">
                 <b-form-input v-model="caption"></b-form-input>
               </b-form-group>
-              <b-button id="caption-button" v-on:click="postCaption" variant="primary">Submit</b-button>
+              <b-button id="caption-button" @click="postCaption" variant="primary">Submit</b-button>
             </template>
           </template>
           <template v-if="state.phase === 'GUESS'">
@@ -88,9 +88,7 @@
         <b-alert id="error-display" show fade v-if="state.errorMessage" variant="danger"
           >Error: {{ state.errorMessage }}</b-alert
         >
-        <b-button id="leave-game-button" v-if="state.gameId" v-on:click="leaveGame" variant="danger"
-          >Leave game</b-button
-        >
+        <b-button id="leave-game-button" v-if="state.gameId" @click="leaveGame" variant="danger">Leave game</b-button>
       </b-container>
     </div>
 

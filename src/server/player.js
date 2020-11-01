@@ -6,10 +6,12 @@ export class Player {
     this.socket = null;
     this.log = createLogger(this.id);
     this.game = null;
-    this.state = {
-      name: '',
-      errorMessage: null,
-    };
+    this.name = '';
+    this.errorMessage = null;
+  }
+
+  getId() {
+    return this.id;
   }
 
   setSocket(socket) {
@@ -18,12 +20,12 @@ export class Player {
   }
 
   setName(name) {
-    this.state.name = name;
+    this.name = name;
     this.update();
   }
 
   getName() {
-    return this.state.name;
+    return this.name;
   }
 
   getGameId() {
@@ -49,22 +51,18 @@ export class Player {
     }
   }
 
+  startGame() {
+    if (this.game) {
+      this.game.start();
+    }
+  }
+
   sendError(err) {
     this.state.errorMessage = err;
     this.sync();
+
+    // clear the error message for future refreshes
     this.state.errorMessage = null;
-  }
-
-  setPrompt(prompt) {
-    this.state.prompt = prompt;
-
-    // prompt is secret to player, so only sync required
-    this.sync();
-  }
-
-  setCaptions(captions) {
-    this.state.captions = captions;
-    this.sync();
   }
 
   postDrawing(drawing) {
@@ -81,7 +79,8 @@ export class Player {
     }
   }
 
-  // syncs the player and any game are in
+  // pushes game updates to all other players in the current game,
+  // or just the current player if not in a game
   update() {
     if (this.game) {
       this.game.sync();
@@ -92,16 +91,18 @@ export class Player {
 
   // syncs the player state with the client
   sync() {
-    const isWaiting = this.game && this.game.isPlayerWaiting(this);
     const data = {
-      ...this.state,
+      // state saved aginst the player
+      name: this.name,
+      errorMessage: this.errorMessage,
+      // state saved against the game the player is currently in
       gameId: this.getGameId(),
       playerList: this.game && this.game.listPlayers(),
+      phase: this.game && this.game.getPhase(),
+      isWaiting: this.game && this.game.isPlayerWaiting(this),
       prompt: this.game && this.game.getPrompt(this),
       viewDrawing: this.game && this.game.getViewDrawing(),
-      viewDrawingFrom: this.game && this.game.getViewDrawingFrom(),
-      phase: this.game && this.game.getPhase(),
-      isWaiting,
+      captions: this.game && this.game.getCaptions(),
     };
     this.log('sync:');
     this.log(data);
