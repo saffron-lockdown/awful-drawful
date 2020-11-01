@@ -1,3 +1,5 @@
+import { Round } from './round';
+import { SubRound } from './subRound';
 import { createLogger } from './logger';
 
 const PHASES = {
@@ -34,10 +36,6 @@ export function getUniquePrompts(nPrompts) {
   return prompts;
 }
 
-function allDrawingsIn(round) {
-  return round.every((subRound) => subRound.drawingSubmitted);
-}
-
 // return a plan of the game based on the number
 // of rounds and players.
 // each round has one object per player. The object contains
@@ -48,18 +46,11 @@ function gameplan(players, nRounds) {
   const rounds = [];
 
   for (let i = 0; i < nRounds; i += 1) {
-    const round = [];
-
-    players.forEach((player) => {
-      // shape of a subRound
-      round.push({
-        player,
-        prompt: prompts.pop(),
-        drawing: null,
-        drawingSubmitted: false,
-        captions: [], // will be submitting_player: caption
-      });
-    });
+    // for each round, create a set of subRounds equal to the number of players/prompts
+    const subRounds = players.map(
+      (player, index) => new SubRound(players.length, player, prompts[index])
+    );
+    const round = new Round(subRounds);
     rounds.push(round);
   }
   return rounds;
@@ -71,7 +62,6 @@ export class Game {
     this.players = [];
     this.phase = PHASES.LOBBY; // defines which phase of the game we're in
     this.roundNum = 0; // defines which round is currently being played
-    this.captionRoundNum = 0; // defines which drawing is currently being captioned/voted on
     this.nRounds = 3;
     this.log = createLogger(this.id);
   }
@@ -101,11 +91,8 @@ export class Game {
   }
 
   getCurrentSubRound() {
-    const round = this.getCurrentRound();
-    if (!round) {
-      return null;
-    }
-    return round[this.captionRoundNum];
+    this.log('getCurrentSubRound');
+    return this.getCurrentRound().getCurrentSubRound();
   }
 
   // get the prompt for a specific player for the current round
@@ -115,7 +102,8 @@ export class Game {
     if (!round) {
       return null;
     }
-    return round.find((subRound) => subRound.player === player).prompt;
+    const subRound = round.getSubRoundByArtist(player);
+    return subRound.getPrompt();
   }
 
   // get the current drawing to be either captioned or guessed for the current subRound
@@ -125,9 +113,7 @@ export class Game {
     if (!round) {
       return null;
     }
-
-    const subRound = this.getCurrentSubRound();
-    return subRound.drawing;
+    return this.getCurrentSubRound().getDrawing();
   }
 
   // get the captions from the current subRound
@@ -137,9 +123,7 @@ export class Game {
     if (!round) {
       return null;
     }
-
-    const subRound = this.getCurrentSubRound();
-    return subRound.captions;
+    return round.getCurrentSubRound().getCaptions();
   }
 
   getRealPrompt() {
@@ -149,8 +133,7 @@ export class Game {
       return null;
     }
 
-    const subRound = this.getCurrentSubRound();
-    return subRound.prompt;
+    return round.getCurrentSubRound().getPrompt();
   }
 
   // returns true if the player has completed their actions for the current game phase
@@ -162,21 +145,14 @@ export class Game {
     }
     const phase = this.getPhase();
     if (phase === PHASES.DRAW) {
-      return round.find((subRound) => subRound.player === player)
-        .drawingSubmitted;
+      return round.getSubRoundByArtist(player).isDrawingSubmitted();
     }
     if (phase === PHASES.CAPTION) {
-      const subRound = this.getCurrentSubRound();
-      return !!subRound.captions.find(
-        (caption) => caption.playerId === player.getId()
-      );
+      return this.getCurrentSubRound().hasPlayerSubmittedCaption(player);
     }
     // otherwise PHASE.GUESS
-    const subRound = this.getCurrentSubRound();
-    // player is waiting if they have selected a caption
-    return subRound.captions.find((caption) =>
-      caption.chosenBy.includes(player.getId())
-    );
+    // player should wait if they have selected a caption
+    return this.getCurrentSubRound().hasPlayerChosenCaption;
   }
 
   start() {
@@ -196,12 +172,11 @@ export class Game {
   // submit a drawing for a player in the current round
   postDrawing(player, drawing) {
     const round = this.getCurrentRound();
-    const subRound = round.find((r) => r.player === player);
-    subRound.drawing = drawing;
-    subRound.drawingSubmitted = true;
+    const subRound = round.getSubRoundByArtist(player);
+    subRound.submitDrawing(drawing);
 
     this.log(`wow ${player.getId().substring(1, 6)}, thats beautiful!`);
-    if (allDrawingsIn(round)) {
+    if (round.allDrawingsIn()) {
       this.log('all the artwork has been collected');
       this.startCaptioningPhase();
     }
@@ -212,28 +187,17 @@ export class Game {
     this.log('Time to caption these masterpieces!');
 
     this.sync();
-    // this.captionRoundNum += 1;
   }
 
   // submit a caption for a player in the current subRound
   postCaption(player, caption) {
-    const round = this.getCurrentRound();
     const subRound = this.getCurrentSubRound();
+    subRound.submitCaption(caption);
 
-    subRound.captions.push({
-      playerId: player.getId(),
-      text: caption,
-      chosenBy: [], // ids of the players who choose this caption
-    });
-
-    if (this.allCaptionsIn(subRound)) {
+    if (subRound.allCaptionsIn()) {
       this.log('all captions are in: ', subRound.captions);
       this.startGuessingPhase();
     }
-  }
-
-  allCaptionsIn(subRound) {
-    return subRound.captions.length === this.players.length;
   }
 
   startGuessingPhase() {
@@ -244,24 +208,12 @@ export class Game {
   }
 
   chooseCaption(player, captionText) {
-    const round = this.getCurrentRound();
     const subRound = this.getCurrentSubRound();
+    subRound.chooseCaptionByText(player.getId(), captionText);
 
-    const chosenCaption = subRound.captions.find(
-      (caption) => caption.text === captionText
-    );
-    chosenCaption.chosenBy.push(player.getId());
-
-    if (this.allPlayersChosen(subRound)) {
+    if (subRound.allPlayersChosen()) {
       this.startRevealPhase();
     }
-  }
-
-  allPlayersChosen(subRound) {
-    const totalChoices = subRound.captions.reduce((acc, caption) => {
-      return acc + caption.chosenBy.length;
-    }, 0);
-    return totalChoices === this.players.length;
   }
 
   startRevealPhase() {

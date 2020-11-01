@@ -1,4 +1,5 @@
-import { Manager } from './manager.js';
+import { Caption } from './caption';
+import { Manager } from './manager';
 import { createLogger } from './logger';
 import { createServer } from 'http';
 import express from 'express';
@@ -79,12 +80,13 @@ io.on('connect', (socket) => {
     player.postDrawing(drawing);
   });
 
-  socket.on('post-caption', (caption) => {
+  socket.on('post-caption', (text) => {
+    const caption = new Caption(player.getId(), text);
     player.postCaption(caption);
   });
 
-  socket.on('choose-caption', (caption) => {
-    player.chooseCaption(caption);
+  socket.on('choose-caption', (text) => {
+    player.chooseCaption(text);
   });
 });
 
