@@ -63,6 +63,9 @@ const app = new Vue({
     postCaption() {
       socket.emit('post-caption', this.caption);
     },
+    chooseCaption(caption) {
+      socket.emit('choose-caption', caption.text);
+    },
   },
   updated() {
     // every time the DOM is updated, check if there are any canvases that need to be hooked up to

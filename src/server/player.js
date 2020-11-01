@@ -1,3 +1,4 @@
+import { createHash } from 'crypto';
 import { createLogger } from './logger';
 
 export class Player {
@@ -58,11 +59,11 @@ export class Player {
   }
 
   sendError(err) {
-    this.state.errorMessage = err;
+    this.errorMessage = err;
     this.sync();
 
     // clear the error message for future refreshes
-    this.state.errorMessage = null;
+    this.errorMessage = null;
   }
 
   postDrawing(drawing) {
@@ -75,6 +76,13 @@ export class Player {
   postCaption(caption) {
     if (this.game) {
       this.game.postCaption(this, caption);
+      this.sync();
+    }
+  }
+
+  chooseCaption(caption) {
+    if (this.game) {
+      this.game.chooseCaption(this, caption);
       this.sync();
     }
   }
@@ -104,8 +112,17 @@ export class Player {
       viewDrawing: this.game && this.game.getViewDrawing(),
       captions: this.game && this.game.getCaptions(),
     };
+    const stripped = {
+      ...data,
+      viewDrawing:
+        data.viewDrawing &&
+        createHash('sha1')
+          .update(JSON.stringify(data.viewDrawing))
+          .digest('hex'),
+    };
     this.log('sync:');
-    this.log(data);
+    this.log(stripped);
+
     this.emit('sync', data);
   }
 

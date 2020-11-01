@@ -203,7 +203,7 @@ export class Game {
 
     subRound.captions.push({
       playerId: player.getId(),
-      caption,
+      text: caption,
       chosenBy: [], // ids of the players who choose this caption
     });
 
@@ -222,6 +222,16 @@ export class Game {
     this.log('Guess the correct caption!');
 
     this.sync();
+  }
+
+  chooseCaption(player, captionText) {
+    const round = this.getCurrentRound();
+    const subRound = round[this.captionRoundNum];
+
+    const chosenCaption = subRound.captions.find(
+      (caption) => caption.text === captionText
+    );
+    chosenCaption.chosenBy.push(player.getId());
   }
 
   // syncs players state for all players in the game

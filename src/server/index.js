@@ -82,6 +82,10 @@ io.on('connect', (socket) => {
   socket.on('post-caption', (caption) => {
     player.postCaption(caption);
   });
+
+  socket.on('choose-caption', (caption) => {
+    player.chooseCaption(caption);
+  });
 });
 
 app.use(serveStatic('src/client/'));

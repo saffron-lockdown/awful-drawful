@@ -77,8 +77,8 @@
               </div>
               <b-list-group>
                 <b-form-group label="What was the real prompt?">
-                  <b-list-group-item v-for="caption in state.captions" button @click="console.log('clicked')">
-                    {{ caption.caption }}
+                  <b-list-group-item v-for="caption in state.captions" button @click="chooseCaption(caption)">
+                    {{ caption.text }}
                   </b-list-group-item>
                 </b-form-group>
               </b-list-group>
