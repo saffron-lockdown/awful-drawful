@@ -51,7 +51,9 @@
             style="width: 500px; height: 500px; user-select: none"
           ></div>
         </template>
-        <b-alert id="error-display" v-model="state.errorMessage">Error: {{ state.errorMessage }}</b-alert>
+        <b-alert id="error-display" show v-if="state.errorMessage" variant="danger"
+          >Error: {{ state.errorMessage }}</b-alert
+        >
         <b-button id="leave-game-button" v-if="state.gameId" v-on:click="leaveGame" variant="danger"
           >Leave game</b-button
         >

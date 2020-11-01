@@ -51,9 +51,10 @@ export class Player {
     }
   }
 
-  setError(err) {
+  sendError(err) {
     this.state.errorMessage = err;
     this.sync();
+    this.state.errorMessage = null;
   }
 
   setPrompt(prompt) {
@@ -89,7 +90,7 @@ export class Player {
 
   emit(tag, message) {
     this.socket.emit(tag, message);
-    this.log(`sending player ${this.id.substring(1, 6)} the message ${tag}:`);
+    this.log(`emit [${tag}]:`);
 
     // remove viewDrawing because it's too big
     const strippedMessage = {
