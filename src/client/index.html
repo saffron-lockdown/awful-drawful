@@ -45,12 +45,7 @@
           <canvas ref="easel" width="500" height="500"></canvas>
           <b-button id="post" v-on:click="postDrawing" variant="success">post</b-button>
           <h2>Feed</h2>
-          <div
-            id="feed-container"
-            ref="gallery"
-            class="canvas-container"
-            style="width: 500px; height: 500px; user-select: none"
-          ></div>
+          <canvas ref="gallery" width="500" height="500"></canvas>
         </template>
         <b-alert id="error-display" show fade v-if="state.errorMessage" variant="danger"
           >Error: {{ state.errorMessage }}</b-alert

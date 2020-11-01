@@ -45,20 +45,8 @@ const app = new Vue({
       if (!viewDrawing || !ref) {
         return;
       }
-      const c = document.createElement('canvas');
-      c.width = '500';
-      c.height = '500';
-      c.style = `border: 1px solid rgb(170, 170, 170);
-          width: 500px;
-          height: 500px;
-          touch-action: none;
-          user-select: none;`;
-      c.id =
-        Math.random().toString(36).substring(2, 15) +
-        Math.random().toString(36).substring(2, 15);
-      ref.appendChild(c);
 
-      const drawing = new fabric.Canvas(c);
+      const drawing = new fabric.Canvas(ref);
       drawing.loadFromJSON(viewDrawing);
     },
   },
