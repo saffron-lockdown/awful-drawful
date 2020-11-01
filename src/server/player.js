@@ -11,6 +11,7 @@ export class Player {
       errorMessage: null,
       prompt: null,
       viewDrawing: null,
+      timeRemaining: null,
     };
   }
 
@@ -61,6 +62,11 @@ export class Player {
     this.state.prompt = prompt;
 
     // prompt is secret to player, so only sync required
+    this.sync();
+  }
+
+  setTimeRemaining(timeRemaining) {
+    this.state.timeRemaining = timeRemaining;
     this.sync();
   }
 

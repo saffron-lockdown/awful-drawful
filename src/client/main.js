@@ -13,6 +13,7 @@ const app = new Vue({
         playerList: '',
         errorMessage: null,
         viewDrawing: null,
+        timeRemaining: null,
       },
       // local client state
       editName: false,

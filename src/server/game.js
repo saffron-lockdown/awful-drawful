@@ -89,11 +89,14 @@ export class Game {
 
     // start a 30 second timer
     let time = 30;
+    this.players.forEach((player) => {
+      player.setTimeRemaining(time);
+    });
+
     this.timer = setInterval(() => {
       time -= 1;
-
       this.players.forEach((player) => {
-        player.setPrompt(time);
+        player.setTimeRemaining(time);
       });
 
       if (time === 0) {

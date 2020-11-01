@@ -42,6 +42,7 @@
         </template>
         <template id="page-ingame" v-else-if="page === 'ingame'">
           <b-alert id="prompt-display" show>Random prompt: {{ state.prompt }}</b-alert>
+          <b-progress :value="state.timeRemaining" :max="30" variant="info" show-value></b-progress>
           <canvas ref="easel" width="500" height="500"></canvas>
           <b-button id="post" v-on:click="postDrawing" variant="success">post</b-button>
           <h2>Feed</h2>
