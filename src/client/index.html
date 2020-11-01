@@ -20,7 +20,7 @@
       <b-container>
         <b-alert show variant="success" v-if="page !== 'set-name'">
           <span>{{ state.name }}</span>
-          <b-button v-on:click="toggleEditName" v-if="page !== 'ingame'">Edit name</b-button>
+          <b-button v-on:click="editName = true" v-if="page !== 'ingame'">Edit name</b-button>
         </b-alert>
         <template id="page-set-name" v-else>
           <b-form-group label="Name">
@@ -47,11 +47,12 @@
           <h2>Feed</h2>
           <div
             id="feed-container"
+            ref="gallery"
             class="canvas-container"
             style="width: 500px; height: 500px; user-select: none"
           ></div>
         </template>
-        <b-alert id="error-display" show v-if="state.errorMessage" variant="danger"
+        <b-alert id="error-display" show fade v-if="state.errorMessage" variant="danger"
           >Error: {{ state.errorMessage }}</b-alert
         >
         <b-button id="leave-game-button" v-if="state.gameId" v-on:click="leaveGame" variant="danger"

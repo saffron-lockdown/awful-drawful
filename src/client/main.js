@@ -15,7 +15,7 @@ const app = new Vue({
         viewDrawing: null,
       },
       // local client state
-      editName: true,
+      editName: false,
       localState: {
         name: '',
         gameId: '',
@@ -38,7 +38,13 @@ const app = new Vue({
     },
   },
   watch: {
-    viewDrawing(newDrawing) {
+    state(newState) {
+      console.log({ newState });
+      const { viewDrawing } = newState;
+      const ref = this.$refs.gallery;
+      if (!viewDrawing || !ref) {
+        return;
+      }
       const c = document.createElement('canvas');
       c.width = '500';
       c.height = '500';
@@ -50,10 +56,10 @@ const app = new Vue({
       c.id =
         Math.random().toString(36).substring(2, 15) +
         Math.random().toString(36).substring(2, 15);
-      document.querySelector('#feed-container').appendChild(c);
+      ref.appendChild(c);
 
-      const drawing = new fabric.Canvas(c.id);
-      drawing.loadFromJSON(newDrawing);
+      const drawing = new fabric.Canvas(c);
+      drawing.loadFromJSON(viewDrawing);
     },
   },
   methods: {
@@ -72,16 +78,13 @@ const app = new Vue({
         return;
       }
       socket.emit('set-name', name);
-      this.toggleEditName();
+      this.editName = false;
     },
     startGame() {
       socket.emit('start-game');
     },
     postDrawing() {
       socket.emit('post-drawing', JSON.stringify(canvas));
-    },
-    toggleEditName() {
-      this.editName = !this.editName;
     },
   },
   updated() {
@@ -97,9 +100,7 @@ const app = new Vue({
 });
 
 socket.on('sync', (data) => {
-  Object.entries(data).forEach(([key, val]) => {
-    app.state[key] = val;
-  });
+  app.state = data;
   if (app.state.name) {
     app.localState.name = app.state.name;
   }
