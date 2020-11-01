@@ -1,5 +1,11 @@
 import { createLogger } from './logger';
 
+const PHASES = {
+  LOBBY: 'LOBBY',
+  DRAW: 'DRAW',
+  CAPTION: 'CAPTION',
+};
+
 function randomChoice(arr) {
   return arr[Math.floor(arr.length * Math.random())];
 }
@@ -55,6 +61,7 @@ export class Game {
   constructor(id) {
     this.id = id;
     this.players = [];
+    this.phase = PHASES.LOBBY; // defines which phase of the game we're in
     this.roundNum = 0; // defines which round is currently being played
     this.captionRoundNum = 0; // defines which drawing is currently being captioned/voted on
     this.nRounds = 3;
@@ -74,6 +81,10 @@ export class Game {
     return this.players.map((player) => player.getName()).join(', ');
   }
 
+  getPhase() {
+    return this.phase;
+  }
+
   start() {
     this.gameplan = gameplan(this.players, this.nRounds);
     this.log(this.gameplan);
@@ -81,6 +92,8 @@ export class Game {
   }
 
   startDrawingPhase() {
+    this.phase = PHASES.DRAW;
+
     // send each player their prompt
     const round = this.gameplan[this.roundNum];
     Object.values(round).forEach(({ player, prompt }) => {
@@ -108,6 +121,7 @@ export class Game {
   }
 
   startCaptioningPhase() {
+    this.phase = PHASES.CAPTION;
     this.log('Time to caption these masterpieces!');
 
     const round = this.gameplan[this.roundNum];

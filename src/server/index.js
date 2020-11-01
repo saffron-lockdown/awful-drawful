@@ -73,7 +73,7 @@ io.on('connect', (socket) => {
   });
 
   socket.on('post-drawing', (drawing) => {
-    player.game.postDrawing(player, drawing);
+    player.postDrawing(drawing);
   });
 });
 

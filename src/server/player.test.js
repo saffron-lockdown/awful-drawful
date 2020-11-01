@@ -11,7 +11,9 @@ test('should send message to socket', () => {
     errorMessage: null,
     prompt: null,
     viewDrawing: null,
+    isWaiting: false,
     gameId: null,
     playerList: null,
+    phase: null,
   });
 });

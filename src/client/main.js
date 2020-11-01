@@ -1,6 +1,7 @@
 const socket = io();
 
-let canvas;
+let easel = null;
+let gallery = null;
 
 const app = new Vue({
   el: '#app',
@@ -16,10 +17,9 @@ const app = new Vue({
       },
       // local client state
       editName: false,
-      localState: {
-        name: '',
-        gameId: '',
-      },
+      name: '',
+      gameId: '',
+      caption: '',
     };
   },
   computed: {
@@ -29,25 +29,12 @@ const app = new Vue({
         return 'set-name';
       }
       if (this.state.gameId) {
-        if (this.state.prompt) {
-          return 'ingame';
+        if (this.state.phase === 'LOBBY') {
+          return 'lobby';
         }
-        return 'waiting';
+        return 'ingame';
       }
       return 'landing';
-    },
-  },
-  watch: {
-    state(newState) {
-      console.log({ newState });
-      const { viewDrawing } = newState;
-      const ref = this.$refs.gallery;
-      if (!viewDrawing || !ref) {
-        return;
-      }
-
-      const drawing = new fabric.Canvas(ref);
-      drawing.loadFromJSON(viewDrawing);
     },
   },
   methods: {
@@ -55,34 +42,53 @@ const app = new Vue({
       socket.emit('create-game');
     },
     joinGame() {
-      socket.emit('join-game', this.localState.gameId);
+      socket.emit('join-game', this.gameId);
     },
     leaveGame() {
       socket.emit('leave-game');
     },
     setName() {
-      const { name } = this.localState;
-      if (!name.length) {
+      if (!this.name.length) {
         return;
       }
-      socket.emit('set-name', name);
+      socket.emit('set-name', this.name);
       this.editName = false;
     },
     startGame() {
       socket.emit('start-game');
     },
     postDrawing() {
-      socket.emit('post-drawing', JSON.stringify(canvas));
+      socket.emit('post-drawing', JSON.stringify(easel));
+    },
+    postCaption() {
+      socket.emit('caption', this.caption);
     },
   },
   updated() {
-    const ref = this.$refs.easel;
+    // every time the DOM is updated, check if there are any canvases that need to be hooked up to
+    // fabric.js. Ensure that there is only ever one fabric.Canvas instance per canvas DOM node
+    const el = document.querySelector('#easel');
+    if (el) {
+      if (!easel) {
+        easel = new fabric.Canvas(el, {
+          isDrawingMode: true,
+        });
+        easel.freeDrawingBrush.color = 'purple';
+        easel.freeDrawingBrush.width = 10;
+      }
+    } else {
+      easel = null;
+    }
+    const ref = document.querySelector('#gallery');
     if (ref) {
-      canvas = new fabric.Canvas(ref, {
-        isDrawingMode: true,
-      });
-      canvas.freeDrawingBrush.color = 'purple';
-      canvas.freeDrawingBrush.width = 10;
+      if (this.state.viewDrawing) {
+        if (!gallery) {
+          gallery = new fabric.Canvas(ref);
+          gallery.loadFromJSON(this.state.viewDrawing);
+        }
+      }
+    } else {
+      gallery = null;
     }
   },
 });
@@ -90,6 +96,6 @@ const app = new Vue({
 socket.on('sync', (data) => {
   app.state = data;
   if (app.state.name) {
-    app.localState.name = app.state.name;
+    app.name = app.state.name;
   }
 });
