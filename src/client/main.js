@@ -3,6 +3,12 @@ const socket = io();
 let easel = null;
 let gallery = null;
 
+function createFabricCanvas(el, options = {}) {
+  const canvas = new fabric.Canvas(el, options);
+  canvas.setDimensions({ width: '100%', height: '100%' }, { cssOnly: true });
+  return canvas;
+}
+
 const app = new Vue({
   el: '#app',
   data() {
@@ -73,7 +79,7 @@ const app = new Vue({
     const el = document.querySelector('#easel');
     if (el) {
       if (!easel) {
-        easel = new fabric.Canvas(el, {
+        easel = createFabricCanvas(el, {
           isDrawingMode: true,
         });
         easel.freeDrawingBrush.color = 'purple';
@@ -86,7 +92,7 @@ const app = new Vue({
     if (ref) {
       if (this.state.viewDrawing) {
         if (!gallery) {
-          gallery = new fabric.Canvas(ref);
+          gallery = createFabricCanvas(ref);
         }
         gallery.clear();
         gallery.loadFromJSON(this.state.viewDrawing);
@@ -95,6 +101,14 @@ const app = new Vue({
       gallery = null;
     }
   },
+});
+
+Vue.component('gallery', {
+  template: `
+    <div key="gallery" class="flex-grow-1 mb-2">
+      <canvas id="gallery" width="500" height="500"></canvas>
+    </div>
+  `,
 });
 
 socket.on('sync', (data) => {

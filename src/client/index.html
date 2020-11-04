@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <title>Drawful clone</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no, maximum-scale=1.0, user-scalable=0;"
+    />
     <link href="/main.css" rel="stylesheet" />
     <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap/dist/css/bootstrap.min.css" />
     <link type="text/css" rel="stylesheet" href="//unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
@@ -17,7 +20,7 @@
   </head>
   <body>
     <div id="app" v-cloak>
-      <b-container class="mt-2">
+      <b-container class="d-flex flex-column pt-2 pb-2 vh-100">
         <b-alert show variant="success" v-if="page !== 'set-name'" class="d-flex justify-content-between">
           <span id="name-display">{{ state.name }}</span>
           <b-button @click="editName = true" v-if="page !== 'ingame'">Edit name</b-button>
@@ -26,24 +29,22 @@
           <b-form-group label="Name">
             <b-form-input name="name" v-model="name"></b-form-input>
           </b-form-group>
-          <b-button id="set-name-button" @click="setName" variant="primary">Set name</b-button>
+          <b-button id="set-name-button" class="mb-2" @click="setName" variant="primary">Set name</b-button>
         </template>
         <template id="page-landing" v-if="page === 'landing'">
           <b-form-group label="Game ID">
             <b-form-input name="gameId" v-model="gameId"></b-form-input>
           </b-form-group>
-          <div class="d-flex flex-column mb-2">
-            <b-alert id="error-display" show fade v-if="state.errorMessage" variant="danger"
-              >Error: {{ state.errorMessage }}</b-alert
-            >
-            <b-button id="join-game-button" class="mb-2" @click="joinGame" variant="success">Join game</b-button>
-            <b-button id="create-game-button" @click="createGame" variant="info"> Create game </b-button>
-          </div>
+          <b-alert id="error-display" show fade v-if="state.errorMessage" variant="danger"
+            >Error: {{ state.errorMessage }}</b-alert
+          >
+          <b-button id="join-game-button" class="mb-2" @click="joinGame" variant="success">Join game</b-button>
+          <b-button id="create-game-button" @click="createGame" variant="info"> Create game </b-button>
         </template>
         <template id="page-lobby" v-else-if="page === 'lobby'">
           <b-alert id="game-id-display" show>Game ID: {{ state.gameId }}</b-alert>
           <b-alert id="player-list-display" show>Players: {{ state.playerList }}</b-alert>
-          <b-button id="start-game-button" @click="startGame">Everybody's in!</b-button>
+          <b-button id="start-game-button" class="mb-2" @click="startGame">Everybody's in!</b-button>
         </template>
         <template id="page-ingame" v-else-if="page === 'ingame'">
           <template v-if="state.phase === 'DRAW'">
@@ -52,10 +53,10 @@
             </template>
             <template v-else>
               <b-alert id="prompt-display" show>Random prompt: {{ state.prompt }}</b-alert>
-              <div key="easel">
+              <div key="easel" class="flex-grow-1 mb-2">
                 <canvas id="easel" width="500" height="500"></canvas>
               </div>
-              <b-button id="post" @click="postDrawing" variant="success">Post</b-button>
+              <b-button id="post" class="mb-2" @click="postDrawing" variant="success">Post</b-button>
             </template>
           </template>
           <template v-if="state.phase === 'CAPTION'">
@@ -63,13 +64,11 @@
               <span>that makes no sense, but ok</span>
             </template>
             <template v-else>
-              <div key="gallery">
-                <canvas id="gallery" width="500" height="500"></canvas>
-              </div>
+              <gallery></gallery>
               <b-form-group label="What is this?">
                 <b-form-input v-model="caption"></b-form-input>
               </b-form-group>
-              <b-button id="caption-button" @click="postCaption" variant="primary">Submit</b-button>
+              <b-button id="caption-button" class="mb-2" @click="postCaption" variant="primary">Submit</b-button>
             </template>
           </template>
           <template v-if="state.phase === 'GUESS'">
@@ -77,9 +76,7 @@
               <span>waiting for the other players to pick their caption</span>
             </template>
             <template v-else>
-              <div key="gallery">
-                <canvas id="gallery" width="500" height="500"></canvas>
-              </div>
+              <gallery></gallery>
               <b-list-group>
                 <b-form-group label="What was the real prompt?">
                   <b-list-group-item v-for="caption in state.captions" button @click="chooseCaption(caption)">
@@ -90,9 +87,7 @@
             </template>
           </template>
           <template v-if="state.phase === 'REVEAL'">
-            <div key="gallery">
-              <canvas id="gallery" width="500" height="500"></canvas>
-            </div>
+            <gallery></gallery>
             <b-alert show variant="success"> The real prompt was: {{ state.realPrompt }} </b-alert>
           </template>
         </template>
