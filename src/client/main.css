@@ -1,3 +1,7 @@
+body {
+  position: fixed;
+}
+
 [v-cloak] {
   display: none;
 }
