@@ -5,7 +5,14 @@ let gallery = null;
 
 function createFabricCanvas(el, options = {}) {
   const canvas = new fabric.Canvas(el, options);
+  // expand canvas to fill remaining screen real estate
   canvas.setDimensions({ width: '100%', height: '100%' }, { cssOnly: true });
+
+  // set aspect ratio appropriate to screen
+  canvas.setDimensions(
+    { width: canvas.width, height: canvas.height },
+    { backstoreOnly: true }
+  );
   return canvas;
 }
 
