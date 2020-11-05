@@ -32,7 +32,7 @@
       </template>
       <template id="page-landing" v-if="page === 'landing'">
         <b-form-group label="Game ID">
-          <b-form-input name="gameId" v-model="gameId"></b-form-input>
+          <b-form-input name="gameId" v-bind:value="gameId" v-on:input="setGameId" maxlength="4"></b-form-input>
         </b-form-group>
         <b-alert id="error-display" show fade v-if="state.errorMessage" variant="danger"
           >Error: {{ state.errorMessage }}</b-alert

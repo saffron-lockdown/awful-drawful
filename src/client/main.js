@@ -50,6 +50,9 @@ const app = new Vue({
     },
   },
   methods: {
+    setGameId(val) {
+      this.gameId = val.toUpperCase();
+    },
     createGame() {
       socket.emit('create-game');
     },
