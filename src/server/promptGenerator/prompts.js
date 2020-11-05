@@ -1,4 +1,8 @@
-const nouns = [
+export const nouns = [
+  'bicycle',
+  'yoghurt',
+  'cloud',
+  'Harry Potter',
   'apple',
   'baby',
   'back',
@@ -96,7 +100,7 @@ const nouns = [
   'wood',
 ];
 
-const gerunds = [
+export const gerunds = [
   'Baking',
   'Nailing',
   'Biking',
@@ -125,7 +129,11 @@ const gerunds = [
   'Writing',
 ];
 
-const adjectives = [
+export const adjectives = [
+  'man-eating',
+  'hairless',
+  'cardboard',
+  'vegan',
   'Adorable',
   'Intrepid',
   'Adventurous',
