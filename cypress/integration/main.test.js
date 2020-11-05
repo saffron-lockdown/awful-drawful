@@ -43,7 +43,7 @@ describe('Main', () => {
     it('interaction with rooms', () => {
       cy.get('#create-game-button').click();
 
-      const regex = /Game ID: ([a-z0-9]{4})/;
+      const regex = /Game ID: ([A-Z]{4})/;
 
       cy.get('#game-id-display').invoke('text').should('match', regex);
       cy.get('#player-list-display').should('contain', 'wz');

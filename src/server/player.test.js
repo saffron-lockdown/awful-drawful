@@ -9,12 +9,14 @@ test('should send message to socket', () => {
   expect(mockSocket.emit).toHaveBeenCalledWith('sync', {
     name: '',
     errorMessage: null,
-    prompt: null,
-    viewDrawing: null,
-    isWaiting: false,
     gameId: null,
     playerList: null,
     timeRemaining: null,
     phase: null,
+    isWaiting: null,
+    prompt: null,
+    viewDrawing: null,
+    captions: null,
+    realPrompt: null,
   });
 });

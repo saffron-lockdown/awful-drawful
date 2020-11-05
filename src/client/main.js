@@ -3,6 +3,17 @@ const socket = io();
 let easel = null;
 let gallery = null;
 
+function setCanvasSize(canvas) {
+  // expand canvas to fill remaining screen real estate
+  canvas.setDimensions({ width: '100%', height: '100%' }, { cssOnly: true });
+
+  // set aspect ratio appropriate to screen
+  canvas.setDimensions(
+    { width: canvas.width, height: canvas.height },
+    { backstoreOnly: true }
+  );
+}
+
 const app = new Vue({
   el: '#app',
   data() {
@@ -64,6 +75,9 @@ const app = new Vue({
     postCaption() {
       socket.emit('post-caption', this.caption);
     },
+    chooseCaption(caption) {
+      socket.emit('choose-caption', caption.text);
+    },
   },
   updated() {
     // every time the DOM is updated, check if there are any canvases that need to be hooked up to
@@ -74,6 +88,7 @@ const app = new Vue({
         easel = new fabric.Canvas(el, {
           isDrawingMode: true,
         });
+        setCanvasSize(easel);
         easel.freeDrawingBrush.color = 'purple';
         easel.freeDrawingBrush.width = 10;
       }
@@ -84,14 +99,24 @@ const app = new Vue({
     if (ref) {
       if (this.state.viewDrawing) {
         if (!gallery) {
-          gallery = new fabric.Canvas(ref);
-          gallery.loadFromJSON(this.state.viewDrawing);
+          gallery = new fabric.StaticCanvas(ref);
+          setCanvasSize(gallery);
         }
+        gallery.clear();
+        gallery.loadFromJSON(this.state.viewDrawing);
       }
     } else {
       gallery = null;
     }
   },
+});
+
+Vue.component('gallery', {
+  template: `
+    <div key="gallery" class="flex-grow-1 mb-2">
+      <canvas id="gallery" width="500" height="500"></canvas>
+    </div>
+  `,
 });
 
 socket.on('sync', (data) => {

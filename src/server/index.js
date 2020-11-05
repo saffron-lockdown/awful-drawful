@@ -1,4 +1,5 @@
-import { Manager } from './manager.js';
+import { Caption } from './caption';
+import { Manager } from './manager';
 import { createLogger } from './logger';
 import { createServer } from 'http';
 import express from 'express';
@@ -32,7 +33,10 @@ function addPlayerToGame(player, game) {
 const wrap = (middleware) => (socket, next) =>
   middleware(socket.request, {}, next);
 
+// attach session middleware to app so that cookies are set on page GETs
 app.use(sesh);
+
+// also attach to session middleware to make the session available on socket.request
 io.use(wrap(sesh));
 
 io.on('connect', (socket) => {
@@ -69,15 +73,20 @@ io.on('connect', (socket) => {
   });
 
   socket.on('start-game', () => {
-    player.game.start();
+    player.startGame();
   });
 
   socket.on('post-drawing', (drawing) => {
     player.postDrawing(drawing);
   });
 
-  socket.on('post-caption', (caption) => {
+  socket.on('post-caption', (text) => {
+    const caption = new Caption(player.getId(), text);
     player.postCaption(caption);
+  });
+
+  socket.on('choose-caption', (text) => {
+    player.chooseCaption(text);
   });
 });
 

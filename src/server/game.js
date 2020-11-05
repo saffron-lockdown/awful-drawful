@@ -1,9 +1,13 @@
+import { Round } from './round';
+import { SubRound } from './subRound';
 import { createLogger } from './logger';
 
 const PHASES = {
   LOBBY: 'LOBBY',
   DRAW: 'DRAW',
   CAPTION: 'CAPTION',
+  GUESS: 'GUESS',
+  REVEAL: 'REVEAL',
 };
 
 function randomChoice(arr) {
@@ -32,12 +36,6 @@ export function getUniquePrompts(nPrompts) {
   return prompts;
 }
 
-function allDrawingsIn(round) {
-  return Object.values(round).every((element) => {
-    return element.drawing !== '';
-  });
-}
-
 // return a plan of the game based on the number
 // of rounds and players.
 // each round has one object per player. The object contains
@@ -48,17 +46,11 @@ export function gameplan(players, nRounds) {
   const rounds = [];
 
   for (let i = 0; i < nRounds; i += 1) {
-    const round = [];
-
-    players.forEach((player) => {
-      // shape of a subRound
-      round.push({
-        player,
-        prompt: prompts.pop(),
-        drawing: '',
-        captions: {}, // will be submitting_player: caption
-      });
-    });
+    // for each round, create a set of subRounds equal to the number of players/prompts
+    const subRounds = players.map(
+      (player, index) => new SubRound(players.length, player, prompts[index])
+    );
+    const round = new Round(subRounds);
     rounds.push(round);
   }
   return rounds;
@@ -70,9 +62,9 @@ export class Game {
     this.players = [];
     this.phase = PHASES.LOBBY; // defines which phase of the game we're in
     this.roundNum = 0; // defines which round is currently being played
-    this.captionRoundNum = 0; // defines which drawing is currently being captioned/voted on
     this.nRounds = 3;
     this.log = createLogger(this.id);
+    this.timer = null;
   }
 
   addPlayer(player) {
@@ -93,11 +85,84 @@ export class Game {
   }
 
   getCurrentRound() {
+    if (!this.gameplan) {
+      return null;
+    }
     return this.gameplan[this.roundNum];
+  }
+
+  getCurrentSubRound() {
+    this.log('getCurrentSubRound');
+    return this.getCurrentRound().getCurrentSubRound();
+  }
+
+  getTimeRemaining() {
+    return this.timeRemaining;
+  }
+
+  // get the prompt for a specific player for the current round
+  getPrompt(player) {
+    this.log('getPrompt');
+    const round = this.getCurrentRound();
+    if (!round) {
+      return null;
+    }
+    const subRound = round.getSubRoundByArtist(player);
+    return subRound.getPrompt();
+  }
+
+  // get the current drawing to be either captioned or guessed for the current subRound
+  getViewDrawing() {
+    this.log('getViewDrawing');
+    const round = this.getCurrentRound();
+    if (!round) {
+      return null;
+    }
+    return this.getCurrentSubRound().getDrawing();
+  }
+
+  // get the captions from the current subRound
+  getCaptions() {
+    this.log('getCaptions');
+    const round = this.getCurrentRound();
+    if (!round) {
+      return null;
+    }
+    return round.getCurrentSubRound().getCaptions();
+  }
+
+  getRealPrompt() {
+    this.log('getRealPrompt');
+    const round = this.getCurrentRound();
+    if (!round || this.getPhase() !== PHASES.REVEAL) {
+      return null;
+    }
+
+    return round.getCurrentSubRound().getPrompt();
+  }
+
+  // returns true if the player has completed their actions for the current game phase
+  isPlayerWaiting(player) {
+    this.log('isPlayerWaiting');
+    const round = this.getCurrentRound();
+    if (!round) {
+      return false;
+    }
+    const phase = this.getPhase();
+    if (phase === PHASES.DRAW) {
+      return round.getSubRoundByArtist(player).isDrawingSubmitted();
+    }
+    if (phase === PHASES.CAPTION) {
+      return this.getCurrentSubRound().hasPlayerSubmittedCaption(player);
+    }
+    // otherwise PHASE.GUESS
+    // player should wait if they have selected a caption
+    return this.getCurrentSubRound().hasPlayerChosenCaption;
   }
 
   start() {
     this.gameplan = gameplan(this.players, this.nRounds);
+    this.log('starting game');
     this.log(this.gameplan);
     this.startDrawingPhase();
   }
@@ -105,75 +170,81 @@ export class Game {
   startDrawingPhase() {
     this.phase = PHASES.DRAW;
 
-    // send each player their prompt
-    const round = this.gameplan[this.roundNum];
-    Object.values(round).forEach(({ player, prompt }) => {
-      player.setPrompt(prompt);
-    });
-
     // start a 30 second timer
-    let time = 30;
-    this.players.forEach((player) => {
-      player.setTimeRemaining(time);
-    });
+    this.timeRemaining = 30;
+    this.sync();
 
+    // this timer should be cancelled whenever starting a new phase
     this.timer = setInterval(() => {
-      time -= 1;
-      this.players.forEach((player) => {
-        player.setTimeRemaining(time);
-      });
+      this.timeRemaining -= 1;
+      this.sync();
 
-      if (time === 0) {
-        clearInterval(this.timer);
+      if (this.timeRemaining === 0) {
         this.startCaptioningPhase();
       }
     }, 1000);
   }
 
+  // submit a drawing for a player in the current round
   postDrawing(player, drawing) {
     const round = this.getCurrentRound();
-    round.find((r) => r.player === player).drawing = drawing;
+    const subRound = round.getSubRoundByArtist(player);
+    subRound.submitDrawing(drawing);
 
-    this.log(`wow ${player.id.substring(1, 6)}, thats beautiful!`);
-
-    if (allDrawingsIn(round)) {
+    this.log(`wow ${player.getId().substring(1, 6)}, thats beautiful!`);
+    if (round.allDrawingsIn()) {
       this.log('all the artwork has been collected');
-      clearInterval(this.timer);
       this.startCaptioningPhase();
     }
   }
 
   startCaptioningPhase() {
+    // cancel any existing timers
+    clearInterval(this.timer);
     this.phase = PHASES.CAPTION;
     this.log('Time to caption these masterpieces!');
 
-    const round = this.getCurrentRound();
-    const subRound = round[this.captionRoundNum];
-
-    this.players.forEach((player) => {
-      player.setViewDrawing(subRound.drawing);
-    });
-    this.captionRoundNum += 1;
+    this.sync();
   }
 
+  // submit a caption for a player in the current subRound
   postCaption(player, caption) {
-    const round = this.getCurrentRound();
-    const subRound = round[this.captionRoundNum];
+    const subRound = this.getCurrentSubRound();
+    subRound.submitCaption(caption);
 
-    subRound.captions[player.id] = caption;
-
-    if (this.allCaptionsIn(subRound)) {
+    if (subRound.allCaptionsIn()) {
       this.log('all captions are in: ', subRound.captions);
+      this.startGuessingPhase();
     }
   }
 
-  allCaptionsIn(subRound) {
-    return Object.values(subRound.captions).length === this.players.length;
+  startGuessingPhase() {
+    this.phase = PHASES.GUESS;
+    this.log('Guess the correct caption!');
+
+    this.sync();
+  }
+
+  chooseCaption(player, captionText) {
+    const subRound = this.getCurrentSubRound();
+    subRound.chooseCaptionByText(player.getId(), captionText);
+
+    if (subRound.allPlayersChosen()) {
+      this.startRevealPhase();
+    }
+  }
+
+  startRevealPhase() {
+    this.phase = PHASES.REVEAL;
+    this.log('revealing real prompt!');
+
+    this.sync();
   }
 
   // syncs players state for all players in the game
   sync() {
-    this.log('syncing all players');
+    this.log('syncing all players, current game plan:');
+    this.log(this.gameplan);
     this.players.forEach((player) => {
       player.sync();
     });

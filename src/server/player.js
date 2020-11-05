@@ -1,3 +1,4 @@
+import { createHash } from 'crypto';
 import { createLogger } from './logger';
 
 export class Player {
@@ -6,15 +7,12 @@ export class Player {
     this.socket = null;
     this.log = createLogger(this.id.substring(0, 5));
     this.game = null;
-    this.state = {
-      name: '',
-      errorMessage: null,
-      prompt: null,
-      viewDrawing: null,
+    this.name = '';
+    this.errorMessage = null;
+  }
 
-      isWaiting: false,
-      timeRemaining: null,
-    };
+  getId() {
+    return this.id;
   }
 
   setSocket(socket) {
@@ -23,12 +21,12 @@ export class Player {
   }
 
   setName(name) {
-    this.state.name = name;
+    this.name = name;
     this.update();
   }
 
   getName() {
-    return this.state.name;
+    return this.name;
   }
 
   getGameId() {
@@ -54,33 +52,21 @@ export class Player {
     }
   }
 
+  startGame() {
+    if (this.game) {
+      this.game.start();
+    }
+  }
+
   sendError(err) {
-    this.state.errorMessage = err;
+    this.errorMessage = err;
     this.sync();
-    this.state.errorMessage = null;
-  }
-
-  setPrompt(prompt) {
-    this.state.prompt = prompt;
-
-    // prompt is secret to player, so only sync required
-    this.sync();
-  }
-
-  setTimeRemaining(timeRemaining) {
-    this.state.timeRemaining = timeRemaining;
-    this.sync();
-  }
-
-  setViewDrawing(drawing) {
-    this.state.isWaiting = false;
-    this.state.viewDrawing = drawing;
-    this.sync();
+    // clear the error message for future refreshes
+    this.errorMessage = null;
   }
 
   postDrawing(drawing) {
     if (this.game) {
-      this.state.isWaiting = true;
       this.game.postDrawing(this, drawing);
       this.sync();
     }
@@ -88,13 +74,20 @@ export class Player {
 
   postCaption(caption) {
     if (this.game) {
-      this.state.isWaiting = true;
       this.game.postCaption(this, caption);
       this.sync();
     }
   }
 
-  // syncs the player and any game are in
+  chooseCaption(caption) {
+    if (this.game) {
+      this.game.chooseCaption(this, caption);
+      this.sync();
+    }
+  }
+
+  // pushes game updates to all other players in the current game,
+  // or just the current player if not in a game
   update() {
     if (this.game) {
       this.game.sync();
@@ -105,23 +98,36 @@ export class Player {
 
   // syncs the player state with the client
   sync() {
-    this.emit('sync', {
-      ...this.state,
+    const data = {
+      // state saved aginst the player
+      name: this.name,
+      errorMessage: this.errorMessage,
+      // state saved against the game the player is currently in
       gameId: this.getGameId(),
       playerList: this.game && this.game.listPlayers(),
       phase: this.game && this.game.getPhase(),
-    });
+      isWaiting: this.game && this.game.isPlayerWaiting(this),
+      timeRemaining: this.game && this.game.getTimeRemaining(),
+      prompt: this.game && this.game.getPrompt(this),
+      viewDrawing: this.game && this.game.getViewDrawing(),
+      captions: this.game && this.game.getCaptions(),
+      realPrompt: this.game && this.game.getRealPrompt(),
+    };
+    const stripped = {
+      ...data,
+      viewDrawing:
+        data.viewDrawing &&
+        createHash('sha1')
+          .update(JSON.stringify(data.viewDrawing))
+          .digest('hex'),
+    };
+    this.log('sync:');
+    this.log(stripped);
+
+    this.emit('sync', data);
   }
 
   emit(tag, message) {
     this.socket.emit(tag, message);
-    this.log(`emit [${tag}]:`);
-
-    // remove viewDrawing because it's too big
-    const strippedMessage = {
-      ...message,
-      viewDrawing: message.viewDrawing ? 'TRUNCATED' : message.viewDrawing,
-    };
-    this.log(strippedMessage);
   }
 }

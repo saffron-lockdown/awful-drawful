@@ -2,6 +2,8 @@
   "recommendations": [
     "dbaeumer.vscode-eslint",
     "esbenp.prettier-vscode",
-    "amatiasq.sort-imports"
+    "amatiasq.sort-imports",
+    "jcbuisson.vue",
+    "faisalhakim47.vue-inline-template"
   ]
 }
