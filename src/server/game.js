@@ -167,12 +167,16 @@ export class Game {
     this.startDrawingPhase();
   }
 
-  startDrawingPhase() {
-    this.phase = PHASES.DRAW;
-
+  // kicks off a countdown which calls sync every second, until either:
+  // 1. the countdown is cancelled
+  // 2. the countdown reaches 0. final is then executed
+  startCountdown(final) {
     // start a 30 second timer
     this.timeRemaining = 30;
     this.sync();
+
+    // cancel any existing countdown
+    this.cancelCountdown();
 
     // this timer should be cancelled whenever starting a new phase
     this.timer = setInterval(() => {
@@ -180,9 +184,19 @@ export class Game {
       this.sync();
 
       if (this.timeRemaining === 0) {
-        this.startCaptioningPhase();
+        final.call(this);
       }
     }, 1000);
+  }
+
+  cancelCountdown() {
+    clearInterval(this.timer);
+  }
+
+  startDrawingPhase() {
+    this.phase = PHASES.DRAW;
+
+    this.startCountdown(this.startCaptioningPhase);
   }
 
   // submit a drawing for a player in the current round
@@ -199,12 +213,11 @@ export class Game {
   }
 
   startCaptioningPhase() {
-    // cancel any existing timers
-    clearInterval(this.timer);
+    this.cancelCountdown();
     this.phase = PHASES.CAPTION;
     this.log('Time to caption these masterpieces!');
 
-    this.sync();
+    this.startCountdown(this.startGuessingPhase);
   }
 
   // submit a caption for a player in the current subRound
@@ -219,10 +232,11 @@ export class Game {
   }
 
   startGuessingPhase() {
+    this.cancelCountdown();
     this.phase = PHASES.GUESS;
     this.log('Guess the correct caption!');
 
-    this.sync();
+    this.startCountdown(this.startRevealPhase);
   }
 
   chooseCaption(player, captionText) {
@@ -235,6 +249,7 @@ export class Game {
   }
 
   startRevealPhase() {
+    this.cancelCountdown();
     this.phase = PHASES.REVEAL;
     this.log('revealing real prompt!');
 

@@ -46,7 +46,15 @@
         <b-button id="start-game-button" class="mb-2" @click="startGame">Everybody's in!</b-button>
       </template>
       <template id="page-ingame" v-else-if="page === 'ingame'">
-        <b-progress class="mb-2" :value="state.timeRemaining" :max="30" variant="info" show-value></b-progress>
+        <b-progress
+          class="mb-2"
+          :value="state.timeRemaining"
+          :max="30"
+          striped
+          animated
+          variant="info"
+          show-value
+        ></b-progress>
         <template v-if="state.phase === 'DRAW'">
           <template v-if="state.isWaiting">
             <span>think about what you've done</span>
