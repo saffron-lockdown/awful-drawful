@@ -99,7 +99,9 @@ const app = new Vue({
     if (ref) {
       if (this.state.viewDrawing) {
         if (!gallery) {
-          gallery = new fabric.StaticCanvas(ref);
+          gallery = new fabric.Canvas(ref, {
+            interactive: false,
+          });
           setCanvasSize(gallery);
         }
         gallery.clear();
