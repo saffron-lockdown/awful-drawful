@@ -3,8 +3,7 @@ const socket = io();
 let easel = null;
 let gallery = null;
 
-function createFabricCanvas(el, options = {}) {
-  const canvas = new fabric.Canvas(el, options);
+function setCanvasSize(canvas) {
   // expand canvas to fill remaining screen real estate
   canvas.setDimensions({ width: '100%', height: '100%' }, { cssOnly: true });
 
@@ -13,7 +12,6 @@ function createFabricCanvas(el, options = {}) {
     { width: canvas.width, height: canvas.height },
     { backstoreOnly: true }
   );
-  return canvas;
 }
 
 const app = new Vue({
@@ -86,9 +84,10 @@ const app = new Vue({
     const el = document.querySelector('#easel');
     if (el) {
       if (!easel) {
-        easel = createFabricCanvas(el, {
+        easel = new fabric.Canvas(el, {
           isDrawingMode: true,
         });
+        setCanvasSize(easel);
         easel.freeDrawingBrush.color = 'purple';
         easel.freeDrawingBrush.width = 10;
       }
@@ -99,7 +98,8 @@ const app = new Vue({
     if (ref) {
       if (this.state.viewDrawing) {
         if (!gallery) {
-          gallery = createFabricCanvas(ref);
+          gallery = new fabric.StaticCanvas(ref);
+          setCanvasSize(gallery);
         }
         gallery.clear();
         gallery.loadFromJSON(this.state.viewDrawing);
