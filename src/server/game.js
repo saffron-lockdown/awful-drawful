@@ -157,7 +157,7 @@ export class Game {
     }
     // otherwise PHASE.GUESS
     // player should wait if they have selected a caption
-    return this.getCurrentSubRound().hasPlayerChosenCaption;
+    return this.getCurrentSubRound().hasPlayerChosenCaption(player);
   }
 
   start() {
