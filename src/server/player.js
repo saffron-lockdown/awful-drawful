@@ -5,7 +5,7 @@ export class Player {
   constructor(id) {
     this.id = id;
     this.socket = null;
-    this.log = createLogger(this.id);
+    this.log = createLogger(this.id.substring(0, 5));
     this.game = null;
     this.name = '';
     this.errorMessage = null;
@@ -61,7 +61,6 @@ export class Player {
   sendError(err) {
     this.errorMessage = err;
     this.sync();
-
     // clear the error message for future refreshes
     this.errorMessage = null;
   }
@@ -108,6 +107,7 @@ export class Player {
       playerList: this.game && this.game.listPlayers(),
       phase: this.game && this.game.getPhase(),
       isWaiting: this.game && this.game.isPlayerWaiting(this),
+      timeRemaining: this.game && this.game.getTimeRemaining(),
       prompt: this.game && this.game.getPrompt(this),
       viewDrawing: this.game && this.game.getViewDrawing(),
       captions: this.game && this.game.getCaptions(),

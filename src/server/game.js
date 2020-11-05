@@ -40,7 +40,7 @@ export function getUniquePrompts(nPrompts) {
 // of rounds and players.
 // each round has one object per player. The object contains
 // the player id, prompt, and spaces for the image and captions.
-function gameplan(players, nRounds) {
+export function gameplan(players, nRounds) {
   // Prompts are ensured to be unique over the whole game
   const prompts = getUniquePrompts(Object.keys(players).length * nRounds);
   const rounds = [];
@@ -64,6 +64,7 @@ export class Game {
     this.roundNum = 0; // defines which round is currently being played
     this.nRounds = 3;
     this.log = createLogger(this.id);
+    this.timer = null;
   }
 
   addPlayer(player) {
@@ -93,6 +94,10 @@ export class Game {
   getCurrentSubRound() {
     this.log('getCurrentSubRound');
     return this.getCurrentRound().getCurrentSubRound();
+  }
+
+  getTimeRemaining() {
+    return this.timeRemaining;
   }
 
   // get the prompt for a specific player for the current round
@@ -165,8 +170,19 @@ export class Game {
   startDrawingPhase() {
     this.phase = PHASES.DRAW;
 
-    // send each player their prompt
+    // start a 30 second timer
+    this.timeRemaining = 30;
     this.sync();
+
+    // this timer should be cancelled whenever starting a new phase
+    this.timer = setInterval(() => {
+      this.timeRemaining -= 1;
+      this.sync();
+
+      if (this.timeRemaining === 0) {
+        this.startCaptioningPhase();
+      }
+    }, 1000);
   }
 
   // submit a drawing for a player in the current round
@@ -183,6 +199,8 @@ export class Game {
   }
 
   startCaptioningPhase() {
+    // cancel any existing timers
+    clearInterval(this.timer);
     this.phase = PHASES.CAPTION;
     this.log('Time to caption these masterpieces!');
 
