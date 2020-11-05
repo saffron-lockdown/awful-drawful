@@ -9,6 +9,7 @@ export class Player {
     this.game = null;
     this.name = '';
     this.errorMessage = null;
+    this.score = 0;
   }
 
   getId() {

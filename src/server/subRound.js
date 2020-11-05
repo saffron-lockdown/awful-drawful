@@ -8,7 +8,7 @@ export class SubRound {
     this.drawing = null;
     this.drawingSubmitted = false;
     // Initialise the captions to be the initial prompt
-    this.captions = [new Caption(this.artist.getId(), this.prompt)];
+    this.captions = [new Caption(this.artist, this.prompt)];
   }
 
   getArtist() {
@@ -24,7 +24,13 @@ export class SubRound {
   }
 
   getCaptions() {
-    return this.captions;
+    return this.captions.map((caption) => {
+      return {
+        playerName: caption.player.name,
+        text: caption.text,
+        chosenBy: caption.chosenBy.map((chooser) => chooser.name),
+      };
+    });
   }
 
   isDrawingSubmitted() {
@@ -32,9 +38,7 @@ export class SubRound {
   }
 
   hasPlayerSubmittedCaption(player) {
-    return !!this.captions.find(
-      (caption) => caption.playerId === player.getId()
-    );
+    return !!this.captions.find((caption) => caption.player === player);
   }
 
   hasPlayerChosenCaption(player) {
@@ -57,12 +61,12 @@ export class SubRound {
     return this.captions.length === this.totalPlayers;
   }
 
-  chooseCaptionByText(playerId, captionText) {
-    if (playerId !== this.artist.getId()) {
+  chooseCaptionByText(player, captionText) {
+    if (player !== this.artist) {
       const chosenCaption = this.captions.find(
         (caption) => caption.text === captionText
       );
-      chosenCaption.chosenBy.push(playerId);
+      chosenCaption.chosenBy.push(player);
     }
   }
 

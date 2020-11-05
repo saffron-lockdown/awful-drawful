@@ -100,7 +100,18 @@
         </template>
         <template v-if="state.phase === 'REVEAL'">
           <gallery></gallery>
-          <b-alert show variant="success"> The real prompt was: {{ state.realPrompt }} </b-alert>
+          <b-list-group label="Let's see what you all chose!">
+            <b-list-group-item v-for="caption in state.captions" href="#" class="flex-column align-items-start">
+              <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">{{ caption.text }}</h5>
+              </div>
+              <template v-if="caption.text !== state.realPrompt"> {{ caption.playerName }}'s Lie! </template>
+              <template v-else> The Truth! </template>
+              <h4>
+                <b-badge v-for="chooserName in caption.chosenBy" variant="info"> {{ chooserName }} </b-badge>
+              </h4>
+            </b-list-group-item>
+          </b-list-group>
         </template>
       </template>
       <b-button id="leave-game-button" v-if="state.gameId" @click="leaveGame" variant="danger">Leave game</b-button>

@@ -241,7 +241,7 @@ export class Game {
 
   chooseCaption(player, captionText) {
     const subRound = this.getCurrentSubRound();
-    subRound.chooseCaptionByText(player.getId(), captionText);
+    subRound.chooseCaptionByText(player, captionText);
 
     if (subRound.allPlayersChosen()) {
       this.startRevealPhase();
