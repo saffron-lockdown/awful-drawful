@@ -21,7 +21,10 @@ export class SubRound {
   }
 
   getCaptions() {
-    return this.captions;
+    const { captions } = this;
+    captions.push(this.prompt);
+    captions.sort(() => Math.random() - 0.5);
+    return this.captions.push(this.prompt);
   }
 
   isDrawingSubmitted() {
