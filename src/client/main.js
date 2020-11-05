@@ -32,6 +32,7 @@ const app = new Vue({
       name: '',
       gameId: '',
       caption: '',
+      isDrawingPosted: false,
     };
   },
   computed: {
@@ -47,6 +48,20 @@ const app = new Vue({
         return 'ingame';
       }
       return 'landing';
+    },
+  },
+  watch: {
+    state(newState, oldState) {
+      // if they haven't posted a drawing but the phase moves from DRAW to CAPTION
+      // just submit whatever they've got so far
+      if (
+        !this.isDrawingPosted &&
+        oldState.phase === 'DRAW' &&
+        newState.phase === 'CAPTION'
+      ) {
+        console.log('submitting whatever you have');
+        this.postDrawing();
+      }
     },
   },
   methods: {
@@ -73,6 +88,7 @@ const app = new Vue({
       socket.emit('start-game');
     },
     postDrawing() {
+      this.isDrawingPosted = true;
       socket.emit('post-drawing', JSON.stringify(easel));
     },
     postCaption() {
