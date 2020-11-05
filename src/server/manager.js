@@ -1,7 +1,7 @@
 import { Game } from './game.js';
 import { Player } from './player.js';
 import { createLogger } from './logger';
-import { v4 as uuidv4 } from 'uuid';
+import cryptoRandomString from 'crypto-random-string';
 
 export class Manager {
   constructor() {
@@ -19,7 +19,7 @@ export class Manager {
   }
 
   createGame() {
-    const id = uuidv4().substring(0, 4);
+    const id = cryptoRandomString({ length: 4, characters: 'CDEHKMPRTUWXY' });
     const game = new Game(id);
     this.games[id] = game;
     this.log(`created game with id: ${id}`);
