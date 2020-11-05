@@ -10,11 +10,11 @@ const formats = [
   // apple cooking a adorable squirrel
   (a, g, n1, n2) => `${n1} ${g} a ${a} ${n2}`,
   // baking stick
-  (a, g, n1, n2) => `${g} ${n1}`,
+  (a, g, n1) => `${g} ${n1}`,
   // stick baking
-  (a, g, n1, n2) => `${n1} ${g}`,
+  (a, g, n1) => `${n1} ${g}`,
   // adorable squirrel
-  (a, g, n1, n2) => `${a} ${n1}`,
+  (a, g, n1) => `${a} ${n1}`,
 ];
 
 // Return a random prompt
