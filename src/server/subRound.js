@@ -38,8 +38,11 @@ export class SubRound {
   }
 
   hasPlayerChosenCaption(player) {
-    return !!this.captions.find((caption) =>
-      caption.chosenBy.includes(player.getId())
+    return (
+      player === this.artist ||
+      !!this.captions.find((caption) =>
+        caption.chosenBy.includes(player.getId())
+      )
     );
   }
 
@@ -58,16 +61,18 @@ export class SubRound {
   }
 
   chooseCaptionByText(playerId, captionText) {
-    const chosenCaption = this.captions.find(
-      (caption) => caption.text === captionText
-    );
-    chosenCaption.chosenBy.push(playerId);
+    if (playerId !== this.artist.getId()) {
+      const chosenCaption = this.captions.find(
+        (caption) => caption.text === captionText
+      );
+      chosenCaption.chosenBy.push(playerId);
+    }
   }
 
   allPlayersChosen() {
     const totalChoices = this.captions.reduce((acc, caption) => {
       return acc + caption.chosenBy.length;
     }, 0);
-    return totalChoices === this.totalPlayers;
+    return totalChoices === this.totalPlayers - 1; // artist doesn't choose
   }
 }
