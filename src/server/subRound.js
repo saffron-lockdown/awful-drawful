@@ -38,11 +38,8 @@ export class SubRound {
   }
 
   hasPlayerChosenCaption(player) {
-    return (
-      player === this.artist ||
-      !!this.captions.find((caption) =>
-        caption.chosenBy.includes(player.getId())
-      )
+    return !!this.captions.find((caption) =>
+      caption.chosenBy.includes(player.getId())
     );
   }
 
