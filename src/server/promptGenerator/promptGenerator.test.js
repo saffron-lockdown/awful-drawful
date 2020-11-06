@@ -1,7 +1,13 @@
 import { getUniquePrompts } from './promptGenerator';
 
-test('get unique prompts returns prompts', () => {
-  const prompts = getUniquePrompts(50);
-  expect(prompts.length).toBe(50);
-  console.log(prompts);
+describe('get unique prompts', () => {
+  test(' returns the right number of prompts', () => {
+    const prompts = getUniquePrompts(8);
+    expect(prompts).toHaveLength(8);
+  });
+
+  test('all prompts are unique', () => {
+    const prompts = getUniquePrompts(8);
+    expect([...new Set(prompts)]).toHaveLength(8);
+  });
 });

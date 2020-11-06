@@ -5,7 +5,7 @@ import { shuffle } from '../utils';
 function* loopingGet(arr) {
   let index = 0;
   while (true) {
-    yield arr[(index % arr.length) - 1];
+    yield arr[index % arr.length];
     index += 1;
   }
 }
@@ -25,23 +25,28 @@ const formats = [
 
 // Return a list of n unique prompts
 export function getUniquePrompts(nPrompts) {
+  // prompts should be unique throughout a game, so sort all prompts by random order and loop
+  // through them sequentially
   const [
-    adjectivesIterator,
-    gerundsIterator,
-    nounsIterator,
-    formatsIterator,
+    adjectivesGenerator,
+    gerundsGenerator,
+    nounsGenerator,
+    formatsGenerator,
   ] = [adjectives, gerunds, nouns, formats].map((arr) => {
     const shuffled = shuffle(arr);
     return loopingGet(shuffled);
   });
-  const prompts = new Array(nPrompts).map(() => {
-    const format = formatsIterator.next().value;
-    return format(
-      adjectivesIterator.next().value.toLowerCase(),
-      gerundsIterator.next().value.toLowerCase(),
-      nounsIterator.next().value.toLowerCase(),
-      nounsIterator.next().value.toLowerCase()
+
+  const prompts = [];
+  for (let i = 0; i < nPrompts; i += 1) {
+    const format = formatsGenerator.next().value;
+    const prompt = format(
+      adjectivesGenerator.next().value.toLowerCase(),
+      gerundsGenerator.next().value.toLowerCase(),
+      nounsGenerator.next().value.toLowerCase(),
+      nounsGenerator.next().value.toLowerCase()
     );
-  });
+    prompts.push(prompt);
+  }
   return prompts;
 }
