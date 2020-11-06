@@ -1,4 +1,5 @@
 import { Caption } from './caption';
+import { shuffle } from './utils';
 
 export class SubRound {
   constructor(totalPlayers, artist, prompt) {
@@ -50,7 +51,7 @@ export class SubRound {
 
   submitCaption(caption) {
     this.captions.push(caption);
-    this.captions.sort(() => Math.random() - 0.5);
+    this.captions = shuffle(this.captions);
   }
 
   allCaptionsIn() {

@@ -1,7 +1,13 @@
 import { adjectives, gerunds, nouns } from './prompts';
 
-function randomChoice(arr) {
-  return arr[Math.floor(arr.length * Math.random())];
+import { shuffle } from '../utils';
+
+function* loopingGet(arr) {
+  let index = 0;
+  while (true) {
+    yield arr[(index % arr.length) - 1];
+    index += 1;
+  }
 }
 
 const formats = [
@@ -17,28 +23,25 @@ const formats = [
   (a, g, n1) => `${a} ${n1}`,
 ];
 
-// Return a random prompt
-export function getRandomPrompt() {
-  const format = randomChoice(formats);
-  return format(
-    randomChoice(adjectives).toLowerCase(),
-    randomChoice(gerunds).toLowerCase(),
-    randomChoice(nouns).toLowerCase(),
-    randomChoice(nouns).toLowerCase()
-  );
-}
-
 // Return a list of n unique prompts
 export function getUniquePrompts(nPrompts) {
-  const prompts = [];
-
-  while (prompts.length < nPrompts) {
-    const newPrompt = getRandomPrompt();
-
-    if (!prompts.includes(newPrompt)) {
-      prompts.push(newPrompt);
-    }
-  }
-
+  const [
+    adjectivesIterator,
+    gerundsIterator,
+    nounsIterator,
+    formatsIterator,
+  ] = [adjectives, gerunds, nouns, formats].map((arr) => {
+    const shuffled = shuffle(arr);
+    return loopingGet(shuffled);
+  });
+  const prompts = new Array(nPrompts).map(() => {
+    const format = formatsIterator.next().value;
+    return format(
+      adjectivesIterator.next().value.toLowerCase(),
+      gerundsIterator.next().value.toLowerCase(),
+      nounsIterator.next().value.toLowerCase(),
+      nounsIterator.next().value.toLowerCase()
+    );
+  });
   return prompts;
 }
