@@ -8,6 +8,7 @@ describe('get unique prompts', () => {
 
   test('all prompts are unique', () => {
     const prompts = getUniquePrompts(8);
+    // new Set remove duplicates
     expect([...new Set(prompts)]).toHaveLength(8);
   });
 });
