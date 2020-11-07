@@ -39,14 +39,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/weizhongtan/drawful-clone.git"
+    "url": "git+https://github.com/saffron-lockdown/drawful-clone.git"
   },
   "author": "weizhongtan, tjperr",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/weizhongtan/drawful-clone/issues"
+    "url": "https://github.com/saffron-lockdown/drawful-clone/issues"
   },
-  "homepage": "https://github.com/weizhongtan/drawful-clone#readme",
+  "homepage": "https://github.com/saffron-lockdown/drawful-clone#readme",
   "jest": {
     "transform": {
       "^.+\\.jsx?$": "babel-jest"
