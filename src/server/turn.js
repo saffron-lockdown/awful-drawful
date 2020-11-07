@@ -2,7 +2,6 @@ import { Caption } from './caption';
 import { createLogger } from './logger';
 import { shuffle } from './utils';
 
-
 export class Turn {
   constructor(totalPlayers, artist, prompt) {
     this.totalPlayers = totalPlayers;

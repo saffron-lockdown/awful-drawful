@@ -21,6 +21,7 @@ export function gameplan(players, nRounds) {
   const rounds = [];
 
   for (let i = 0, promptIndex = 0; i < nRounds; i += 1) {
+
     // for each round, create a set of turns equal to the number of players
     const turns = [];
     for (let j = 0; j < players.length; j += 1) {
@@ -30,6 +31,7 @@ export function gameplan(players, nRounds) {
       promptIndex += 1;
     }
     const round = new Round(turns);
+
     rounds.push(round);
   }
   return rounds;
