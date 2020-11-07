@@ -57,8 +57,11 @@ export class Game {
   }
 
   // output a list of all the players in the specified game
-  listPlayers() {
-    return this.players.map((player) => player.getName()).join(', ');
+  getPlayers() {
+    return this.players.map((player) => ({
+      name: player.getName(),
+      connected: !!player.getSocket(),
+    }));
   }
 
   getPhase() {
