@@ -88,6 +88,11 @@ io.on('connect', (socket) => {
   socket.on('choose-caption', (text) => {
     player.chooseCaption(text);
   });
+
+  socket.on('disconnect', () => {
+    player.log('disconnected');
+    player.setSocket(null);
+  });
 });
 
 app.use(serveStatic('src/client/'));

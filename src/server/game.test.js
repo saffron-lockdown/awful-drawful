@@ -16,7 +16,10 @@ test('initialise and start game', () => {
   game.addPlayer(mockPlayer('tom'));
   game.addPlayer(mockPlayer('wz'));
 
-  expect(game.listPlayers()).toBe('tom, wz');
+  expect(game.getPlayers()).toEqual([
+    { name: 'tom', connected: true },
+    { name: 'wz', connected: true },
+  ]);
 
   game.start();
   expect(game.gameplan.length).toBe(3);
