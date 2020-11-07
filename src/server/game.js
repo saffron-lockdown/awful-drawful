@@ -48,10 +48,12 @@ export class Game {
 
   addPlayer(player) {
     this.players.push(player);
+    this.sync();
   }
 
   removePlayer(player) {
     this.players = this.players.filter((p) => p !== player);
+    this.sync();
   }
 
   // output a list of all the players in the specified game

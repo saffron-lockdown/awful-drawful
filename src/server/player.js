@@ -44,15 +44,13 @@ export class Player {
     this.game = game;
     // Add player reference in game
     game.addPlayer(this);
-
-    this.update();
   }
 
   leaveGame() {
     if (this.game) {
       this.game.removePlayer(this);
       this.game = null;
-      this.update();
+      this.sync();
     }
   }
 
