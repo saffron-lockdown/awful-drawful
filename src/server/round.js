@@ -1,19 +1,19 @@
 /* eslint-disable prefer-destructuring */
 export class Round {
-  constructor(subRounds) {
-    this.subRounds = subRounds;
-    this.currentSubRound = this.subRounds[0];
+  constructor(turns) {
+    this.turns = turns;
+    this.currentTurn = this.turns[0];
   }
 
-  getCurrentSubRound() {
-    return this.currentSubRound;
+  getCurrentTurn() {
+    return this.currentTurn;
   }
 
-  getSubRoundByArtist(artist) {
-    return this.subRounds.find((subRound) => subRound.getArtist() === artist);
+  getTurnByArtist(artist) {
+    return this.turns.find((turn) => turn.getArtist() === artist);
   }
 
   allDrawingsIn() {
-    return this.subRounds.every((subRound) => subRound.isDrawingSubmitted());
+    return this.turns.every((turn) => turn.isDrawingSubmitted());
   }
 }

@@ -1,5 +1,5 @@
 import { Round } from './round';
-import { SubRound } from './subRound';
+import { Turn } from './turn';
 import { createLogger } from './logger';
 
 const PHASES = {
@@ -46,11 +46,11 @@ export function gameplan(players, nRounds) {
   const rounds = [];
 
   for (let i = 0; i < nRounds; i += 1) {
-    // for each round, create a set of subRounds equal to the number of players/prompts
-    const subRounds = players.map(
-      (player, index) => new SubRound(players.length, player, prompts[index])
+    // for each round, create a set of turns equal to the number of players/prompts
+    const turns = players.map(
+      (player, index) => new Turn(players.length, player, prompts[index])
     );
-    const round = new Round(subRounds);
+    const round = new Round(turns);
     rounds.push(round);
   }
   return rounds;
@@ -91,9 +91,9 @@ export class Game {
     return this.gameplan[this.roundNum];
   }
 
-  getCurrentSubRound() {
-    this.log('getCurrentSubRound');
-    return this.getCurrentRound().getCurrentSubRound();
+  getCurrentTurn() {
+    this.log('getCurrentTurn');
+    return this.getCurrentRound().getCurrentTurn();
   }
 
   getTimeRemaining() {
@@ -107,28 +107,28 @@ export class Game {
     if (!round) {
       return null;
     }
-    const subRound = round.getSubRoundByArtist(player);
-    return subRound.getPrompt();
+    const turn = round.getTurnByArtist(player);
+    return turn.getPrompt();
   }
 
-  // get the current drawing to be either captioned or guessed for the current subRound
+  // get the current drawing to be either captioned or guessed for the current turn
   getViewDrawing() {
     this.log('getViewDrawing');
     const round = this.getCurrentRound();
     if (!round) {
       return null;
     }
-    return this.getCurrentSubRound().getDrawing();
+    return this.getCurrentTurn().getDrawing();
   }
 
-  // get the captions from the current subRound
+  // get the captions from the current turn
   getCaptions() {
     this.log('getCaptions');
     const round = this.getCurrentRound();
     if (!round) {
       return null;
     }
-    return round.getCurrentSubRound().getCaptions();
+    return round.getCurrentTurn().getCaptions();
   }
 
   getRealPrompt() {
@@ -138,7 +138,7 @@ export class Game {
       return null;
     }
 
-    return round.getCurrentSubRound().getPrompt();
+    return round.getCurrentTurn().getPrompt();
   }
 
   // returns true if the player has completed their actions for the current game phase
@@ -150,14 +150,14 @@ export class Game {
     }
     const phase = this.getPhase();
     if (phase === PHASES.DRAW) {
-      return round.getSubRoundByArtist(player).isDrawingSubmitted();
+      return round.getTurnByArtist(player).isDrawingSubmitted();
     }
     if (phase === PHASES.CAPTION) {
-      return this.getCurrentSubRound().hasPlayerSubmittedCaption(player);
+      return this.getCurrentTurn().hasPlayerSubmittedCaption(player);
     }
     // player should wait if they have selected a caption
     if (phase === PHASES.GUESS) {
-      return this.getCurrentSubRound().hasPlayerChosenCaption(player);
+      return this.getCurrentTurn().hasPlayerChosenCaption(player);
     }
     // otherwise PHASE.REVEAL
     return false;
@@ -205,8 +205,8 @@ export class Game {
   // submit a drawing for a player in the current round
   postDrawing(player, drawing) {
     const round = this.getCurrentRound();
-    const subRound = round.getSubRoundByArtist(player);
-    subRound.submitDrawing(drawing);
+    const turn = round.getTurnByArtist(player);
+    turn.submitDrawing(drawing);
 
     this.log(`wow ${player.getId().substring(1, 6)}, thats beautiful!`);
     if (round.allDrawingsIn()) {
@@ -223,13 +223,13 @@ export class Game {
     this.startCountdown(this.startGuessingPhase);
   }
 
-  // submit a caption for a player in the current subRound
+  // submit a caption for a player in the current turn
   postCaption(player, caption) {
-    const subRound = this.getCurrentSubRound();
-    subRound.submitCaption(caption);
+    const turn = this.getCurrentTurn();
+    turn.submitCaption(caption);
 
-    if (subRound.allCaptionsIn()) {
-      this.log('all captions are in: ', subRound.captions);
+    if (turn.allCaptionsIn()) {
+      this.log('all captions are in: ', turn.captions);
       this.startGuessingPhase();
     }
   }
@@ -244,10 +244,10 @@ export class Game {
 
   chooseCaption(player, captionText) {
     this.log('chooseCaption');
-    const subRound = this.getCurrentSubRound();
-    subRound.chooseCaptionByText(player, captionText);
+    const turn = this.getCurrentTurn();
+    turn.chooseCaptionByText(player, captionText);
 
-    if (subRound.allPlayersChosen()) {
+    if (turn.allPlayersChosen()) {
       this.startRevealPhase();
     }
   }
