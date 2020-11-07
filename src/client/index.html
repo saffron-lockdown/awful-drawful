@@ -102,7 +102,7 @@
           <gallery></gallery>
           <b-list-group label="Let's see what you all chose!">
             <template v-for="caption in state.captions">
-              <b-list-group-item :variant="answerColour(caption)" href="#" class="flex-column align-items-start">
+              <b-list-group-item :variant="answerVariant(caption)" href="#" class="flex-column align-items-start">
                 <div class="d-flex w-100 justify-content-between">
                   <h5 class="mb-1">{{ caption.text }}</h5>
                 </div>

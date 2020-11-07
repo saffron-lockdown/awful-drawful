@@ -28,9 +28,9 @@ export class SubRound {
   getCaptions() {
     return this.captions.map((caption) => {
       return {
-        playerName: caption.player.name,
+        playerName: caption.player.getName(),
         text: caption.text,
-        chosenBy: caption.chosenBy.map((chooser) => chooser.name),
+        chosenBy: caption.chosenBy.map((chooser) => chooser.getName()),
       };
     });
   }

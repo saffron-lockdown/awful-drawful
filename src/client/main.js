@@ -97,7 +97,7 @@ const app = new Vue({
     chooseCaption(caption) {
       socket.emit('choose-caption', caption.text);
     },
-    answerColour(caption) {
+    answerVariant(caption) {
       if (caption.text !== this.state.realPrompt) {
         return 'danger';
       }

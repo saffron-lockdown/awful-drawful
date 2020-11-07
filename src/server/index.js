@@ -86,7 +86,6 @@ io.on('connect', (socket) => {
   });
 
   socket.on('choose-caption', (text) => {
-    console.log('choose-caption triggered with ' + text);
     player.chooseCaption(text);
   });
 });
