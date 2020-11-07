@@ -1,6 +1,7 @@
 import { Round } from './round';
 import { SubRound } from './subRound';
 import { createLogger } from './logger';
+import { getUniquePrompts } from './promptGenerator';
 
 const PHASES = {
   LOBBY: 'LOBBY',
@@ -9,32 +10,6 @@ const PHASES = {
   GUESS: 'GUESS',
   REVEAL: 'REVEAL',
 };
-
-function randomChoice(arr) {
-  return arr[Math.floor(arr.length * Math.random())];
-}
-
-// Return a random prompt
-export function getPrompt() {
-  const descriptions = ['man-eating', 'hairless', 'cardboard', 'vegan'];
-  const nouns = ['bicycle', 'yoghurt', 'cloud', 'Harry Potter'];
-  return `${randomChoice(descriptions)} ${randomChoice(nouns)}`;
-}
-
-// Return a list of n unique prompts
-export function getUniquePrompts(nPrompts) {
-  const prompts = [];
-
-  while (prompts.length < nPrompts) {
-    const newPrompt = getPrompt();
-
-    if (!prompts.includes(newPrompt)) {
-      prompts.push(newPrompt);
-    }
-  }
-
-  return prompts;
-}
 
 // return a plan of the game based on the number
 // of rounds and players.
@@ -45,11 +20,15 @@ export function gameplan(players, nRounds) {
   const prompts = getUniquePrompts(Object.keys(players).length * nRounds);
   const rounds = [];
 
-  for (let i = 0; i < nRounds; i += 1) {
-    // for each round, create a set of subRounds equal to the number of players/prompts
-    const subRounds = players.map(
-      (player, index) => new SubRound(players.length, player, prompts[index])
-    );
+  for (let i = 0, promptIndex = 0; i < nRounds; i += 1) {
+    // for each round, create a set of subRounds equal to the number of players
+    const subRounds = [];
+    for (let j = 0; j < players.length; j += 1) {
+      subRounds.push(
+        new SubRound(players.length, players[j], prompts[promptIndex])
+      );
+      promptIndex += 1;
+    }
     const round = new Round(subRounds);
     rounds.push(round);
   }
