@@ -1,4 +1,5 @@
 import { Caption } from './caption';
+import { createLogger } from './logger';
 
 export class SubRound {
   constructor(totalPlayers, artist, prompt) {
@@ -9,6 +10,7 @@ export class SubRound {
     this.drawingSubmitted = false;
     // Initialise the captions to be the initial prompt
     this.captions = [new Caption(this.artist, this.prompt)];
+    this.log = createLogger();
   }
 
   getArtist() {
@@ -42,9 +44,7 @@ export class SubRound {
   }
 
   hasPlayerChosenCaption(player) {
-    return !!this.captions.find((caption) =>
-      caption.chosenBy.includes(player.getId())
-    );
+    return !!this.captions.find((caption) => caption.chosenBy.includes(player));
   }
 
   submitDrawing(drawing) {
@@ -62,7 +62,9 @@ export class SubRound {
   }
 
   chooseCaptionByText(player, captionText) {
-    if (player !== this.artist) {
+    this.log('chooseCaptionByText');
+
+    if (player !== this.artist && !this.hasPlayerChosenCaption(player)) {
       const chosenCaption = this.captions.find(
         (caption) => caption.text === captionText
       );
@@ -71,6 +73,7 @@ export class SubRound {
   }
 
   allPlayersChosen() {
+    this.log('allPlayersChosen');
     const totalChoices = this.captions.reduce((acc, caption) => {
       return acc + caption.chosenBy.length;
     }, 0);
