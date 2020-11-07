@@ -1,7 +1,7 @@
 export class Caption {
-  constructor(playerId, text) {
-    this.playerId = playerId;
+  constructor(player, text) {
+    this.player = player;
     this.text = text;
-    this.chosenBy = []; // ids of the players who choose this caption
+    this.chosenBy = []; // players who choose this caption
   }
 }

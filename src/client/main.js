@@ -97,6 +97,12 @@ const app = new Vue({
     chooseCaption(caption) {
       socket.emit('choose-caption', caption.text);
     },
+    answerVariant(caption) {
+      if (caption.text !== this.state.realPrompt) {
+        return 'danger';
+      }
+      return 'success';
+    },
   },
   updated() {
     // every time the DOM is updated, check if there are any canvases that need to be hooked up to

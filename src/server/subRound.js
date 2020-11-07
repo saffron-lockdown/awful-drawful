@@ -1,5 +1,7 @@
 import { Caption } from './caption';
+import { createLogger } from './logger';
 import { shuffle } from './utils';
+
 
 export class SubRound {
   constructor(totalPlayers, artist, prompt) {
@@ -9,7 +11,8 @@ export class SubRound {
     this.drawing = null;
     this.drawingSubmitted = false;
     // Initialise the captions to be the initial prompt
-    this.captions = [new Caption(this.artist.getId(), this.prompt)];
+    this.captions = [new Caption(this.artist, this.prompt)];
+    this.log = createLogger();
   }
 
   getArtist() {
@@ -25,7 +28,13 @@ export class SubRound {
   }
 
   getCaptions() {
-    return this.captions;
+    return this.captions.map((caption) => {
+      return {
+        playerName: caption.player.getName(),
+        text: caption.text,
+        chosenBy: caption.chosenBy.map((chooser) => chooser.getName()),
+      };
+    });
   }
 
   isDrawingSubmitted() {
@@ -33,15 +42,11 @@ export class SubRound {
   }
 
   hasPlayerSubmittedCaption(player) {
-    return !!this.captions.find(
-      (caption) => caption.playerId === player.getId()
-    );
+    return !!this.captions.find((caption) => caption.player === player);
   }
 
   hasPlayerChosenCaption(player) {
-    return !!this.captions.find((caption) =>
-      caption.chosenBy.includes(player.getId())
-    );
+    return !!this.captions.find((caption) => caption.chosenBy.includes(player));
   }
 
   submitDrawing(drawing) {
@@ -58,16 +63,19 @@ export class SubRound {
     return this.captions.length === this.totalPlayers;
   }
 
-  chooseCaptionByText(playerId, captionText) {
-    if (playerId !== this.artist.getId()) {
+  chooseCaptionByText(player, captionText) {
+    this.log('chooseCaptionByText');
+
+    if (player !== this.artist && !this.hasPlayerChosenCaption(player)) {
       const chosenCaption = this.captions.find(
         (caption) => caption.text === captionText
       );
-      chosenCaption.chosenBy.push(playerId);
+      chosenCaption.chosenBy.push(player);
     }
   }
 
   allPlayersChosen() {
+    this.log('allPlayersChosen');
     const totalChoices = this.captions.reduce((acc, caption) => {
       return acc + caption.chosenBy.length;
     }, 0);

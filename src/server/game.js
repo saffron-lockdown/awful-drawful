@@ -134,9 +134,12 @@ export class Game {
     if (phase === PHASES.CAPTION) {
       return this.getCurrentSubRound().hasPlayerSubmittedCaption(player);
     }
-    // otherwise PHASE.GUESS
     // player should wait if they have selected a caption
-    return this.getCurrentSubRound().hasPlayerChosenCaption(player);
+    if (phase === PHASES.GUESS) {
+      return this.getCurrentSubRound().hasPlayerChosenCaption(player);
+    }
+    // otherwise PHASE.REVEAL
+    return false;
   }
 
   start() {
@@ -219,8 +222,9 @@ export class Game {
   }
 
   chooseCaption(player, captionText) {
+    this.log('chooseCaption');
     const subRound = this.getCurrentSubRound();
-    subRound.chooseCaptionByText(player.getId(), captionText);
+    subRound.chooseCaptionByText(player, captionText);
 
     if (subRound.allPlayersChosen()) {
       this.startRevealPhase();
