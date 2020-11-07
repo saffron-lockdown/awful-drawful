@@ -1,5 +1,7 @@
 import { Caption } from './caption';
 import { createLogger } from './logger';
+import { shuffle } from './utils';
+
 
 export class Turn {
   constructor(totalPlayers, artist, prompt) {
@@ -54,7 +56,7 @@ export class Turn {
 
   submitCaption(caption) {
     this.captions.push(caption);
-    this.captions.sort(() => Math.random() - 0.5);
+    this.captions = shuffle(this.captions);
   }
 
   allCaptionsIn() {

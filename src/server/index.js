@@ -42,7 +42,7 @@ io.use(wrap(sesh));
 io.on('connect', (socket) => {
   const { session: user } = socket.request;
   const log = createLogger(user.id);
-  log('User connected');
+  log(`User connected with socket.id: ${socket.id}`);
 
   const player = mgr.getOrCreatePlayer(user.id);
   player.setSocket(socket);
@@ -87,6 +87,11 @@ io.on('connect', (socket) => {
 
   socket.on('choose-caption', (text) => {
     player.chooseCaption(text);
+  });
+
+  socket.on('disconnect', () => {
+    player.log('disconnected');
+    player.setSocket(null);
   });
 });
 

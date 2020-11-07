@@ -20,6 +20,10 @@ export class Player {
     this.update();
   }
 
+  getSocket() {
+    return this.socket;
+  }
+
   setName(name) {
     this.name = name;
     this.update();
@@ -40,15 +44,13 @@ export class Player {
     this.game = game;
     // Add player reference in game
     game.addPlayer(this);
-
-    this.update();
   }
 
   leaveGame() {
     if (this.game) {
       this.game.removePlayer(this);
       this.game = null;
-      this.update();
+      this.sync();
     }
   }
 
@@ -104,7 +106,7 @@ export class Player {
       errorMessage: this.errorMessage,
       // state saved against the game the player is currently in
       gameId: this.getGameId(),
-      playerList: this.game && this.game.listPlayers(),
+      players: this.game && this.game.getPlayers(),
       phase: this.game && this.game.getPhase(),
       isWaiting: this.game && this.game.isPlayerWaiting(this),
       timeRemaining: this.game && this.game.getTimeRemaining(),
@@ -128,6 +130,8 @@ export class Player {
   }
 
   emit(tag, message) {
-    this.socket.emit(tag, message);
+    if (this.socket) {
+      this.socket.emit(tag, message);
+    }
   }
 }

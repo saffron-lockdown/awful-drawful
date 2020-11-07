@@ -1,5 +1,4 @@
-import { Game, getPrompt, getUniquePrompts } from './game.js';
-
+import { Game } from './game.js';
 import { Player } from './player.js';
 
 function mockPlayer(name) {
@@ -12,21 +11,15 @@ function mockPlayer(name) {
   return player;
 }
 
-test('get prompt returns prompt', () => {
-  expect(typeof getPrompt()).toBe('string');
-});
-
-test('get unique prompts returns prompts', () => {
-  const prompts = getUniquePrompts(5);
-  expect(prompts.length).toBe(5);
-});
-
 test('initialise and start game', () => {
   const game = new Game(101);
   game.addPlayer(mockPlayer('tom'));
   game.addPlayer(mockPlayer('wz'));
 
-  expect(game.listPlayers()).toBe('tom, wz');
+  expect(game.getPlayers()).toEqual([
+    { name: 'tom', connected: true },
+    { name: 'wz', connected: true },
+  ]);
 
   game.start();
   expect(game.gameplan.length).toBe(3);

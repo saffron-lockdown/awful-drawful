@@ -22,7 +22,7 @@ const app = new Vue({
         name: '',
         gameId: '',
         prompt: '',
-        playerList: '',
+        players: [],
         errorMessage: null,
         viewDrawing: null,
         timeRemaining: null,
@@ -102,6 +102,9 @@ const app = new Vue({
         return 'danger';
       }
       return 'success';
+    },
+    playerVariant(player) {
+      return player.connected ? 'success' : 'danger';
     },
   },
   updated() {

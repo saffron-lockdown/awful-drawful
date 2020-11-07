@@ -1,6 +1,7 @@
 import { Round } from './round';
 import { Turn } from './turn';
 import { createLogger } from './logger';
+import { getUniquePrompts } from './promptGenerator';
 
 const PHASES = {
   LOBBY: 'LOBBY',
@@ -9,32 +10,6 @@ const PHASES = {
   GUESS: 'GUESS',
   REVEAL: 'REVEAL',
 };
-
-function randomChoice(arr) {
-  return arr[Math.floor(arr.length * Math.random())];
-}
-
-// Return a random prompt
-export function getPrompt() {
-  const descriptions = ['man-eating', 'hairless', 'cardboard', 'vegan'];
-  const nouns = ['bicycle', 'yoghurt', 'cloud', 'Harry Potter'];
-  return `${randomChoice(descriptions)} ${randomChoice(nouns)}`;
-}
-
-// Return a list of n unique prompts
-export function getUniquePrompts(nPrompts) {
-  const prompts = [];
-
-  while (prompts.length < nPrompts) {
-    const newPrompt = getPrompt();
-
-    if (!prompts.includes(newPrompt)) {
-      prompts.push(newPrompt);
-    }
-  }
-
-  return prompts;
-}
 
 // return a plan of the game based on the number
 // of rounds and players.
@@ -45,11 +20,15 @@ export function gameplan(players, nRounds) {
   const prompts = getUniquePrompts(Object.keys(players).length * nRounds);
   const rounds = [];
 
-  for (let i = 0; i < nRounds; i += 1) {
-    // for each round, create a set of turns equal to the number of players/prompts
-    const turns = players.map(
-      (player, index) => new Turn(players.length, player, prompts[index])
-    );
+  for (let i = 0, promptIndex = 0; i < nRounds; i += 1) {
+    // for each round, create a set of turns equal to the number of players
+    const turns = [];
+    for (let j = 0; j < players.length; j += 1) {
+      turns.push(
+        new Turn(players.length, players[j], prompts[promptIndex])
+      );
+      promptIndex += 1;
+    }
     const round = new Round(turns);
     rounds.push(round);
   }
@@ -69,15 +48,20 @@ export class Game {
 
   addPlayer(player) {
     this.players.push(player);
+    this.sync();
   }
 
   removePlayer(player) {
     this.players = this.players.filter((p) => p !== player);
+    this.sync();
   }
 
   // output a list of all the players in the specified game
-  listPlayers() {
-    return this.players.map((player) => player.getName()).join(', ');
+  getPlayers() {
+    return this.players.map((player) => ({
+      name: player.getName(),
+      connected: !!player.getSocket(),
+    }));
   }
 
   getPhase() {

@@ -10,7 +10,7 @@ test('should send message to socket', () => {
     name: '',
     errorMessage: null,
     gameId: null,
-    playerList: null,
+    players: null,
     timeRemaining: null,
     phase: null,
     isWaiting: null,
