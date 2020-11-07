@@ -11,6 +11,7 @@
     <link type="text/css" rel="stylesheet" href="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue.min.js"></script>
+    <script src="https://unpkg.com/bootstrap-vue@latest/dist/bootstrap-vue-icons.min.js"></script>
     <script
       src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.1/socket.io.js"
       integrity="sha512-AcZyhRP/tbAEsXCCGlziPun5iFvcSUpEz2jKkx0blkYKbxU81F+iq8FURwPn1sYFeksJ+sDDrI5XujsqSobWdQ=="
@@ -49,7 +50,12 @@
         <b-alert id="player-list-display" show>
           Players:
           <template v-for="player in state.players">
-            <b-badge class="mr-1" :variant="playerVariant(player)"> {{ player.name }} </b-badge>
+            <b-badge class="mr-1" :variant="playerVariant(player)">
+              {{ player.name }}
+              <b-icon-exclamation-triangle-fill
+                v-if="playerVariant(player) === 'danger'"
+              ></b-icon-exclamation-triangle-fill
+            ></b-badge>
           </template>
         </b-alert>
         <b-button id="start-game-button" class="mb-2" @click="startGame">Everybody's in!</b-button>
