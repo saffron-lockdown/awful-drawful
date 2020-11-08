@@ -2,8 +2,7 @@ import { Caption } from './caption';
 import { createLogger } from './logger';
 import { shuffle } from './utils';
 
-
-export class SubRound {
+export class Turn {
   constructor(totalPlayers, artist, prompt) {
     this.totalPlayers = totalPlayers;
     this.artist = artist;
