@@ -113,7 +113,7 @@
           <gallery></gallery>
           <b-list-group label="Let's see what you all chose!">
             <template v-for="caption in state.captions">
-              <b-list-group-item :variant="answerVariant(caption)" href="#" class="flex-column align-items-start">
+              <b-list-group-item :variant="answerVariant(caption)" class="flex-column align-items-start">
                 <div class="d-flex w-100 justify-content-between">
                   <h5 class="mb-1">{{ caption.text }}</h5>
                 </div>
@@ -122,6 +122,16 @@
                 <h4>
                   <b-badge v-for="chooserName in caption.chosenBy" variant="info"> {{ chooserName }} </b-badge>
                 </h4>
+              </b-list-group-item>
+            </template>
+          </b-list-group>
+        </template>
+        <template v-if="state.phase === 'SCORE'">
+          <b-list-group label="scoreboard">
+            <template v-for="entry in state.scores">
+              <b-list-group-item class="flex-column align-items-start">
+                <h5 class="mb-1">{{ entry.playerName }}</h5>
+                {{ entry.score }} points!
               </b-list-group-item>
             </template>
           </b-list-group>

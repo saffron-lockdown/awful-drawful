@@ -23,6 +23,7 @@ const app = new Vue({
         gameId: '',
         prompt: '',
         players: [],
+        scores: [],
         errorMessage: null,
         viewDrawing: null,
         timeRemaining: null,

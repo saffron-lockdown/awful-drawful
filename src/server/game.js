@@ -9,6 +9,7 @@ const PHASES = {
   CAPTION: 'CAPTION',
   GUESS: 'GUESS',
   REVEAL: 'REVEAL',
+  SCORE: 'SCORE',
 };
 
 // return a plan of the game based on the number
@@ -21,13 +22,10 @@ export function gameplan(players, nRounds) {
   const rounds = [];
 
   for (let i = 0, promptIndex = 0; i < nRounds; i += 1) {
-
     // for each round, create a set of turns equal to the number of players
     const turns = [];
     for (let j = 0; j < players.length; j += 1) {
-      turns.push(
-        new Turn(players.length, players[j], prompts[promptIndex])
-      );
+      turns.push(new Turn(players.length, players[j], prompts[promptIndex]));
       promptIndex += 1;
     }
     const round = new Round(turns);
@@ -41,6 +39,7 @@ export class Game {
   constructor(id) {
     this.id = id;
     this.players = [];
+    this.scores = {};
     this.phase = PHASES.LOBBY; // defines which phase of the game we're in
     this.roundNum = 0; // defines which round is currently being played
     this.nRounds = 3;
@@ -127,6 +126,27 @@ export class Game {
     return round.getCurrentTurn().getPrompt();
   }
 
+  getScores() {
+    // return array of sorted player scores and names ready to be displayed
+    const scoreboard = [];
+
+    console.log(this.scores);
+    for (const [playerId, score] of Object.entries(this.scores)) {
+      const player = this.players.filter(
+        (player) => player.getId() === playerId
+      )[0];
+
+      scoreboard.push({
+        playerName: player.getName(),
+        score: score,
+      });
+    }
+
+    return scoreboard.sort((a, b) => {
+      return b.score - a.score;
+    });
+  }
+
   // returns true if the player has completed their actions for the current game phase
   isPlayerWaiting(player) {
     this.log('isPlayerWaiting');
@@ -151,6 +171,11 @@ export class Game {
 
   start() {
     this.gameplan = gameplan(this.players, this.nRounds);
+
+    this.players.forEach((player) => {
+      this.scores[player.getId()] = 0;
+    });
+
     this.log('starting game');
     this.log(this.gameplan);
     this.startDrawingPhase();
@@ -231,7 +256,11 @@ export class Game {
   chooseCaption(player, captionText) {
     this.log('chooseCaption');
     const turn = this.getCurrentTurn();
-    turn.chooseCaptionByText(player, captionText);
+    const pointsUpdate = turn.chooseCaptionByText(player, captionText);
+
+    for (const [id, points] of Object.entries(pointsUpdate)) {
+      this.scores[id] += points;
+    }
 
     if (turn.allPlayersChosen()) {
       this.startRevealPhase();
@@ -242,8 +271,15 @@ export class Game {
     this.cancelCountdown();
     this.phase = PHASES.REVEAL;
     this.log('revealing real prompt!');
-
     this.sync();
+
+    this.startCountdown(this.startScorePhase);
+  }
+
+  startScorePhase() {
+    this.phase = PHASES.SCORE;
+    this.sync();
+    this.startCountdown(() => {});
   }
 
   // syncs players state for all players in the game
