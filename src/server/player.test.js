@@ -13,6 +13,7 @@ test('should send message to socket', () => {
     players: null,
     scores: null,
     timeRemaining: null,
+    timerDuration: null,
     phase: null,
     isWaiting: null,
     prompt: null,
