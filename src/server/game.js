@@ -1,7 +1,6 @@
 import { Round } from './round';
 import { Turn } from './turn';
 import { createLogger } from './logger';
-import e from 'express';
 import { getUniquePrompts } from './promptGenerator';
 
 const PHASES = {
@@ -44,7 +43,7 @@ export class Game {
     this.scores = {};
     this.phase = PHASES.LOBBY; // defines which phase of the game we're in
     this.roundNum = 0; // defines which round is currently being played
-    this.nRounds = 2;
+    this.nRounds = 3;
     this.log = createLogger(this.id);
     this.timer = null;
   }
