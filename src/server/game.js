@@ -3,6 +3,8 @@ import { Turn } from './turn';
 import { createLogger } from './logger';
 import { getUniquePrompts } from './promptGenerator';
 
+const DEFAULT_COUNTDOWN = Number(process.env.DEFAULT_COUNTDOWN || 30);
+
 const PHASES = {
   LOBBY: 'LOBBY',
   DRAW: 'DRAW',
@@ -190,7 +192,7 @@ export class Game {
   // kicks off a countdown which calls sync every second, until either:
   // 1. the countdown is cancelled
   // 2. the countdown reaches 0. final is then executed
-  startCountdown(final, seconds = 30) {
+  startCountdown(final, seconds = DEFAULT_COUNTDOWN) {
     // start a timer
     this.timerDuration = seconds;
     this.timeRemaining = seconds;
