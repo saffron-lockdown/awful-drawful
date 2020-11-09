@@ -9,6 +9,7 @@ const PHASES = {
   CAPTION: 'CAPTION',
   GUESS: 'GUESS',
   REVEAL: 'REVEAL',
+  SCORE: 'SCORE',
 };
 
 // return a plan of the game based on the number
@@ -21,13 +22,10 @@ export function gameplan(players, nRounds) {
   const rounds = [];
 
   for (let i = 0, promptIndex = 0; i < nRounds; i += 1) {
-
     // for each round, create a set of turns equal to the number of players
     const turns = [];
     for (let j = 0; j < players.length; j += 1) {
-      turns.push(
-        new Turn(players.length, players[j], prompts[promptIndex])
-      );
+      turns.push(new Turn(players.length, players[j], prompts[promptIndex]));
       promptIndex += 1;
     }
     const round = new Round(turns);
@@ -41,6 +39,7 @@ export class Game {
   constructor(id) {
     this.id = id;
     this.players = [];
+    this.scores = {};
     this.phase = PHASES.LOBBY; // defines which phase of the game we're in
     this.roundNum = 0; // defines which round is currently being played
     this.nRounds = 3;
@@ -86,6 +85,10 @@ export class Game {
     return this.timeRemaining;
   }
 
+  getTimerDuration() {
+    return this.timerDuration;
+  }
+
   // get the prompt for a specific player for the current round
   getPrompt(player) {
     this.log('getPrompt');
@@ -127,6 +130,22 @@ export class Game {
     return round.getCurrentTurn().getPrompt();
   }
 
+  getScores() {
+    // return array of sorted player scores and names ready to be displayed
+    const scoreboard = [];
+
+    this.players.forEach((p) => {
+      scoreboard.push({
+        playerName: p.getName(),
+        score: this.scores[p.getId()],
+      });
+    });
+
+    return scoreboard.sort((a, b) => {
+      return b.score - a.score;
+    });
+  }
+
   // returns true if the player has completed their actions for the current game phase
   isPlayerWaiting(player) {
     this.log('isPlayerWaiting');
@@ -151,6 +170,11 @@ export class Game {
 
   start() {
     this.gameplan = gameplan(this.players, this.nRounds);
+
+    this.players.forEach((player) => {
+      this.scores[player.getId()] = 0;
+    });
+
     this.log('starting game');
     this.log(this.gameplan);
     this.startDrawingPhase();
@@ -159,9 +183,10 @@ export class Game {
   // kicks off a countdown which calls sync every second, until either:
   // 1. the countdown is cancelled
   // 2. the countdown reaches 0. final is then executed
-  startCountdown(final) {
-    // start a 30 second timer
-    this.timeRemaining = 30;
+  startCountdown(final, seconds = 30) {
+    // start a timer
+    this.timerDuration = seconds;
+    this.timeRemaining = seconds;
     this.sync();
 
     // cancel any existing countdown
@@ -231,7 +256,11 @@ export class Game {
   chooseCaption(player, captionText) {
     this.log('chooseCaption');
     const turn = this.getCurrentTurn();
-    turn.chooseCaptionByText(player, captionText);
+    const pointsUpdate = turn.chooseCaptionByText(player, captionText);
+
+    Object.entries(pointsUpdate).forEach(([id, points]) => {
+      this.scores[id] += points;
+    });
 
     if (turn.allPlayersChosen()) {
       this.startRevealPhase();
@@ -242,8 +271,15 @@ export class Game {
     this.cancelCountdown();
     this.phase = PHASES.REVEAL;
     this.log('revealing real prompt!');
-
     this.sync();
+
+    this.startCountdown(this.startScorePhase, 10);
+  }
+
+  startScorePhase() {
+    this.phase = PHASES.SCORE;
+    this.sync();
+    this.startCountdown(this.cancelCountdown, 10);
   }
 
   // syncs players state for all players in the game

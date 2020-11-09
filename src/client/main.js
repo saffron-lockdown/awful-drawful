@@ -23,8 +23,10 @@ const app = new Vue({
         gameId: '',
         prompt: '',
         players: [],
+        scores: [],
         errorMessage: null,
         viewDrawing: null,
+        timerDuration: null,
         timeRemaining: null,
       },
       // local client state

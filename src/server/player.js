@@ -107,8 +107,10 @@ export class Player {
       // state saved against the game the player is currently in
       gameId: this.getGameId(),
       players: this.game && this.game.getPlayers(),
+      scores: this.game && this.game.getScores(),
       phase: this.game && this.game.getPhase(),
       isWaiting: this.game && this.game.isPlayerWaiting(this),
+      timerDuration: this.game && this.game.getTimerDuration(),
       timeRemaining: this.game && this.game.getTimeRemaining(),
       prompt: this.game && this.game.getPrompt(this),
       viewDrawing: this.game && this.game.getViewDrawing(),
