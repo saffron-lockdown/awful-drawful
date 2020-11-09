@@ -26,6 +26,7 @@ const app = new Vue({
         scores: [],
         errorMessage: null,
         viewDrawing: null,
+        timerDuration: null,
         timeRemaining: null,
       },
       // local client state

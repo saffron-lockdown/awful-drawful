@@ -85,6 +85,10 @@ export class Game {
     return this.timeRemaining;
   }
 
+  getTimerDuration() {
+    return this.timerDuration;
+  }
+
   // get the prompt for a specific player for the current round
   getPrompt(player) {
     this.log('getPrompt');
@@ -130,17 +134,12 @@ export class Game {
     // return array of sorted player scores and names ready to be displayed
     const scoreboard = [];
 
-    console.log(this.scores);
-    for (const [playerId, score] of Object.entries(this.scores)) {
-      const player = this.players.filter(
-        (player) => player.getId() === playerId
-      )[0];
-
+    this.players.forEach((p) => {
       scoreboard.push({
-        playerName: player.getName(),
-        score: score,
+        playerName: p.getName(),
+        score: this.scores[p.getId()],
       });
-    }
+    });
 
     return scoreboard.sort((a, b) => {
       return b.score - a.score;
@@ -184,9 +183,10 @@ export class Game {
   // kicks off a countdown which calls sync every second, until either:
   // 1. the countdown is cancelled
   // 2. the countdown reaches 0. final is then executed
-  startCountdown(final) {
-    // start a 30 second timer
-    this.timeRemaining = 30;
+  startCountdown(final, seconds = 30) {
+    // start a timer
+    this.timerDuration = seconds;
+    this.timeRemaining = seconds;
     this.sync();
 
     // cancel any existing countdown
@@ -258,9 +258,9 @@ export class Game {
     const turn = this.getCurrentTurn();
     const pointsUpdate = turn.chooseCaptionByText(player, captionText);
 
-    for (const [id, points] of Object.entries(pointsUpdate)) {
+    Object.entries(pointsUpdate).forEach(([id, points]) => {
       this.scores[id] += points;
-    }
+    });
 
     if (turn.allPlayersChosen()) {
       this.startRevealPhase();
@@ -273,13 +273,13 @@ export class Game {
     this.log('revealing real prompt!');
     this.sync();
 
-    this.startCountdown(this.startScorePhase);
+    this.startCountdown(this.startScorePhase, 10);
   }
 
   startScorePhase() {
     this.phase = PHASES.SCORE;
     this.sync();
-    this.startCountdown(() => {});
+    this.startCountdown(this.cancelCountdown, 10);
   }
 
   // syncs players state for all players in the game
