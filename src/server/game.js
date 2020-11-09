@@ -1,6 +1,7 @@
 import { Round } from './round';
 import { Turn } from './turn';
 import { createLogger } from './logger';
+import e from 'express';
 import { getUniquePrompts } from './promptGenerator';
 
 const PHASES = {
@@ -10,6 +11,7 @@ const PHASES = {
   GUESS: 'GUESS',
   REVEAL: 'REVEAL',
   SCORE: 'SCORE',
+  FINALSCORE: 'FINALSCORE',
 };
 
 // return a plan of the game based on the number
@@ -42,7 +44,7 @@ export class Game {
     this.scores = {};
     this.phase = PHASES.LOBBY; // defines which phase of the game we're in
     this.roundNum = 0; // defines which round is currently being played
-    this.nRounds = 3;
+    this.nRounds = 2;
     this.log = createLogger(this.id);
     this.timer = null;
   }
@@ -279,7 +281,26 @@ export class Game {
   startScorePhase() {
     this.phase = PHASES.SCORE;
     this.sync();
-    this.startCountdown(this.cancelCountdown, 10);
+    this.startCountdown(this.advance, 10);
+  }
+
+  startFinalScorePhase() {
+    this.phase = PHASES.FINALSCORE;
+    this.cancelCountdown();
+    this.sync();
+  }
+
+  advance() {
+    // advance to next turn or round
+    if (!this.getCurrentRound().isOver()) {
+      this.getCurrentRound().advance();
+      this.startCaptioningPhase();
+    } else if (this.roundNum === this.nRounds - 1) {
+      this.startFinalScorePhase();
+    } else {
+      this.roundNum += 1;
+      this.startDrawingPhase();
+    }
   }
 
   // syncs players state for all players in the game

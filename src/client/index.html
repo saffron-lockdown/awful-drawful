@@ -84,7 +84,7 @@
         </template>
         <template v-if="state.phase === 'CAPTION'">
           <template v-if="state.isWaiting">
-            <span>that makes no sense, but ok</span>
+            <span>Waiting for the other players...</span>
           </template>
           <template v-else>
             <gallery></gallery>
@@ -127,6 +127,22 @@
           </b-list-group>
         </template>
         <template v-if="state.phase === 'SCORE'">
+          <b-list-group label="scoreboard">
+            <template v-for="entry in state.scores">
+              <b-list-group-item class="flex-column align-items-start">
+                <h5 class="mb-1">{{ entry.playerName }}</h5>
+                {{ entry.score }} points!
+              </b-list-group-item>
+            </template>
+          </b-list-group>
+        </template>
+        <template v-if="state.phase === 'FINALSCORE'">
+          <b-alert show variant="success">
+            <div class="text-center">
+              <h4 class="alert-heading" text-align="center">Congratulations</h4>
+              <h1>{{ state.scores[0].playerName }}!</h1>
+            </div>
+          </b-alert>
           <b-list-group label="scoreboard">
             <template v-for="entry in state.scores">
               <b-list-group-item class="flex-column align-items-start">

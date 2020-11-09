@@ -2,11 +2,19 @@
 export class Round {
   constructor(turns) {
     this.turns = turns;
-    this.currentTurn = this.turns[0];
+    this.turnNum = 0;
   }
 
   getCurrentTurn() {
-    return this.currentTurn;
+    return this.turns[this.turnNum];
+  }
+
+  advance() {
+    this.turnNum += 1;
+  }
+
+  isOver() {
+    return !!(this.turnNum === this.turns.length - 1);
   }
 
   getTurnByArtist(artist) {
