@@ -99,6 +99,11 @@ app.use(serveStatic('src/client/'));
 
 const log = createLogger();
 
-server.listen(3000, () => {
-  log('listening on http://localhost:3000');
+let port = process.env.PORT;
+if (port === null || port === '' || typeof myVar === 'undefined') {
+  port = 3000;
+}
+
+server.listen(port, () => {
+  log(`listening on http://localhost:${port}`);
 });
