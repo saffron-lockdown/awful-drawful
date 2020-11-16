@@ -25,19 +25,19 @@ function article(word) {
 
 const formats = [
   // apple cooking a squirrel
-  (a, tg, itg, s1, s2, o1, o2) => `${s1} ${tg} ${article(o1)} ${o1}`,
+  (a, tg, itg, s1, s2, o1) => `${s1} ${tg} ${article(o1)} ${o1}`,
   // adorable apple cooking a squirrel
-  (a, tg, itg, s1, s2, o1, o2) => `${a} ${s1} ${tg} ${article(o1)} ${o1}`,
+  (a, tg, itg, s1, s2, o1) => `${a} ${s1} ${tg} ${article(o1)} ${o1}`,
   // apple cooking a adorable squirrel
-  (a, tg, itg, s1, s2, o1, o2) => `${s1} ${tg} ${article(a)} ${a} ${o1}`,
+  (a, tg, itg, s1, s2, o1) => `${s1} ${tg} ${article(a)} ${a} ${o1}`,
   // baking stick
-  (a, tg, itg, s1, s2, o1) => `${itg} ${s1}`,
+  (a, tg, itg, s1) => `${itg} ${s1}`,
   (a, tg, itg, s1, s2, o1) => `${itg} ${o1}`,
   // stick baking
-  (a, tg, itg, s1, s2, o1) => `${s1} ${itg}`,
+  (a, tg, itg, s1) => `${s1} ${itg}`,
   (a, tg, itg, s1, s2, o1) => `${o1} ${itg}`,
   // adorable squirrel
-  (a, tg, itg, s1, s2, o1) => `${a} ${s1}`,
+  (a, tg, itg, s1) => `${a} ${s1}`,
   (a, tg, itg, s1, s2, o1) => `${a} ${o1}`,
 ];
 
