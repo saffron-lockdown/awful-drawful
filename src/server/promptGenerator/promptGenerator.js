@@ -1,4 +1,9 @@
-import { adjectives, gerunds, nouns } from './prompts';
+import {
+  adjectives,
+  intransitiveGerunds,
+  nouns,
+  transitiveGerunds,
+} from './prompts';
 
 import { shuffle } from '../utils';
 
@@ -10,17 +15,26 @@ function* loopingGet(arr) {
   }
 }
 
+function article(word) {
+  if (['a', 'e', 'i', 'o', 'u'].includes(word.substring(0, 1))) {
+    return 'an';
+  }
+  return 'a';
+}
+
 const formats = [
+  // apple cooking a squirrel
+  (a, tg, itg, n1, n2) => `${n1} ${tg} ${article(n2)} ${n2}`,
   // adorable apple cooking a squirrel
-  (a, g, n1, n2) => `${a} ${n1} ${g} a ${n2}`,
+  (a, tg, itg, n1, n2) => `${a} ${n1} ${tg} ${article(n2)} ${n2}`,
   // apple cooking a adorable squirrel
-  (a, g, n1, n2) => `${n1} ${g} a ${a} ${n2}`,
+  (a, tg, itg, n1, n2) => `${n1} ${tg} ${article(a)} ${a} ${n2}`,
   // baking stick
-  (a, g, n1) => `${g} ${n1}`,
+  (a, tg, itg, n1) => `${itg} ${n1}`,
   // stick baking
-  (a, g, n1) => `${n1} ${g}`,
+  (a, tg, itg, n1) => `${n1} ${itg}`,
   // adorable squirrel
-  (a, g, n1) => `${a} ${n1}`,
+  (a, tg, itg, n1) => `${a} ${n1}`,
 ];
 
 // Return a list of n unique prompts
@@ -29,20 +43,24 @@ export function getUniquePrompts(nPrompts) {
   // through them sequentially
   const [
     adjectivesGenerator,
-    gerundsGenerator,
+    transitiveGerundsGenerator,
+    intransitiveGerundsGenerator,
     nounsGenerator,
     formatsGenerator,
-  ] = [adjectives, gerunds, nouns, formats].map((arr) => {
-    const shuffled = shuffle(arr);
-    return loopingGet(shuffled);
-  });
+  ] = [adjectives, transitiveGerunds, intransitiveGerunds, nouns, formats].map(
+    (arr) => {
+      const shuffled = shuffle(arr);
+      return loopingGet(shuffled);
+    }
+  );
 
   const prompts = [];
   for (let i = 0; i < nPrompts; i += 1) {
     const format = formatsGenerator.next().value;
     const prompt = format(
       adjectivesGenerator.next().value.toLowerCase(),
-      gerundsGenerator.next().value.toLowerCase(),
+      transitiveGerundsGenerator.next().value.toLowerCase(),
+      intransitiveGerundsGenerator.next().value.toLowerCase(),
       nounsGenerator.next().value.toLowerCase(),
       nounsGenerator.next().value.toLowerCase()
     );
