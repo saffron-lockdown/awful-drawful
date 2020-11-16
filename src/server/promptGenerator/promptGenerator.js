@@ -1,7 +1,8 @@
 import {
   adjectives,
   intransitiveGerunds,
-  nouns,
+  objects,
+  subjects,
   transitiveGerunds,
 } from './prompts';
 
@@ -24,17 +25,20 @@ function article(word) {
 
 const formats = [
   // apple cooking a squirrel
-  (a, tg, itg, n1, n2) => `${n1} ${tg} ${article(n2)} ${n2}`,
+  (a, tg, itg, s1, s2, o1, o2) => `${s1} ${tg} ${article(o1)} ${o1}`,
   // adorable apple cooking a squirrel
-  (a, tg, itg, n1, n2) => `${a} ${n1} ${tg} ${article(n2)} ${n2}`,
+  (a, tg, itg, s1, s2, o1, o2) => `${a} ${s1} ${tg} ${article(o1)} ${o1}`,
   // apple cooking a adorable squirrel
-  (a, tg, itg, n1, n2) => `${n1} ${tg} ${article(a)} ${a} ${n2}`,
+  (a, tg, itg, s1, s2, o1, o2) => `${s1} ${tg} ${article(a)} ${a} ${o1}`,
   // baking stick
-  (a, tg, itg, n1) => `${itg} ${n1}`,
+  (a, tg, itg, s1, o1) => `${itg} ${s1}`,
+  (a, tg, itg, s1, o1) => `${itg} ${o1}`,
   // stick baking
-  (a, tg, itg, n1) => `${n1} ${itg}`,
+  (a, tg, itg, s1, o1) => `${s1} ${itg}`,
+  (a, tg, itg, s1, o1) => `${o1} ${itg}`,
   // adorable squirrel
-  (a, tg, itg, n1) => `${a} ${n1}`,
+  (a, tg, itg, s1, o1) => `${a} ${s1}`,
+  (a, tg, itg, s1, o1) => `${a} ${o1}`,
 ];
 
 // Return a list of n unique prompts
@@ -45,14 +49,20 @@ export function getUniquePrompts(nPrompts) {
     adjectivesGenerator,
     transitiveGerundsGenerator,
     intransitiveGerundsGenerator,
-    nounsGenerator,
+    subjectGenerator,
+    objectGenerator,
     formatsGenerator,
-  ] = [adjectives, transitiveGerunds, intransitiveGerunds, nouns, formats].map(
-    (arr) => {
-      const shuffled = shuffle(arr);
-      return loopingGet(shuffled);
-    }
-  );
+  ] = [
+    adjectives,
+    transitiveGerunds,
+    intransitiveGerunds,
+    subjects,
+    objects,
+    formats,
+  ].map((arr) => {
+    const shuffled = shuffle(arr);
+    return loopingGet(shuffled);
+  });
 
   const prompts = [];
   for (let i = 0; i < nPrompts; i += 1) {
@@ -61,8 +71,10 @@ export function getUniquePrompts(nPrompts) {
       adjectivesGenerator.next().value.toLowerCase(),
       transitiveGerundsGenerator.next().value.toLowerCase(),
       intransitiveGerundsGenerator.next().value.toLowerCase(),
-      nounsGenerator.next().value.toLowerCase(),
-      nounsGenerator.next().value.toLowerCase()
+      subjectGenerator.next().value.toLowerCase(),
+      subjectGenerator.next().value.toLowerCase(),
+      objectGenerator.next().value.toLowerCase(),
+      objectGenerator.next().value.toLowerCase()
     );
     prompts.push(prompt);
   }
