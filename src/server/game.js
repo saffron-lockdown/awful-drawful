@@ -170,6 +170,12 @@ export class Game {
   }
 
   start() {
+    if (this.players.length > 6) {
+      this.nrounds = 1;
+    } else if (this.players.length > 4) {
+      this.nrounds = 2;
+    }
+
     this.gameplan = gameplan(this.players, this.nRounds);
 
     this.players.forEach((player) => {
