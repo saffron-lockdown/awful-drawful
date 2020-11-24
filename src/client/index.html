@@ -76,9 +76,7 @@
           </template>
           <template v-else>
             <b-alert id="prompt-display" show>Random prompt: {{ state.prompt }}</b-alert>
-            <div key="easel" class="flex-grow-1 mb-2">
-              <canvas id="easel" width="500" height="500"></canvas>
-            </div>
+            <drawing id="easel"></drawing>
             <b-button id="post" class="mb-2" @click="postDrawing" variant="success">Post</b-button>
           </template>
         </template>
@@ -87,7 +85,7 @@
             <span>Waiting for the other players...</span>
           </template>
           <template v-else>
-            <gallery></gallery>
+            <drawing id="gallery"></drawing>
             <b-form-group label="What is this?">
               <b-form-input v-model="caption"></b-form-input>
             </b-form-group>
@@ -99,7 +97,7 @@
             <span>waiting for the other players to pick their caption</span>
           </template>
           <template v-else>
-            <gallery></gallery>
+            <drawing id="gallery"></drawing>
             <b-list-group>
               <b-form-group label="What was the real prompt?">
                 <b-list-group-item v-for="caption in state.captions" button @click="chooseCaption(caption)">
@@ -110,7 +108,7 @@
           </template>
         </template>
         <template v-if="state.phase === 'REVEAL'">
-          <gallery></gallery>
+          <drawing id="gallery"></drawing>
           <b-list-group label="Let's see what you all chose!">
             <template v-for="caption in state.captions">
               <b-list-group-item :variant="answerVariant(caption)" class="flex-column align-items-start">

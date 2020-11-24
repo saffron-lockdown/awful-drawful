@@ -5,13 +5,9 @@ let gallery = null;
 
 function setCanvasSize(canvas) {
   // expand canvas to fill remaining screen real estate
-  canvas.setDimensions({ width: '100%', height: '100%' }, { cssOnly: true });
+  canvas.setDimensions({ width: '100%', height: 'auto' }, { cssOnly: true });
 
-  // set aspect ratio appropriate to screen
-  canvas.setDimensions(
-    { width: canvas.width, height: canvas.height },
-    { backstoreOnly: true }
-  );
+  canvas.setDimensions({ width: 500, height: 500 }, { backstoreOnly: true });
 }
 
 const app = new Vue({
@@ -143,10 +139,11 @@ const app = new Vue({
   },
 });
 
-Vue.component('gallery', {
+Vue.component('drawing', {
+  props: ['id'],
   template: `
-    <div key="gallery" class="flex-grow-1 mb-2">
-      <canvas id="gallery" width="500" height="500"></canvas>
+    <div :key="id" class="d-flex flex-grow-1 mb-2">
+      <canvas :id="id"></canvas>
     </div>
   `,
 });

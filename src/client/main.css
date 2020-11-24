@@ -9,3 +9,8 @@ body {
 .canvas-container {
   border: 1px solid rgb(170, 170, 170);
 }
+
+.upper-canvas,
+.lower-canvas {
+  height: 100% !important;
+}
