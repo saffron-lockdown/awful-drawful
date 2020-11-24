@@ -62,7 +62,7 @@
         </b-alert>
         <b-button id="start-game-button" class="mb-2" @click="startGame">Everybody's in!</b-button>
       </template>
-      <div id="page-ingame" v-else-if="page === 'ingame'" class="mb-2">
+      <div id="page-ingame" v-else-if="page === 'ingame'" class="flex-grow-1 d-flex flex-column mb-2">
         <b-progress
           class="mb-2"
           :value="state.timeRemaining"
@@ -79,7 +79,7 @@
           <template v-else>
             <b-alert id="prompt-display" show>Random prompt: {{ state.prompt }}</b-alert>
             <drawing id="easel"></drawing>
-            <b-button id="post" class="mb-2" @click="postDrawing" variant="success">Post</b-button>
+            <b-button id="post" @click="postDrawing" variant="success">Post</b-button>
           </template>
         </template>
         <template v-if="state.phase === 'CAPTION'">
