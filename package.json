@@ -4,12 +4,14 @@
   "description": "Clone of Drawful",
   "main": "src/server/index.js",
   "scripts": {
-    "start": "DEBUG=app* nodemon -r esm --watch src/server src/server/index.js",
+    "dev": "DEBUG=app* nodemon -r esm --watch src/server src/server/index.js",
     "lint": "eslint .",
     "test": "npm run test:unit",
     "test:unit": "jest --verbose src",
     "test:unit:watch": "npm run test:unit -- --watch",
-    "test:integration": "cypress open"
+    "test:integration": "cypress open",
+    "build": "esbuild src/server/index.js --bundle --outfile=build/index.js --platform=node",
+    "start": "DEBUG=app* node build/index.js"
   },
   "dependencies": {
     "crypto-random-string": "^3.3.0",
@@ -27,6 +29,7 @@
     "@babel/preset-env": "^7.11.5",
     "babel-jest": "^26.5.2",
     "cypress": "^5.4.0",
+    "esbuild": "^0.8.15",
     "eslint": "^7.11.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-config-prettier": "^6.12.0",
