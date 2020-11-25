@@ -6,6 +6,13 @@ A clone of Drawful using express, socket.io and Vue.js.
 
 ```sh
 npm install
+npm run dev
+```
+
+## Running in production
+
+```sh
+npm run build
 npm start
 ```
 

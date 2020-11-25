@@ -3,6 +3,7 @@ import { Manager } from './manager';
 import { createLogger } from './logger';
 import { createServer } from 'http';
 import express from 'express';
+import path from 'path';
 import serveStatic from 'serve-static';
 import session from 'express-session';
 import sio from 'socket.io';
@@ -94,8 +95,7 @@ io.on('connect', (socket) => {
     player.setSocket(null);
   });
 });
-
-app.use(serveStatic('src/client/'));
+app.use(serveStatic(path.join(__dirname, '../client')));
 
 const log = createLogger();
 

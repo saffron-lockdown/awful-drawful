@@ -4,12 +4,14 @@
   "description": "Clone of Drawful",
   "main": "src/server/index.js",
   "scripts": {
-    "start": "DEBUG=app* nodemon -r esm --watch src/server src/server/index.js",
+    "dev": "DEBUG=app* nodemon -r esm --watch src/server src/server",
     "lint": "eslint .",
     "test": "npm run test:unit",
     "test:unit": "jest --verbose src",
     "test:unit:watch": "npm run test:unit -- --watch",
-    "test:integration": "cypress open"
+    "test:integration": "cypress open",
+    "build": "node -r esm ./generateVersion.js",
+    "start": "DEBUG=app* node -r esm src/server"
   },
   "dependencies": {
     "crypto-random-string": "^3.3.0",
