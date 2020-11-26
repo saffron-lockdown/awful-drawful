@@ -72,49 +72,33 @@
           variant="info"
           show-value
         ></b-progress>
-        <template v-if="state.phase === 'DRAW'">
-          <template v-if="state.isWaiting">
-            <span>think about what you've done</span>
-          </template>
-          <template v-else>
-            <b-alert id="prompt-display" show>Random prompt: {{ state.prompt }}</b-alert>
+        <b-alert id="display" show>{{ message(state) }}</b-alert>
+        <template v-if="!state.isWaiting">
+          <template v-if="state.phase === 'DRAW'">
             <drawing id="easel"></drawing>
             <b-button id="post" @click="postDrawing" variant="success">Post</b-button>
           </template>
-        </template>
-        <template v-if="state.phase === 'CAPTION'">
-          <template v-if="state.isWaiting">
-            <span>Waiting for the other players...</span>
-          </template>
-          <template v-else>
+          <template v-if="state.phase === 'CAPTION'">
             <drawing id="gallery"></drawing>
             <b-form-group label="What is this?">
               <b-form-input v-model="caption"></b-form-input>
             </b-form-group>
             <b-button id="caption-button" class="mb-2" @click="postCaption" variant="primary">Submit</b-button>
           </template>
-        </template>
-        <template v-if="state.phase === 'GUESS'">
-          <template v-if="state.isWaiting">
-            <span>waiting for the other players to pick their caption</span>
-          </template>
-          <template v-else>
+          <template v-if="state.phase === 'GUESS'">
             <drawing id="gallery"></drawing>
-            <b-card-group deck class="mb-2">
-              <b-card header="What was the real prompt?" no-body>
-                <b-list-group flush>
-                  <b-list-group-item v-for="caption in state.captions" button @click="chooseCaption(caption)">
-                    {{ caption.text }}
-                  </b-list-group-item>
-                </b-list-group>
-              </b-card>
-            </b-card-group>
+            <b-card no-body>
+              <b-list-group flush>
+                <b-list-group-item v-for="caption in state.captions" button @click="chooseCaption(caption)">
+                  {{ caption.text }}
+                </b-list-group-item>
+              </b-list-group>
+            </b-card>
           </template>
         </template>
         <template v-if="state.phase === 'REVEAL'">
-          <drawing id="gallery"></drawing>
           <b-card-group deck class="mb-2">
-            <b-card header="Let's see what you all chose!" no-body>
+            <b-card no-body>
               <b-list-group flush>
                 <template v-for="caption in state.captions">
                   <b-list-group-item :variant="answerVariant(caption)">
@@ -133,7 +117,6 @@
           </b-card-group>
         </template>
         <template v-if="state.phase === 'SCORE'">
-          <h1>Scoreboard</h1>
           <b-list-group flush>
             <template v-for="data in state.scores">
               <b-list-group-item class="d-flex justify-content-between align-items-center">
