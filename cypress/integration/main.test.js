@@ -78,7 +78,7 @@ describe('Main', () => {
 
         cy.get('#prompt-display')
           .invoke('text')
-          .should('match', /Random prompt:/);
+          .should('match', /Your prompt to draw is:/);
       });
     });
   });
