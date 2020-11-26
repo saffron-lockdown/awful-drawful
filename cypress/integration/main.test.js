@@ -76,7 +76,7 @@ describe('Main', () => {
       it('starts the game', () => {
         cy.get('#start-game-button').click();
 
-        cy.get('#prompt-display')
+        cy.get('#display')
           .invoke('text')
           .should('match', /Your prompt to draw is:/);
       });
