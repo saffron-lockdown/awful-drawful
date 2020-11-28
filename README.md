@@ -22,6 +22,7 @@ Set runtime environment variables for development by creating a `.env` file in t
 project. E.g.
 
 ```sh
+DEBUG=app*
 DEFAULT_COUNTDOWN=5
 ```
 
