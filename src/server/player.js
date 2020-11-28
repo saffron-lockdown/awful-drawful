@@ -76,7 +76,7 @@ export class Player {
 
   postCaption(caption) {
     if (this.game) {
-      this.game.postCaption(this, caption);
+      this.game.postCaption(caption);
       this.sync();
     }
   }

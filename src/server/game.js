@@ -244,7 +244,7 @@ export class Game {
   }
 
   // submit a caption for a player in the current turn
-  postCaption(player, caption) {
+  postCaption(caption) {
     const turn = this.getCurrentTurn();
     turn.submitCaption(caption);
 
