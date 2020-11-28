@@ -104,37 +104,37 @@ const app = new Vue({
     playerVariant(player) {
       return player.connected ? 'success' : 'danger';
     },
-    message(state) {
-      if (state.phase === 'DRAW') {
-        if (state.isWaiting) {
+    message() {
+      if (this.state.phase === 'DRAW') {
+        if (this.state.isWaiting) {
           return 'Waiting for other players to finish drawing';
         }
-        return `Your prompt to draw is: ${state.prompt}`;
+        return `Your prompt to draw is: ${this.state.prompt}`;
       }
 
-      if (state.phase === 'CAPTION') {
-        if (state.isWaiting) {
+      if (this.state.phase === 'CAPTION') {
+        if (this.state.isWaiting) {
           return 'Waiting for other players to caption the drawing';
         }
         return 'Write what you think this could be';
       }
 
-      if (state.phase === 'GUESS') {
-        if (state.isWaiting) {
+      if (this.state.phase === 'GUESS') {
+        if (this.state.isWaiting) {
           return 'Waiting for other players to guess the real prompt';
         }
         return 'Choose what you think was the real prompt';
       }
 
-      if (state.phase === 'REVEAL') {
+      if (this.state.phase === 'REVEAL') {
         return "Let's see what you all guessed!";
       }
 
-      if (state.phase === 'SCORE') {
+      if (this.state.phase === 'SCORE') {
         return 'Here are the scores so far';
       }
 
-      if (state.phase === 'FINALSCORE') {
+      if (this.state.phase === 'FINALSCORE') {
         return 'What a game!';
       }
 
