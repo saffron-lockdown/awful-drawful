@@ -16,6 +16,15 @@ npm run build
 npm start
 ```
 
+## Development
+
+Set runtime environment variables for development by creating a `.env` file in the root of the
+project. E.g.
+
+```sh
+DEFAULT_COUNTDOWN=5
+```
+
 ## Unit tests
 
 To run unit tests:
