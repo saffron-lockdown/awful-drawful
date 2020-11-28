@@ -104,6 +104,42 @@ const app = new Vue({
     playerVariant(player) {
       return player.connected ? 'success' : 'danger';
     },
+    message() {
+      if (this.state.phase === 'DRAW') {
+        if (this.state.isWaiting) {
+          return 'Waiting for other players to finish drawing';
+        }
+        return `Your prompt to draw is: ${this.state.prompt}`;
+      }
+
+      if (this.state.phase === 'CAPTION') {
+        if (this.state.isWaiting) {
+          return 'Waiting for other players to caption the drawing';
+        }
+        return 'Write what you think this could be';
+      }
+
+      if (this.state.phase === 'GUESS') {
+        if (this.state.isWaiting) {
+          return 'Waiting for other players to guess the real prompt';
+        }
+        return 'Choose what you think was the real prompt';
+      }
+
+      if (this.state.phase === 'REVEAL') {
+        return "Let's see what you all guessed!";
+      }
+
+      if (this.state.phase === 'SCORE') {
+        return 'Here are the scores so far';
+      }
+
+      if (this.state.phase === 'FINALSCORE') {
+        return 'What a game!';
+      }
+
+      return '';
+    },
   },
   updated() {
     // every time the DOM is updated, check if there are any canvases that need to be hooked up to
