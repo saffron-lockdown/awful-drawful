@@ -82,7 +82,7 @@ io.on('connect', (socket) => {
   });
 
   socket.on('post-caption', (text) => {
-    const caption = new Caption(player, text);
+    const caption = new Caption(player, text.toLowerCase());
     player.postCaption(caption);
   });
 
