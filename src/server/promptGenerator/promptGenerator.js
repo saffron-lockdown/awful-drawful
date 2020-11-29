@@ -2,6 +2,7 @@ import {
   adjectives,
   intransitiveGerunds,
   objects,
+  prepositions,
   subjects,
   transitiveGerunds,
 } from './prompts';
@@ -16,29 +17,45 @@ function* loopingGet(arr) {
   }
 }
 
-function article(word) {
-  if (['a', 'e', 'i', 'o', 'u'].includes(word.substring(0, 1))) {
-    return 'an';
+function addArticle(word) {
+  if (['a', 'e', 'i', 'o', 'u'].includes(word.substring(0, 1).toLowerCase())) {
+    return `an ${word}`;
   }
-  return 'a';
+  return `a ${word}`;
 }
 
 const formats = [
   // apple cooking a squirrel
-  (a, tg, itg, s1, s2, o1) => `${s1} ${tg} ${article(o1)} ${o1}`,
+  (a, tg, itg, n, s, o) =>
+    `${s.next().value} ${tg.next().value} ${addArticle(o.next().value)}`,
   // adorable apple cooking a squirrel
-  (a, tg, itg, s1, s2, o1) => `${a} ${s1} ${tg} ${article(o1)} ${o1}`,
-  // apple cooking a adorable squirrel
-  (a, tg, itg, s1, s2, o1) => `${s1} ${tg} ${article(a)} ${a} ${o1}`,
-  // baking stick
-  (a, tg, itg, s1) => `${itg} ${s1}`,
-  (a, tg, itg, s1, s2, o1) => `${itg} ${o1}`,
+  (a, tg, itg, n, s, o) =>
+    `${a.next().value} ${s.next().value} ${tg.next().value} ${addArticle(
+      o.next().value
+    )}`,
+  // apple cooking an adorable squirrel
+  (a, tg, itg, n, s, o) =>
+    `${s.next().value} ${tg.next().value} ${addArticle(a.next().value)} ${
+      o.next().value
+    }`,
+  // (adorable) baking stick
+  (a, tg, itg, n) => `${itg.next().value} ${n.next().value}`,
+  (a, tg, itg, n) => `${a.next().value} ${itg.next().value} ${n.next().value}`,
+
   // stick baking
-  (a, tg, itg, s1) => `${s1} ${itg}`,
-  (a, tg, itg, s1, s2, o1) => `${o1} ${itg}`,
-  // adorable squirrel
-  (a, tg, itg, s1) => `${a} ${s1}`,
-  (a, tg, itg, s1, s2, o1) => `${a} ${o1}`,
+  (a, tg, itg, n) => `${n.next().value} ${itg.next().value}`,
+
+  // (adorable) squirrel
+  (a, tg, itg, n) => `${a.next().value} ${n.next().value}`,
+  (a, tg, itg, n) => `${n.next().value}`,
+
+  // (adorable) chicken boy
+  (a, tg, itg, n) => `${n.next().value} ${n.next().value}`,
+  (a, tg, itg, n) => `${a.next().value} ${n.next().value} ${n.next().value}`,
+
+  // boy (with/on/and) a chicken
+  (a, tg, itg, n, s, o, p) =>
+    `${n.next().value} ${p.next().value} ${addArticle(n.next().value)}`,
 ];
 
 // Return a list of n unique prompts
@@ -51,6 +68,8 @@ export function getUniquePrompts(nPrompts) {
     intransitiveGerundsGenerator,
     subjectGenerator,
     objectGenerator,
+    nounGenerator,
+    prepositionGenerator,
     formatsGenerator,
   ] = [
     adjectives,
@@ -58,6 +77,8 @@ export function getUniquePrompts(nPrompts) {
     intransitiveGerunds,
     subjects,
     objects,
+    subjects.concat(objects),
+    prepositions,
     formats,
   ].map((arr) => {
     const shuffled = shuffle(arr);
@@ -68,15 +89,21 @@ export function getUniquePrompts(nPrompts) {
   for (let i = 0; i < nPrompts; i += 1) {
     const format = formatsGenerator.next().value;
     const prompt = format(
-      adjectivesGenerator.next().value.toLowerCase(),
-      transitiveGerundsGenerator.next().value.toLowerCase(),
-      intransitiveGerundsGenerator.next().value.toLowerCase(),
-      subjectGenerator.next().value.toLowerCase(),
-      subjectGenerator.next().value.toLowerCase(),
-      objectGenerator.next().value.toLowerCase(),
-      objectGenerator.next().value.toLowerCase()
+      adjectivesGenerator,
+      transitiveGerundsGenerator,
+      intransitiveGerundsGenerator,
+      nounGenerator,
+      subjectGenerator,
+      objectGenerator,
+      prepositionGenerator
     );
-    prompts.push(prompt);
+
+    // Sometimes add 'a' or 'an' to the start of the prompt
+    if (Math.random() < 0.1) {
+      prompts.push(addArticle(prompt).toLowerCase());
+    } else {
+      prompts.push(prompt.toLowerCase());
+    }
   }
   return prompts;
 }
