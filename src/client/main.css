@@ -14,3 +14,32 @@ body {
 .lower-canvas {
   height: 100% !important;
 }
+
+.animated-list-item {
+  transition: all 1s;
+  display: inline-block;
+  margin-right: 10px;
+}
+.animated-list-enter,
+.animated-list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+.animated-list-leave-active {
+  position: absolute;
+}
+
+.bounce-enter-active {
+  animation: bounce-in 0.5s;
+}
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
