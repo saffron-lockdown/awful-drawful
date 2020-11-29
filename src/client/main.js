@@ -20,17 +20,18 @@ const app = new Vue({
     return {
       state: {
         name: '',
-        gameId: '',
-        prompt: '',
-        players: [],
-        scores: {
-          current: [],
-          previous: [],
-        },
         errorMessage: null,
-        viewDrawing: null,
+        gameId: '',
+        players: [],
+        scores: [],
+        phase: null,
+        isWaiting: null,
         timerDuration: null,
         timeRemaining: null,
+        prompt: '',
+        viewDrawing: null,
+        captions: [],
+        realPrompt: null,
       },
       // local client state
       editName: false,

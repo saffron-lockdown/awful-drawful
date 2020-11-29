@@ -35,11 +35,13 @@ export class Turn {
   }
 
   hasPlayerSubmittedCaption(player) {
-    return !!this.captions.find((caption) => caption.player === player);
+    return !!this.captions.find((caption) => caption.getPlayer() === player);
   }
 
   hasPlayerChosenCaption(player) {
-    return !!this.captions.find((caption) => caption.chosenBy.includes(player));
+    return !!this.captions.find((caption) =>
+      caption.getChosenBy().includes(player)
+    );
   }
 
   submitDrawing(drawing) {
@@ -62,16 +64,16 @@ export class Turn {
 
     if (player !== this.artist && !this.hasPlayerChosenCaption(player)) {
       const chosenCaption = this.captions.find(
-        (caption) => caption.text === captionText
+        (caption) => caption.getText() === captionText
       );
-      chosenCaption.chosenBy.push(player);
+      chosenCaption.choose(player);
     }
   }
 
   allPlayersChosen() {
     this.log('allPlayersChosen');
     const totalChoices = this.captions.reduce((acc, caption) => {
-      return acc + caption.chosenBy.length;
+      return acc + caption.getChosenBy().length;
     }, 0);
     return totalChoices === this.totalPlayers - 1; // artist doesn't choose
   }

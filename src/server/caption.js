@@ -9,7 +9,15 @@ export class Caption {
     return this.player;
   }
 
+  getText() {
+    return this.text;
+  }
+
   getChosenBy() {
     return this.chosenBy;
+  }
+
+  choose(player) {
+    this.chosenBy.push(player);
   }
 }

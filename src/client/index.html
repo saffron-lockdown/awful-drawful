@@ -47,7 +47,8 @@
           >Error: {{ state.errorMessage }}</b-alert
         >
         <b-button id="join-game-button" class="mb-2" @click="joinGame" variant="success">Join game</b-button>
-        <b-button id="create-game-button" @click="createGame" variant="info">Create game</b-button>
+        <b-button id="create-game-button" class="mb-2" @click="createGame" variant="info">Create game</b-button>
+        <b-badge pill variant="light">Built __BUILD_ID__</b-badge>
       </template>
       <template id="page-lobby" v-else-if="page === 'lobby'">
         <b-alert id="player-list-display" show>
@@ -90,7 +91,12 @@
             <drawing id="gallery"></drawing>
             <b-card no-body>
               <b-list-group flush>
-                <b-list-group-item v-for="caption in state.captions" button @click="chooseCaption(caption)">
+                <b-list-group-item
+                  v-for="caption in state.captions"
+                  :key="caption.playerName"
+                  button
+                  @click="chooseCaption(caption)"
+                >
                   {{ caption.text }}
                 </b-list-group-item>
               </b-list-group>
@@ -101,18 +107,22 @@
           <b-card-group deck class="mb-2">
             <b-card no-body>
               <b-list-group flush>
-                <template v-for="caption in state.captions">
-                  <b-list-group-item :variant="answerVariant(caption)">
-                    <div class="d-flex w-100 justify-content-between">
-                      <h5 class="mb-1">{{ caption.text }}</h5>
-                    </div>
-                    <template v-if="caption.text !== state.realPrompt"> {{ caption.playerName }}'s Lie! </template>
-                    <template v-else> The Truth! </template>
-                    <h4>
-                      <b-badge v-for="chooserName in caption.chosenBy" variant="info"> {{ chooserName }} </b-badge>
-                    </h4>
-                  </b-list-group-item>
-                </template>
+                <b-list-group-item
+                  v-for="caption in state.captions"
+                  :variant="answerVariant(caption)"
+                  :key="caption.playerName"
+                >
+                  <div class="d-flex w-100 justify-content-between">
+                    <h5 class="mb-1">{{ caption.text }}</h5>
+                  </div>
+                  <template v-if="caption.text !== state.realPrompt"> {{ caption.playerName }}'s Lie! </template>
+                  <template v-else> The Truth! </template>
+                  <h4>
+                    <b-badge v-for="chooserName in caption.chosenBy" :key="chooserName" variant="info">
+                      {{ chooserName }}
+                    </b-badge>
+                  </h4>
+                </b-list-group-item>
               </b-list-group>
             </b-card>
           </b-card-group>
@@ -157,7 +167,6 @@
       >
         Leave game
       </b-button>
-      <b-badge pill variant="light">Built __BUILD_ID__</b-badge>
     </b-container>
 
     <script src="main.js"></script>

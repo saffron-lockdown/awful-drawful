@@ -125,9 +125,9 @@ export class Game {
       .getCaptions()
       .map((caption) => {
         return {
-          playerName: caption.player.getName(),
-          text: caption.text,
-          chosenBy: caption.chosenBy.map((chooser) => chooser.getName()),
+          playerName: caption.getPlayer().getName(),
+          text: caption.getText(),
+          chosenBy: caption.getChosenBy().map((chooser) => chooser.getName()),
         };
       });
   }
@@ -184,7 +184,8 @@ export class Game {
 
     this.log('starting game');
     this.log(this.gameplan);
-    this.startDrawingPhase();
+    // this.startDrawingPhase();
+    this.startRevealPhase();
   }
 
   initialiseScores() {
@@ -284,9 +285,9 @@ export class Game {
     this.cancelCountdown();
     this.phase = PHASES.REVEAL;
     this.log('revealing real prompt!');
-    this.sync();
 
-    this.startCountdown(this.startScorePhase, 10);
+    this.sync();
+    // this.startCountdown(this.startScorePhase, 10);
   }
 
   startScorePhase() {
