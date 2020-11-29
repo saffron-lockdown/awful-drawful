@@ -82,28 +82,29 @@ const app = new Vue({
         this.scores = [];
 
         // sequentially push each score to the scores array
-        await this.state.scores.reduce(async (acc, row) => {
-          await acc;
+        for (let i = 0; i < this.state.scores.length; i += 1) {
+          const row = this.state.scores[i];
           this.scores.push({
             ...row,
             score: row.previousScore,
           });
           await sleep(500);
-        }, Promise.resolve());
+        }
 
         await sleep(1000);
 
         // sequentially update each row that has changed
-        await this.scores
-          .filter((row) => row.currentScore !== row.previousScore)
-          .reduce(async (acc, row) => {
-            await acc;
-            gsap.to(row, {
-              duration: 1,
-              score: row.currentScore,
-            });
-            await sleep(500);
-          }, Promise.resolve());
+        const scoresToUpdate = this.scores.filter(
+          (row) => row.currentScore !== row.previousScore
+        );
+        for (let i = 0; i < scoresToUpdate.length; i += 1) {
+          const row = scoresToUpdate[i];
+          gsap.to(row, {
+            duration: 1,
+            score: row.currentScore,
+          });
+          await sleep(500);
+        }
 
         await sleep(1000);
 
