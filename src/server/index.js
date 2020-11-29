@@ -21,16 +21,6 @@ const sesh = session({
 
 const mgr = new Manager();
 
-function addPlayerToGame(player, game) {
-  // Add player if not in game
-  if (!game.getPlayers().includes(player)) {
-    player.leaveGame();
-
-    // Add game reference to player
-    player.joinGame(game);
-  }
-}
-
 const wrap = (middleware) => (socket, next) =>
   middleware(socket.request, {}, next);
 
@@ -56,7 +46,7 @@ io.on('connect', (socket) => {
   socket.on('create-game', () => {
     const game = mgr.createGame();
 
-    addPlayerToGame(player, game);
+    mgr.addPlayerToGame(player, game.getId());
   });
 
   socket.on('join-game', (gameId) => {
@@ -66,11 +56,11 @@ io.on('connect', (socket) => {
       return;
     }
 
-    addPlayerToGame(player, game);
+    mgr.addPlayerToGame(player, game.getId());
   });
 
   socket.on('leave-game', () => {
-    player.leaveGame();
+    mgr.removePlayer(player);
   });
 
   socket.on('start-game', () => {

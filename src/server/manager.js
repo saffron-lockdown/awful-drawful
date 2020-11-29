@@ -38,4 +38,28 @@ export class Manager {
     this._players[id] = player;
     return player;
   }
+
+  addPlayerToGame(player, gameId) {
+    const game = this.getGame(gameId);
+
+    // Add player if not in game
+    if (game && !game.getPlayers().includes(player)) {
+      // leave their current game
+      player.leaveGame();
+
+      // Set up references
+      game.addPlayer(player);
+      player.setGame(game);
+    }
+  }
+
+  removePlayer(player) {
+    const game = player.getGame();
+    player.leaveGame();
+    if (game.getPlayers().length === 0) {
+      this.log('no players left, destroying game');
+      game.destroy();
+      delete this._games[game.getId()];
+    }
+  }
 }

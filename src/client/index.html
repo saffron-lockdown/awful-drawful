@@ -74,7 +74,7 @@
           variant="info"
           show-value
         ></b-progress>
-        <b-alert id="display" show>{{ message() }}</b-alert>
+        <b-alert id="display" show>{{ message }}</b-alert>
         <template v-if="!state.isWaiting">
           <template v-if="state.phase === 'DRAW'">
             <drawing id="easel"></drawing>

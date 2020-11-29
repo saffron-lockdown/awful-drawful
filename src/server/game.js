@@ -230,6 +230,11 @@ export class Game {
     clearInterval(this._timer);
   }
 
+  destroy() {
+    this.log('destroying game');
+    this.cancelCountdown();
+  }
+
   startDrawPhase() {
     this._phase = PHASES.DRAW;
 
