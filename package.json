@@ -4,7 +4,7 @@
   "description": "Clone of Drawful",
   "main": "src/server/index.js",
   "scripts": {
-    "dev": "DEBUG=app* nodemon -r esm --watch src/server src/server",
+    "dev": "nodemon -r esm -r dotenv/config --watch src/server src/server",
     "lint": "eslint .",
     "test": "npm run test:unit",
     "test:unit": "jest --verbose src",
@@ -16,6 +16,7 @@
   "dependencies": {
     "crypto-random-string": "^3.3.0",
     "debug": "^4.2.0",
+    "dotenv": "^8.2.0",
     "esm": "^3.2.25",
     "express": "^4.17.1",
     "express-session": "^1.17.1",
