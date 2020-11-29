@@ -1,5 +1,6 @@
 import { Caption } from './caption';
 import { Manager } from './manager';
+import { TEST_GAME_ID } from './constants';
 import { createLogger } from './logger';
 import { createServer } from 'http';
 import express from 'express';
@@ -29,6 +30,9 @@ app.use(sesh);
 
 // also attach to session middleware to make the session available on socket.request
 io.use(wrap(sesh));
+
+// for testing always create TEST_GAME_ID room
+mgr.createGame(TEST_GAME_ID);
 
 io.on('connect', (socket) => {
   const { session: user } = socket.request;

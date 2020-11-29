@@ -1,4 +1,5 @@
 import { Round } from './round';
+import { TEST_GAME_ID } from './constants';
 import { Turn } from './turn';
 import { createLogger } from './logger';
 import { getUniquePrompts } from './promptGenerator';
@@ -174,6 +175,10 @@ export class Game {
     }
     // otherwise PHASE.REVEAL
     return false;
+  }
+
+  isPermanent() {
+    return this._id === TEST_GAME_ID;
   }
 
   start() {
