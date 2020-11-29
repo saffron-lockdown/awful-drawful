@@ -4,66 +4,66 @@ import { shuffle } from './utils';
 
 export class Turn {
   constructor(totalPlayers, artist, prompt) {
-    this.totalPlayers = totalPlayers;
-    this.artist = artist;
-    this.prompt = prompt;
-    this.drawing = null;
-    this.drawingSubmitted = false;
+    this._totalPlayers = totalPlayers;
+    this._artist = artist;
+    this._prompt = prompt;
+    this._drawing = null;
+    this._drawingSubmitted = false;
     // Initialise the captions with the original prompt
-    this.captions = [new Caption(this.artist, this.prompt)];
+    this._captions = [new Caption(this._artist, this._prompt)];
     this.log = createLogger();
   }
 
   getArtist() {
-    return this.artist;
+    return this._artist;
   }
 
   getPrompt() {
-    return this.prompt;
+    return this._prompt;
   }
 
   getDrawing() {
-    return this.drawing;
+    return this._drawing;
   }
 
   getCaptions() {
-    return this.captions;
+    return this._captions;
   }
 
   isDrawingSubmitted() {
-    return this.drawingSubmitted;
+    return this._drawingSubmitted;
   }
 
   hasPlayerSubmittedCaption(player) {
-    return !!this.captions.find((caption) => caption.getPlayer() === player);
+    return !!this._captions.find((caption) => caption.getPlayer() === player);
   }
 
   hasPlayerChosenCaption(player) {
-    return !!this.captions.find((caption) =>
+    return !!this._captions.find((caption) =>
       caption.getChosenBy().includes(player)
     );
   }
 
   submitDrawing(drawing) {
-    this.drawing = drawing;
-    this.drawingSubmitted = true;
+    this._drawing = drawing;
+    this._drawingSubmitted = true;
   }
 
   submitCaption(caption) {
-    this.captions.push(caption);
-    this.captions = shuffle(this.captions);
+    this._captions.push(caption);
+    this._captions = shuffle(this._captions);
   }
 
   allCaptionsIn() {
-    return this.captions.length === this.totalPlayers;
+    return this._captions.length === this._totalPlayers;
   }
 
   chooseCaptionByText(player, captionText) {
     // record who chose what caption
     this.log('chooseCaptionByText');
 
-    if (player !== this.artist && !this.hasPlayerChosenCaption(player)) {
-      const chosenCaption = this.captions.find(
+    if (player !== this._artist && !this.hasPlayerChosenCaption(player)) {
+      const chosenCaption = this._captions.find(
         (caption) => caption.getText() === captionText
       );
       chosenCaption.choose(player);
@@ -72,9 +72,9 @@ export class Turn {
 
   allPlayersChosen() {
     this.log('allPlayersChosen');
-    const totalChoices = this.captions.reduce((acc, caption) => {
+    const totalChoices = this._captions.reduce((acc, caption) => {
       return acc + caption.getChosenBy().length;
     }, 0);
-    return totalChoices === this.totalPlayers - 1; // artist doesn't choose
+    return totalChoices === this._totalPlayers - 1; // artist doesn't choose
   }
 }

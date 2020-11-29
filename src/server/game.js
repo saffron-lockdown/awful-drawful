@@ -40,43 +40,47 @@ export function gameplan(players, nRounds) {
 
 export class Game {
   constructor(id) {
-    this.id = id;
-    this.players = [];
-    this.scores = {};
-    this.phase = PHASES.LOBBY; // defines which phase of the game we're in
-    this.roundNum = 0; // defines which round is currently being played
-    this.nRounds = 3;
-    this.log = createLogger(this.id);
-    this.timer = null;
+    this._id = id;
+    this._players = [];
+    this._scores = {};
+    this._phase = PHASES.LOBBY; // defines which phase of the game we're in
+    this._roundNum = 0; // defines which round is currently being played
+    this._nRounds = 3;
+    this._timer = null;
+    this.log = createLogger(this._id);
+  }
+
+  getId() {
+    return this._id;
   }
 
   addPlayer(player) {
-    this.players.push(player);
+    this._players.push(player);
     this.sync();
   }
 
   removePlayer(player) {
-    this.players = this.players.filter((p) => p !== player);
+    this._players = this._players.filter((p) => p !== player);
     this.sync();
   }
 
   // output a list of all the players in the specified game
   getPlayers() {
-    return this.players.map((player) => ({
+    return this._players.map((player) => ({
       name: player.getName(),
       connected: !!player.getSocket(),
     }));
   }
 
   getPhase() {
-    return this.phase;
+    return this._phase;
   }
 
   getCurrentRound() {
     if (!this.gameplan) {
       return null;
     }
-    return this.gameplan[this.roundNum];
+    return this.gameplan[this._roundNum];
   }
 
   getCurrentTurn() {
@@ -145,7 +149,7 @@ export class Game {
 
   getScores() {
     // return array of sorted player scores and names ready to be displayed
-    return Object.values(this.scores).sort(
+    return Object.values(this._scores).sort(
       (a, b) => b.previousScore - a.previousScore
     );
   }
@@ -173,13 +177,13 @@ export class Game {
   }
 
   start() {
-    if (this.players.length > 6) {
+    if (this._players.length > 6) {
       this.nrounds = 1;
-    } else if (this.players.length > 4) {
+    } else if (this._players.length > 4) {
       this.nrounds = 2;
     }
 
-    this.gameplan = gameplan(this.players, this.nRounds);
+    this.gameplan = gameplan(this._players, this._nRounds);
 
     this.initialiseScores();
 
@@ -190,8 +194,8 @@ export class Game {
   }
 
   initialiseScores() {
-    this.players.forEach((player) => {
-      this.scores[player.getId()] = {
+    this._players.forEach((player) => {
+      this._scores[player.getId()] = {
         playerName: player.getName(),
         currentScore: 0,
         previousScore: 0,
@@ -212,7 +216,7 @@ export class Game {
     this.cancelCountdown();
 
     // this timer should be cancelled whenever starting a new phase
-    this.timer = setInterval(() => {
+    this._timer = setInterval(() => {
       this.timeRemaining -= 1;
       this.sync();
 
@@ -223,11 +227,11 @@ export class Game {
   }
 
   cancelCountdown() {
-    clearInterval(this.timer);
+    clearInterval(this._timer);
   }
 
   startDrawPhase() {
-    this.phase = PHASES.DRAW;
+    this._phase = PHASES.DRAW;
 
     this.startCountdown(this.startCaptionPhase);
   }
@@ -247,7 +251,7 @@ export class Game {
 
   startCaptionPhase() {
     this.cancelCountdown();
-    this.phase = PHASES.CAPTION;
+    this._phase = PHASES.CAPTION;
     this.log('Time to caption these masterpieces!');
 
     this.startCountdown(this.startGuessPhase);
@@ -266,7 +270,7 @@ export class Game {
 
   startGuessPhase() {
     this.cancelCountdown();
-    this.phase = PHASES.GUESS;
+    this._phase = PHASES.GUESS;
     this.log('Guess the correct caption!');
 
     this.startCountdown(this.startRevealPhase);
@@ -284,7 +288,7 @@ export class Game {
 
   startRevealPhase() {
     this.cancelCountdown();
-    this.phase = PHASES.REVEAL;
+    this._phase = PHASES.REVEAL;
     this.log('revealing real prompt!');
 
     this.sync();
@@ -293,11 +297,11 @@ export class Game {
 
   startScorePhase() {
     this.cancelCountdown();
-    this.phase = PHASES.SCORE;
+    this._phase = PHASES.SCORE;
 
     // save each players previous score
-    Object.entries(this.scores).forEach(([playerId, row]) => {
-      this.scores[playerId].previousScore = row.currentScore;
+    Object.entries(this._scores).forEach(([playerId, row]) => {
+      this._scores[playerId].previousScore = row.currentScore;
     });
 
     // assign points
@@ -310,15 +314,15 @@ export class Game {
       // caption is correct, award points to artist for every chooser, and every chooser
       if (captioner === artist) {
         if (choosers.length > 0) {
-          this.scores[artist.getId()].currentScore += 1000;
+          this._scores[artist.getId()].currentScore += 1000;
         }
 
         choosers.forEach((chooser) => {
-          this.scores[chooser.getId()].currentScore += 500;
+          this._scores[chooser.getId()].currentScore += 500;
         });
       } else {
         // caption is incorrect, award points to captioner for every chooser
-        this.scores[captioner.getId()].currentScore +=
+        this._scores[captioner.getId()].currentScore +=
           500 * caption.getChosenBy().length;
       }
     });
@@ -328,7 +332,7 @@ export class Game {
   }
 
   startFinalScorePhase() {
-    this.phase = PHASES.FINALSCORE;
+    this._phase = PHASES.FINALSCORE;
     this.cancelCountdown();
     this.sync();
   }
@@ -338,10 +342,10 @@ export class Game {
     if (!this.getCurrentRound().isOver()) {
       this.getCurrentRound().advance();
       this.startCaptionPhase();
-    } else if (this.roundNum === this.nRounds - 1) {
+    } else if (this._roundNum === this._nRounds - 1) {
       this.startFinalScorePhase();
     } else {
-      this.roundNum += 1;
+      this._roundNum += 1;
       this.startDrawPhase();
     }
   }
@@ -350,7 +354,7 @@ export class Game {
   sync() {
     this.log('syncing all players, current game plan:');
     this.log(this.gameplan);
-    this.players.forEach((player) => {
+    this._players.forEach((player) => {
       player.sync();
     });
   }

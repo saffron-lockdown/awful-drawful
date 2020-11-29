@@ -1,23 +1,23 @@
 export class Caption {
   constructor(player, text) {
-    this.player = player;
-    this.text = text;
-    this.chosenBy = []; // players who choose this caption
+    this._player = player;
+    this._text = text;
+    this._chosenBy = []; // players who choose this caption
   }
 
   getPlayer() {
-    return this.player;
+    return this._player;
   }
 
   getText() {
-    return this.text;
+    return this._text;
   }
 
   getChosenBy() {
-    return this.chosenBy;
+    return this._chosenBy;
   }
 
   choose(player) {
-    this.chosenBy.push(player);
+    this._chosenBy.push(player);
   }
 }

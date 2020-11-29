@@ -23,7 +23,7 @@ const mgr = new Manager();
 
 function addPlayerToGame(player, game) {
   // Add player if not in game
-  if (!game.players.includes(player)) {
+  if (!game.getPlayers().includes(player)) {
     player.leaveGame();
 
     // Add game reference to player
