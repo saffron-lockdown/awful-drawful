@@ -26,6 +26,8 @@ describe('Main', () => {
   });
 
   describe('with name set', () => {
+    const gameIdDisplayRegex = /Game ID: ([A-Z]{4})/;
+
     beforeEach(() => {
       cy.get('input[name=name]').clear();
       cy.get('input[name=name]').type('wz');
@@ -33,38 +35,49 @@ describe('Main', () => {
     });
 
     it('returns an error if no room exists', () => {
-      cy.get('input[name=gameId]').type('ABCD').should('have.value', 'ABCD');
-
+      cy.get('input[name=gameId]').type('QWER').should('have.value', 'QWER');
       cy.get('#join-game-button').click();
 
       cy.get('#error-display').should('contain', 'Error: game does not exist');
     });
 
+    it('join game', () => {
+      cy.get('input[name=gameId]').type('ABCD').should('have.value', 'ABCD');
+      cy.get('#join-game-button').click();
+
+      cy.get('#game-id-display')
+        .invoke('text')
+        .should('match', gameIdDisplayRegex);
+      cy.get('#player-list-display').should('contain', 'wz');
+    });
+
     it('interaction with rooms', () => {
       cy.get('#create-game-button').click();
 
-      const regex = /Game ID: ([A-Z]{4})/;
-
-      cy.get('#game-id-display').invoke('text').should('match', regex);
+      cy.get('#game-id-display')
+        .invoke('text')
+        .should('match', gameIdDisplayRegex);
       cy.get('#player-list-display').should('contain', 'wz');
 
-      // leave game and re-join
+      // leave game and try to re-join
       cy.get('#game-id-display')
         .invoke('text')
         .then((val) => {
           // save ID from current room
-          const id = val.match(regex)[1];
+          const id = val.match(gameIdDisplayRegex)[1];
 
+          cy.get('#game-id-display').click();
           cy.get('#leave-game-button').click();
 
           cy.get('input[name=gameId]').should('be.empty');
 
           cy.get('input[name=gameId]').type(id);
-
           cy.get('#join-game-button').click();
 
-          cy.get('#game-id-display').invoke('text').should('match', regex);
-          cy.get('#player-list-display').should('contain', 'wz');
+          cy.get('#error-display').should(
+            'contain',
+            'Error: game does not exist'
+          );
         });
     });
 

@@ -1,5 +1,6 @@
 import { Caption } from './caption';
 import { Manager } from './manager';
+import { TEST_GAME_ID } from './constants';
 import { createLogger } from './logger';
 import { createServer } from 'http';
 import express from 'express';
@@ -21,16 +22,6 @@ const sesh = session({
 
 const mgr = new Manager();
 
-function addPlayerToGame(player, game) {
-  // Add player if not in game
-  if (!game.getPlayers().includes(player)) {
-    player.leaveGame();
-
-    // Add game reference to player
-    player.joinGame(game);
-  }
-}
-
 const wrap = (middleware) => (socket, next) =>
   middleware(socket.request, {}, next);
 
@@ -39,6 +30,9 @@ app.use(sesh);
 
 // also attach to session middleware to make the session available on socket.request
 io.use(wrap(sesh));
+
+// for testing always create TEST_GAME_ID room
+mgr.createGame(TEST_GAME_ID);
 
 io.on('connect', (socket) => {
   const { session: user } = socket.request;
@@ -56,7 +50,7 @@ io.on('connect', (socket) => {
   socket.on('create-game', () => {
     const game = mgr.createGame();
 
-    addPlayerToGame(player, game);
+    mgr.addPlayerToGame(player, game.getId());
   });
 
   socket.on('join-game', (gameId) => {
@@ -66,11 +60,11 @@ io.on('connect', (socket) => {
       return;
     }
 
-    addPlayerToGame(player, game);
+    mgr.addPlayerToGame(player, game.getId());
   });
 
   socket.on('leave-game', () => {
-    player.leaveGame();
+    mgr.removePlayer(player);
   });
 
   socket.on('start-game', () => {

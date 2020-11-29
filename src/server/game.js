@@ -1,4 +1,5 @@
 import { Round } from './round';
+import { TEST_GAME_ID } from './constants';
 import { Turn } from './turn';
 import { createLogger } from './logger';
 import { getUniquePrompts } from './promptGenerator';
@@ -176,6 +177,10 @@ export class Game {
     return false;
   }
 
+  isPermanent() {
+    return this._id === TEST_GAME_ID;
+  }
+
   start() {
     if (this._players.length > 6) {
       this._nRounds = 1;
@@ -228,6 +233,11 @@ export class Game {
 
   cancelCountdown() {
     clearInterval(this._timer);
+  }
+
+  destroy() {
+    this.log('destroying game');
+    this.cancelCountdown();
   }
 
   startDrawPhase() {

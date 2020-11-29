@@ -24,33 +24,43 @@
     <b-container id="app" class="d-flex flex-column pt-2 pb-2 h-100" v-cloak>
       <template v-if="page === 'set-name'">
         <b-form-group label="Name">
-          <b-form-input name="name" v-model="name"></b-form-input>
+          <b-form-input name="name" v-model="name" @keyup.enter="setName"></b-form-input>
         </b-form-group>
         <b-button id="set-name-button" key="set-name-button" class="mb-2" @click="setName" variant="primary">
           Set name
         </b-button>
       </template>
-      <template id="page-set-name" v-else-if="page !== 'ingame'">
-        <b-alert show variant="success" class="d-flex justify-content-between">
-          <span id="name-display">{{ state.name }}</span>
-          <b-button @click="editName = true">Edit name</b-button>
-        </b-alert>
-      </template>
-      <template v-if="state.gameId">
-        <b-alert id="game-id-display" show>Game ID: {{ state.gameId }}</b-alert>
-      </template>
       <template id="page-landing" v-if="page === 'landing'">
+        <b-button id="name-display" @click="editName = true" variant="light" v-if="page === 'landing'" class="mb-2">
+          {{ state.name }} <b-badge>tap to edit</b-badge>
+        </b-button>
         <b-form-group label="Game ID">
-          <b-form-input name="gameId" v-bind:value="gameId" v-on:input="setGameId" maxlength="4"></b-form-input>
+          <b-form-input
+            name="gameId"
+            v-bind:value="gameId"
+            @input="setGameId"
+            @keyup.enter="joinGame"
+            maxlength="4"
+          ></b-form-input>
         </b-form-group>
-        <b-alert id="error-display" show fade v-if="state.errorMessage" variant="danger"
-          >Error: {{ state.errorMessage }}</b-alert
-        >
+        <b-alert id="error-display" show fade v-if="state.errorMessage" variant="danger">
+          Error: {{ state.errorMessage }}
+        </b-alert>
         <b-button id="join-game-button" class="mb-2" @click="joinGame" variant="success">Join game</b-button>
         <b-button id="create-game-button" class="mb-2" @click="createGame" variant="info">Create game</b-button>
         <b-badge pill variant="light">Built __BUILD_ID__</b-badge>
       </template>
       <template id="page-lobby" v-else-if="page === 'lobby'">
+        <div class="d-flex justify-content-end mb-2">
+          <b-dropdown right variant="primary" id="game-id-display">
+            <template #button-content> Game ID: {{ state.gameId }} </template>
+            <b-dropdown-item>
+              <b-button id="leave-game-button" key="leave-game-button" @click="leaveGame" variant="outline-danger">
+                Leave game
+              </b-button>
+            </b-dropdown-item>
+          </b-dropdown>
+        </div>
         <b-alert id="player-list-display" show>
           Players:
           <template v-for="player in state.players">
@@ -62,19 +72,30 @@
             ></b-badge>
           </template>
         </b-alert>
-        <b-button id="start-game-button" class="mb-2" @click="startGame">Everybody's in!</b-button>
+        <b-button id="start-game-button" variant="success" class="mb-2" @click="startGame">Everybody's in!</b-button>
       </template>
       <div id="page-ingame" v-else-if="page === 'ingame'" class="flex-grow-1 d-flex flex-column mb-2">
-        <b-progress
-          class="mb-2"
-          :value="state.timeRemaining"
-          :max="state.timerDuration"
-          striped
-          animated
-          variant="info"
-          show-value
-        ></b-progress>
-        <b-alert id="display" show>{{ message() }}</b-alert>
+        <div class="d-flex mb-2">
+          <b-progress
+            class="flex-grow-1 mr-2"
+            height="100%"
+            :value="state.timeRemaining"
+            :max="state.timerDuration"
+            striped
+            animated
+            variant="primary"
+            show-value
+          ></b-progress>
+          <b-dropdown right variant="light">
+            <template #button-content><b-icon-gear-fill></b-icon-gear-fill></template>
+            <b-dropdown-item>
+              <b-button id="leave-game-button" key="leave-game-button" @click="leaveGame" variant="outline-danger">
+                Leave game
+              </b-button>
+            </b-dropdown-item>
+          </b-dropdown>
+        </div>
+        <b-alert id="display" show>{{ message }}</b-alert>
         <template v-if="!state.isWaiting">
           <template v-if="state.phase === 'DRAW'">
             <drawing id="easel"></drawing>
@@ -83,7 +104,7 @@
           <template v-if="state.phase === 'CAPTION'">
             <drawing id="gallery"></drawing>
             <b-form-group label="What is this?">
-              <b-form-input v-model="caption"></b-form-input>
+              <b-form-input v-model="caption" @keyup.enter="postCaption"></b-form-input>
             </b-form-group>
             <b-button id="caption-button" class="mb-2" @click="postCaption" variant="primary">Submit</b-button>
           </template>
@@ -160,15 +181,6 @@
           </template>
         </template>
       </div>
-      <b-button
-        id="leave-game-button"
-        key="leave-game-button"
-        v-if="state.gameId"
-        @click="leaveGame"
-        variant="outline-danger"
-      >
-        Leave game
-      </b-button>
     </b-container>
 
     <script src="main.js"></script>

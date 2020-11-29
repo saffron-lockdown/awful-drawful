@@ -15,17 +15,12 @@ export class Player {
     return this._id;
   }
 
-  setSocket(socket) {
-    this._socket = socket;
-    this.update();
-  }
-
   getSocket() {
     return this._socket;
   }
 
-  setName(name) {
-    this._name = name;
+  setSocket(socket) {
+    this._socket = socket;
     this.update();
   }
 
@@ -33,17 +28,21 @@ export class Player {
     return this._name;
   }
 
-  getGameId() {
+  setName(name) {
+    this._name = name;
+    this.update();
+  }
+
+  getGame() {
     if (this._game) {
-      return this._game.getId();
+      return this._game;
     }
     return null;
   }
 
-  joinGame(game) {
+  setGame(game) {
     this._game = game;
-    // Add player reference in game
-    game.addPlayer(this);
+    this.update();
   }
 
   leaveGame() {
@@ -105,7 +104,7 @@ export class Player {
       name: this._name,
       errorMessage: this._errorMessage,
       // state saved against the game the player is currently in
-      gameId: this.getGameId(),
+      gameId: this._game && this._game.getId(),
       players: this._game && this._game.getPlayers(),
       scores: this._game && this._game.getScores(),
       phase: this._game && this._game.getPhase(),
