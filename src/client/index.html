@@ -18,6 +18,7 @@
       crossorigin="anonymous"
     ></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/fabric.js/4.2.0/fabric.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.2.4/gsap.min.js"></script>
   </head>
   <body class="h-100 w-100">
     <b-container id="app" class="d-flex flex-column pt-2 pb-2 h-100" v-cloak>
@@ -46,7 +47,8 @@
           >Error: {{ state.errorMessage }}</b-alert
         >
         <b-button id="join-game-button" class="mb-2" @click="joinGame" variant="success">Join game</b-button>
-        <b-button id="create-game-button" @click="createGame" variant="info">Create game</b-button>
+        <b-button id="create-game-button" class="mb-2" @click="createGame" variant="info">Create game</b-button>
+        <b-badge pill variant="light">Built __BUILD_ID__</b-badge>
       </template>
       <template id="page-lobby" v-else-if="page === 'lobby'">
         <b-alert id="player-list-display" show>
@@ -89,7 +91,12 @@
             <drawing id="gallery"></drawing>
             <b-card no-body>
               <b-list-group flush>
-                <b-list-group-item v-for="caption in state.captions" button @click="chooseCaption(caption)">
+                <b-list-group-item
+                  v-for="caption in state.captions"
+                  :key="caption.playerName"
+                  button
+                  @click="chooseCaption(caption)"
+                >
                   {{ caption.text }}
                 </b-list-group-item>
               </b-list-group>
@@ -97,44 +104,55 @@
           </template>
         </template>
         <template v-if="state.phase === 'REVEAL'">
-          <b-card-group deck class="mb-2">
-            <b-card no-body>
-              <b-list-group flush>
-                <template v-for="caption in state.captions">
-                  <b-list-group-item :variant="answerVariant(caption)">
-                    <div class="d-flex w-100 justify-content-between">
-                      <h5 class="mb-1">{{ caption.text }}</h5>
-                    </div>
-                    <template v-if="caption.text !== state.realPrompt"> {{ caption.playerName }}'s Lie! </template>
-                    <template v-else> The Truth! </template>
-                    <h4>
-                      <b-badge v-for="chooserName in caption.chosenBy" variant="info"> {{ chooserName }} </b-badge>
-                    </h4>
-                  </b-list-group-item>
-                </template>
-              </b-list-group>
-            </b-card>
-          </b-card-group>
+          <b-list-group flush key="reveal">
+            <transition-group name="animated-list" appear>
+              <b-list-group-item
+                v-for="caption in captions"
+                :variant="answerVariant(caption)"
+                :key="caption.key"
+                class="animated-list-item"
+              >
+                <span class="mb-1">{{ caption.text }}</span>
+                <transition name="bounce" appear>
+                  <template v-if="caption.playerName">
+                    <b-badge v-if="caption.text !== state.realPrompt" variant="danger">
+                      {{ caption.playerName }}'s Lie!
+                    </b-badge>
+                    <b-badge v-else variant="success"> The Truth! </b-badge>
+                  </template>
+                </transition>
+                <transition-group name="bounce" appear>
+                  <b-badge v-for="chooserName in caption.chosenBy" :key="chooserName" variant="primary">
+                    {{ chooserName }}
+                  </b-badge>
+                </transition-group>
+              </b-list-group-item>
+            </transition-group>
+          </b-list-group>
         </template>
         <template v-if="state.phase === 'SCORE'">
-          <b-list-group flush>
-            <template v-for="data in state.scores">
-              <b-list-group-item class="d-flex justify-content-between align-items-center">
-                {{ data.playerName }}
+          <b-list-group flush key="score">
+            <transition-group name="animated-list" appear>
+              <b-list-group-item
+                v-for="data in animatedScores"
+                :key="data.playerName"
+                class="d-flex justify-content-between align-items-center animated-list-item"
+              >
+                <span>{{ data.playerName }}</span>
                 <b-badge variant="primary" pill>{{ data.score }}</b-badge>
               </b-list-group-item>
-            </template>
+            </transition-group>
           </b-list-group>
         </template>
         <template v-if="state.phase === 'FINALSCORE'">
           <b-alert show variant="success">
             <div class="text-center">
               <h4 class="alert-heading" text-align="center">Congratulations</h4>
-              <h1>{{ state.scores[0].playerName }}!</h1>
+              <h1>{{ animatedScores[0].playerName }}!</h1>
             </div>
           </b-alert>
           <h1>Final Scoreboard</h1>
-          <template v-for="data in state.scores">
+          <template v-for="data in animatedScores">
             <b-list-group-item class="d-flex justify-content-between align-items-center">
               {{ data.playerName }}
               <b-badge variant="primary" pill>{{ data.score }}</b-badge>
@@ -151,7 +169,6 @@
       >
         Leave game
       </b-button>
-      <b-badge pill variant="light">Built __BUILD_ID__</b-badge>
     </b-container>
 
     <script src="main.js"></script>

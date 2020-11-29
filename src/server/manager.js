@@ -5,15 +5,15 @@ import cryptoRandomString from 'crypto-random-string';
 
 export class Manager {
   constructor() {
-    this.games = {}; // id to game object dictionary (games have references to player ids)
-    this.players = {}; // id to player object dictionary
+    this._games = {}; // id to game object dictionary (games have references to player ids)
+    this._players = {}; // id to player object dictionary
     this.log = createLogger();
   }
 
   getGame(gameId) {
-    if (gameId in this.games) {
+    if (gameId in this._games) {
       this.log(`getting existing game ${gameId}`);
-      return this.games[gameId];
+      return this._games[gameId];
     }
     return null;
   }
@@ -21,7 +21,7 @@ export class Manager {
   createGame() {
     const id = cryptoRandomString({ length: 4, characters: 'CDEHKMPRTUWXY' });
     const game = new Game(id);
-    this.games[id] = game;
+    this._games[id] = game;
     this.log(`created game with id: ${id}`);
     return game;
   }
@@ -29,13 +29,13 @@ export class Manager {
   // given an id, return the player object if it exists in the manager
   // otherwise create/store a new player object and return that
   getOrCreatePlayer(id) {
-    if (id in this.players) {
+    if (id in this._players) {
       this.log('seen you before');
-      return this.players[id];
+      return this._players[id];
     }
     this.log('hello noob');
     const player = new Player(id);
-    this.players[id] = player;
+    this._players[id] = player;
     return player;
   }
 }

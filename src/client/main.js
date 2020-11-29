@@ -10,20 +10,28 @@ function setCanvasSize(canvas) {
   canvas.setDimensions({ width: 500, height: 500 }, { backstoreOnly: true });
 }
 
+async function sleep(time) {
+  await new Promise((res) => setTimeout(res, time));
+}
+
 const app = new Vue({
   el: '#app',
   data() {
     return {
       state: {
         name: '',
+        errorMessage: null,
         gameId: '',
-        prompt: '',
         players: [],
         scores: [],
-        errorMessage: null,
-        viewDrawing: null,
+        phase: null,
+        isWaiting: null,
         timerDuration: null,
         timeRemaining: null,
+        prompt: '',
+        viewDrawing: null,
+        captions: [],
+        realPrompt: null,
       },
       // local client state
       editName: false,
@@ -31,6 +39,8 @@ const app = new Vue({
       gameId: '',
       caption: '',
       isDrawingPosted: false,
+      scores: [], // for local animation
+      captions: [], // for local animation
     };
   },
   computed: {
@@ -47,9 +57,15 @@ const app = new Vue({
       }
       return 'landing';
     },
+    animatedScores() {
+      return this.scores.map((data) => ({
+        ...data,
+        score: data.score.toFixed(0),
+      }));
+    },
   },
   watch: {
-    state(newState, oldState) {
+    async state(newState, oldState) {
       // if they haven't posted a drawing but the phase moves from DRAW to CAPTION
       // just submit whatever they've got so far
       if (
@@ -59,6 +75,80 @@ const app = new Vue({
       ) {
         console.log('submitting whatever you have');
         this.postDrawing();
+      }
+
+      if (oldState.phase === 'REVEAL' && newState.phase === 'SCORE') {
+        // clear old scoreboard
+        this.scores = [];
+
+        // sequentially push each score to the scores array
+        for (let i = 0; i < this.state.scores.length; i += 1) {
+          const row = this.state.scores[i];
+          this.scores.push({
+            ...row,
+            score: row.previousScore,
+          });
+          await sleep(500);
+        }
+
+        await sleep(1000);
+
+        // sequentially update each row that has changed
+        const scoresToUpdate = this.scores.filter(
+          (row) => row.currentScore !== row.previousScore
+        );
+        for (let i = 0; i < scoresToUpdate.length; i += 1) {
+          const row = scoresToUpdate[i];
+          gsap.to(row, {
+            duration: 1,
+            score: row.currentScore,
+          });
+          await sleep(500);
+        }
+
+        await sleep(1000);
+
+        this.scores.sort((a, b) => b.score - a.score);
+      } else if (this.state.scores && !this.scores.length) {
+        // only set scores if animation is not in progress
+        this.scores = this.state.scores.map((row) => ({
+          ...row,
+          score: row.currentScore,
+        }));
+      }
+
+      if (oldState.phase === 'GUESS' && newState.phase === 'REVEAL') {
+        // clear old captions list
+        this.captions = [];
+
+        // reveal each caption separately
+        for (let i = 0; i < this.state.captions.length; i += 1) {
+          const row = this.state.captions[i];
+
+          // reveal just the caption text
+          const caption = {
+            key: row.playerName,
+            text: row.text,
+            playerName: '',
+            chosenBy: [], // don't reveal choosers yet
+          };
+          this.captions.push(caption);
+
+          await sleep(2000);
+
+          // reveal captioner
+          caption.playerName = row.playerName;
+
+          await sleep(2000);
+
+          // reveal choosers
+          for (let j = 0; j < row.chosenBy.length; j += 1) {
+            this.captions[i].chosenBy.push(row.chosenBy[j]);
+            await sleep(1000);
+          }
+
+          await sleep(1000);
+        }
       }
     },
   },
@@ -96,6 +186,10 @@ const app = new Vue({
       socket.emit('choose-caption', caption.text);
     },
     answerVariant(caption) {
+      // don't reveal colour until player is shown
+      if (!caption.playerName) {
+        return null;
+      }
       if (caption.text !== this.state.realPrompt) {
         return 'danger';
       }

@@ -3,87 +3,87 @@ import { createLogger } from './logger';
 
 export class Player {
   constructor(id) {
-    this.id = id;
-    this.socket = null;
-    this.log = createLogger(this.id.substring(0, 5));
-    this.game = null;
-    this.name = '';
-    this.errorMessage = null;
+    this._id = id;
+    this._socket = null;
+    this._game = null;
+    this._name = '';
+    this._errorMessage = null;
+    this.log = createLogger(this._id.substring(0, 5));
   }
 
   getId() {
-    return this.id;
+    return this._id;
   }
 
   setSocket(socket) {
-    this.socket = socket;
+    this._socket = socket;
     this.update();
   }
 
   getSocket() {
-    return this.socket;
+    return this._socket;
   }
 
   setName(name) {
-    this.name = name;
+    this._name = name;
     this.update();
   }
 
   getName() {
-    return this.name;
+    return this._name;
   }
 
   getGameId() {
-    if (this.game) {
-      return this.game.id;
+    if (this._game) {
+      return this._game.getId();
     }
     return null;
   }
 
   joinGame(game) {
-    this.game = game;
+    this._game = game;
     // Add player reference in game
     game.addPlayer(this);
   }
 
   leaveGame() {
-    if (this.game) {
-      this.game.removePlayer(this);
-      this.game = null;
+    if (this._game) {
+      this._game.removePlayer(this);
+      this._game = null;
       this.sync();
     }
   }
 
   startGame() {
-    if (this.game) {
-      this.game.start();
+    if (this._game) {
+      this._game.start();
     }
   }
 
   sendError(err) {
-    this.errorMessage = err;
+    this._errorMessage = err;
     this.sync();
     // clear the error message for future refreshes
-    this.errorMessage = null;
+    this._errorMessage = null;
   }
 
   postDrawing(drawing) {
-    if (this.game) {
-      this.game.postDrawing(this, drawing);
+    if (this._game) {
+      this._game.postDrawing(this, drawing);
       this.sync();
     }
   }
 
   postCaption(caption) {
-    if (this.game) {
-      this.game.postCaption(caption);
+    if (this._game) {
+      this._game.postCaption(caption);
       this.sync();
     }
   }
 
   chooseCaption(caption) {
-    if (this.game) {
-      this.game.chooseCaption(this, caption);
+    if (this._game) {
+      this._game.chooseCaption(this, caption);
       this.sync();
     }
   }
@@ -91,8 +91,8 @@ export class Player {
   // pushes game updates to all other players in the current game,
   // or just the current player if not in a game
   update() {
-    if (this.game) {
-      this.game.sync();
+    if (this._game) {
+      this._game.sync();
     } else {
       this.sync();
     }
@@ -102,20 +102,20 @@ export class Player {
   sync() {
     const data = {
       // state saved aginst the player
-      name: this.name,
-      errorMessage: this.errorMessage,
+      name: this._name,
+      errorMessage: this._errorMessage,
       // state saved against the game the player is currently in
       gameId: this.getGameId(),
-      players: this.game && this.game.getPlayers(),
-      scores: this.game && this.game.getScores(),
-      phase: this.game && this.game.getPhase(),
-      isWaiting: this.game && this.game.isPlayerWaiting(this),
-      timerDuration: this.game && this.game.getTimerDuration(),
-      timeRemaining: this.game && this.game.getTimeRemaining(),
-      prompt: this.game && this.game.getPrompt(this),
-      viewDrawing: this.game && this.game.getViewDrawing(),
-      captions: this.game && this.game.getCaptions(),
-      realPrompt: this.game && this.game.getRealPrompt(),
+      players: this._game && this._game.getPlayers(),
+      scores: this._game && this._game.getScores(),
+      phase: this._game && this._game.getPhase(),
+      isWaiting: this._game && this._game.isPlayerWaiting(this),
+      timerDuration: this._game && this._game.getTimerDuration(),
+      timeRemaining: this._game && this._game.getTimeRemaining(),
+      prompt: this._game && this._game.getPrompt(this),
+      viewDrawing: this._game && this._game.getViewDrawing(),
+      captions: this._game && this._game.getCaptions(),
+      realPrompt: this._game && this._game.getRealPrompt(),
     };
     const stripped = {
       ...data,
@@ -132,8 +132,8 @@ export class Player {
   }
 
   emit(tag, message) {
-    if (this.socket) {
-      this.socket.emit(tag, message);
+    if (this._socket) {
+      this._socket.emit(tag, message);
     }
   }
 }
