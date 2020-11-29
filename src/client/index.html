@@ -135,19 +135,17 @@
                 class="animated-list-item"
               >
                 <span class="mb-1">{{ caption.text }}</span>
-                <transition name="bounce" appear>
-                  <template v-if="caption.playerName">
-                    <b-badge v-if="caption.text !== state.realPrompt" variant="danger">
-                      {{ caption.playerName }}'s Lie!
-                    </b-badge>
-                    <b-badge v-else variant="success"> The Truth! </b-badge>
-                  </template>
-                </transition>
                 <transition-group name="bounce" appear>
                   <b-badge v-for="chooserName in caption.chosenBy" :key="chooserName" variant="primary">
                     {{ chooserName }}
                   </b-badge>
                 </transition-group>
+                <transition name="bounce" appear>
+                  <template v-if="caption.playerName">
+                    <b-badge v-if="caption.isOriginal" variant="success"> The Truth! </b-badge>
+                    <b-badge v-else variant="danger"> {{ caption.playerName }}'s Lie! </b-badge>
+                  </template>
+                </transition>
               </b-list-group-item>
             </transition-group>
           </b-list-group>

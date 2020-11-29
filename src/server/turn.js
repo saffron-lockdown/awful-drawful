@@ -10,7 +10,7 @@ export class Turn {
     this._drawing = null;
     this._drawingSubmitted = false;
     // Initialise the captions with the original prompt
-    this._captions = [new Caption(this._artist, this._prompt)];
+    this._captions = [new Caption(this._artist, this._prompt, true)];
     this.log = createLogger();
   }
 
@@ -45,11 +45,19 @@ export class Turn {
   }
 
   submitDrawing(drawing) {
+    // only allow one drawing to be submitted
+    if (this._drawingSubmitted) {
+      return;
+    }
     this._drawing = drawing;
     this._drawingSubmitted = true;
   }
 
   submitCaption(caption) {
+    // only allow one caption per player
+    if (this._captions.find((c) => c.getPlayer() === caption.getPlayer())) {
+      return;
+    }
     this._captions.push(caption);
     this._captions = shuffle(this._captions);
   }

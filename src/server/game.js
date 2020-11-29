@@ -134,18 +134,9 @@ export class Game {
           playerName: caption.getPlayer().getName(),
           text: caption.getText(),
           chosenBy: caption.getChosenBy().map((chooser) => chooser.getName()),
+          isOriginal: this.getPhase() === PHASES.REVEAL && caption.isOriginal(),
         };
       });
-  }
-
-  getRealPrompt() {
-    this.log('getRealPrompt');
-    const round = this.getCurrentRound();
-    if (!round || this.getPhase() !== PHASES.REVEAL) {
-      return null;
-    }
-
-    return round.getCurrentTurn().getPrompt();
   }
 
   getScores() {
@@ -322,13 +313,12 @@ export class Game {
     // assign points
     const turn = this.getCurrentTurn();
     turn.getCaptions().forEach((caption) => {
-      const captioner = caption.getPlayer();
-      const artist = turn.getArtist();
       const choosers = caption.getChosenBy();
 
       // caption is correct, award points to artist for every chooser, and every chooser
-      if (captioner === artist) {
+      if (caption.isOriginal()) {
         if (choosers.length > 0) {
+          const artist = turn.getArtist();
           this._scores[artist.getId()].currentScore += 1000;
         }
 
@@ -336,6 +326,7 @@ export class Game {
           this._scores[chooser.getId()].currentScore += 500;
         });
       } else {
+        const captioner = caption.getPlayer();
         // caption is incorrect, award points to captioner for every chooser
         this._scores[captioner.getId()].currentScore +=
           500 * caption.getChosenBy().length;

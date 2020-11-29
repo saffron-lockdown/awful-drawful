@@ -19,6 +19,5 @@ test('should send message to socket', () => {
     prompt: null,
     viewDrawing: null,
     captions: null,
-    realPrompt: null,
   });
 });

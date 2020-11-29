@@ -114,7 +114,6 @@ export class Player {
       prompt: this._game && this._game.getPrompt(this),
       viewDrawing: this._game && this._game.getViewDrawing(),
       captions: this._game && this._game.getCaptions(),
-      realPrompt: this._game && this._game.getRealPrompt(),
     };
     const stripped = {
       ...data,

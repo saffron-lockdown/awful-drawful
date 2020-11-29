@@ -31,7 +31,6 @@ const app = new Vue({
         prompt: '',
         viewDrawing: null,
         captions: [],
-        realPrompt: null,
       },
       // local client state
       editName: false,
@@ -158,43 +157,43 @@ const app = new Vue({
         this.captions = [];
 
         // ensure real prompt is the last one
-        this.state.captions.sort((a, b) => {
-          if (a.text === this.state.realPrompt) {
+        const captions = this.state.captions.sort((a, b) => {
+          if (a.isOriginal) {
             return 1;
           }
-          if (b.text === this.state.realPrompt) {
+          if (b.isOriginal) {
             return -1;
           }
           return 0;
         });
 
         // reveal each caption separately
-        for (let i = 0; i < this.state.captions.length; i += 1) {
-          const row = this.state.captions[i];
+        for (let i = 0; i < captions.length; i += 1) {
+          const row = captions[i];
 
           // reveal just the caption text
           const caption = {
-            key: row.playerName,
-            text: row.text,
-            playerName: '',
+            ...row,
+            key: row.playerName, // for maintaining consistent DOM changes
+            playerName: '', // don't reveal captioner yet
             chosenBy: [], // don't reveal choosers yet
           };
           this.captions.push(caption);
 
           await sleep(2000);
 
-          // reveal captioner
-          caption.playerName = row.playerName;
-
-          await sleep(2000);
-
           // reveal choosers
           for (let j = 0; j < row.chosenBy.length; j += 1) {
-            this.captions[i].chosenBy.push(row.chosenBy[j]);
+            caption.chosenBy.push(row.chosenBy[j]);
             await sleep(1000);
           }
 
           await sleep(1000);
+
+          // reveal captioner
+          caption.playerName = row.playerName;
+
+          await sleep(2000);
         }
       }
     },
@@ -237,10 +236,10 @@ const app = new Vue({
       if (!caption.playerName) {
         return null;
       }
-      if (caption.text !== this.state.realPrompt) {
-        return 'danger';
+      if (caption.isOriginal) {
+        return 'success';
       }
-      return 'success';
+      return 'danger';
     },
     playerVariant(player) {
       return player.connected ? 'success' : 'danger';
