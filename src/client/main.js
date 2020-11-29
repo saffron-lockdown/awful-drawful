@@ -40,6 +40,7 @@ const app = new Vue({
       caption: '',
       isDrawingPosted: false,
       scores: [], // for local animation
+      captions: [], // for local animation
     };
   },
   computed: {
@@ -77,11 +78,10 @@ const app = new Vue({
       }
 
       if (oldState.phase === 'REVEAL' && newState.phase === 'SCORE') {
-        console.log('running animation');
-        console.log(this.state.scores);
+        // clear old scoreboard
+        this.scores = [];
 
         // sequentially push each score to the scores array
-        this.scores = [];
         await this.state.scores.reduce(async (acc, row) => {
           await acc;
           this.scores.push({
@@ -114,6 +114,40 @@ const app = new Vue({
           ...row,
           score: row.currentScore,
         }));
+      }
+
+      if (oldState.phase === 'GUESS' && newState.phase === 'REVEAL') {
+        // clear old captions list
+        this.captions = [];
+
+        // reveal each caption separately
+        for (let i = 0; i < this.state.captions.length; i += 1) {
+          const row = this.state.captions[i];
+
+          // reveal just the caption text
+          const caption = {
+            key: row.playerName,
+            text: row.text,
+            playerName: '',
+            chosenBy: [], // don't reveal choosers yet
+          };
+          this.captions.push(caption);
+
+          await sleep(2000);
+
+          // reveal captioner
+          caption.playerName = row.playerName;
+
+          await sleep(2000);
+
+          // reveal choosers
+          for (let j = 0; j < row.chosenBy.length; j += 1) {
+            this.captions[i].chosenBy.push(row.chosenBy[j]);
+            await sleep(1000);
+          }
+
+          await sleep(1000);
+        }
       }
     },
   },
@@ -151,6 +185,10 @@ const app = new Vue({
       socket.emit('choose-caption', caption.text);
     },
     answerVariant(caption) {
+      // don't reveal colour until player is shown
+      if (!caption.playerName) {
+        return null;
+      }
       if (caption.text !== this.state.realPrompt) {
         return 'danger';
       }

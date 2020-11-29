@@ -120,6 +120,7 @@ export class Game {
     if (!round) {
       return null;
     }
+
     return round
       .getCurrentTurn()
       .getCaptions()
@@ -184,8 +185,8 @@ export class Game {
 
     this.log('starting game');
     this.log(this.gameplan);
-    // this.startDrawingPhase();
-    this.startRevealPhase();
+
+    this.startDrawPhase();
   }
 
   initialiseScores() {
@@ -225,10 +226,10 @@ export class Game {
     clearInterval(this.timer);
   }
 
-  startDrawingPhase() {
+  startDrawPhase() {
     this.phase = PHASES.DRAW;
 
-    this.startCountdown(this.startCaptioningPhase);
+    this.startCountdown(this.startCaptionPhase);
   }
 
   // submit a drawing for a player in the current round
@@ -240,16 +241,16 @@ export class Game {
     this.log(`wow ${player.getId().substring(1, 6)}, thats beautiful!`);
     if (round.allDrawingsIn()) {
       this.log('all the artwork has been collected');
-      this.startCaptioningPhase();
+      this.startCaptionPhase();
     }
   }
 
-  startCaptioningPhase() {
+  startCaptionPhase() {
     this.cancelCountdown();
     this.phase = PHASES.CAPTION;
     this.log('Time to caption these masterpieces!');
 
-    this.startCountdown(this.startGuessingPhase);
+    this.startCountdown(this.startGuessPhase);
   }
 
   // submit a caption for a player in the current turn
@@ -259,11 +260,11 @@ export class Game {
 
     if (turn.allCaptionsIn()) {
       this.log('all captions are in: ', turn.captions);
-      this.startGuessingPhase();
+      this.startGuessPhase();
     }
   }
 
-  startGuessingPhase() {
+  startGuessPhase() {
     this.cancelCountdown();
     this.phase = PHASES.GUESS;
     this.log('Guess the correct caption!');
@@ -287,7 +288,7 @@ export class Game {
     this.log('revealing real prompt!');
 
     this.sync();
-    // this.startCountdown(this.startScorePhase, 10);
+    this.startCountdown(this.startScorePhase, 10);
   }
 
   startScorePhase() {
@@ -336,12 +337,12 @@ export class Game {
     // advance to next turn or round
     if (!this.getCurrentRound().isOver()) {
       this.getCurrentRound().advance();
-      this.startCaptioningPhase();
+      this.startCaptionPhase();
     } else if (this.roundNum === this.nRounds - 1) {
       this.startFinalScorePhase();
     } else {
       this.roundNum += 1;
-      this.startDrawingPhase();
+      this.startDrawPhase();
     }
   }
 

@@ -15,16 +15,31 @@ body {
   height: 100% !important;
 }
 
-.list-complete-item {
+.animated-list-item {
   transition: all 1s;
   display: inline-block;
   margin-right: 10px;
 }
-.list-complete-enter,
-.list-complete-leave-to {
+.animated-list-enter,
+.animated-list-leave-to {
   opacity: 0;
-  transform: translateY(30px);
+  transform: translateX(30px);
 }
-.list-complete-leave-active {
+.animated-list-leave-active {
   position: absolute;
+}
+
+.bounce-enter-active {
+  animation: bounce-in 0.5s;
+}
+@keyframes bounce-in {
+  0% {
+    transform: scale(0);
+  }
+  50% {
+    transform: scale(1.5);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
