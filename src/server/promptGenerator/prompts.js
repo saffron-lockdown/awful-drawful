@@ -324,3 +324,5 @@ export const adjectives = [
   'Intelligent',
   'Quirky',
 ];
+
+export const prepositions = ['with', 'on', 'beside', 'under', 'and', 'next to'];

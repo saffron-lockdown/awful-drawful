@@ -2,6 +2,7 @@ import {
   adjectives,
   intransitiveGerunds,
   objects,
+  prepositions,
   subjects,
   transitiveGerunds,
 } from './prompts';
@@ -51,6 +52,10 @@ const formats = [
   // (adorable) chicken boy
   (a, tg, itg, n) => `${n.next().value} ${n.next().value}`,
   (a, tg, itg, n) => `${a.next().value} ${n.next().value} ${n.next().value}`,
+
+  // boy (with/on/and) a chicken
+  (a, tg, itg, n, s, o, p) =>
+    `${n.next().value} ${p.next().value} ${addArticle(n.next().value)}`,
 ];
 
 // Return a list of n unique prompts
@@ -64,6 +69,7 @@ export function getUniquePrompts(nPrompts) {
     subjectGenerator,
     objectGenerator,
     nounGenerator,
+    prepositionGenerator,
     formatsGenerator,
   ] = [
     adjectives,
@@ -72,6 +78,7 @@ export function getUniquePrompts(nPrompts) {
     subjects,
     objects,
     subjects.concat(objects),
+    prepositions,
     formats,
   ].map((arr) => {
     const shuffled = shuffle(arr);
@@ -87,7 +94,8 @@ export function getUniquePrompts(nPrompts) {
       intransitiveGerundsGenerator,
       nounGenerator,
       subjectGenerator,
-      objectGenerator
+      objectGenerator,
+      prepositionGenerator
     );
 
     // Sometimes add 'a' or 'an' to the start of the prompt
