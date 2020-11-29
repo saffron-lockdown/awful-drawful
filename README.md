@@ -26,6 +26,9 @@ DEBUG=app*
 DEFAULT_COUNTDOWN=5
 ```
 
+A game for testing is always created with the id `ABCD`. Unlike other rooms, won't be destroyed
+when there are no players left.
+
 ## Unit tests
 
 To run unit tests:
