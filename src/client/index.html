@@ -24,7 +24,7 @@
     <b-container id="app" class="d-flex flex-column pt-2 pb-2 h-100" v-cloak>
       <template v-if="page === 'set-name'">
         <b-form-group label="Name">
-          <b-form-input name="name" v-model="name"></b-form-input>
+          <b-form-input name="name" v-model="name" @keyup.enter="setName"></b-form-input>
         </b-form-group>
         <b-button id="set-name-button" key="set-name-button" class="mb-2" @click="setName" variant="primary">
           Set name
@@ -41,7 +41,13 @@
       </template>
       <template id="page-landing" v-if="page === 'landing'">
         <b-form-group label="Game ID">
-          <b-form-input name="gameId" v-bind:value="gameId" v-on:input="setGameId" maxlength="4"></b-form-input>
+          <b-form-input
+            name="gameId"
+            v-bind:value="gameId"
+            @input="setGameId"
+            @keyup.enter="joinGame"
+            maxlength="4"
+          ></b-form-input>
         </b-form-group>
         <b-alert id="error-display" show fade v-if="state.errorMessage" variant="danger"
           >Error: {{ state.errorMessage }}</b-alert
@@ -83,7 +89,7 @@
           <template v-if="state.phase === 'CAPTION'">
             <drawing id="gallery"></drawing>
             <b-form-group label="What is this?">
-              <b-form-input v-model="caption"></b-form-input>
+              <b-form-input v-model="caption" @keyup.enter="postCaption"></b-form-input>
             </b-form-group>
             <b-button id="caption-button" class="mb-2" @click="postCaption" variant="primary">Submit</b-button>
           </template>
