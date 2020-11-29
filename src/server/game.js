@@ -183,9 +183,9 @@ export class Game {
 
   start() {
     if (this._players.length > 6) {
-      this.nrounds = 1;
+      this._nRounds = 1;
     } else if (this._players.length > 4) {
-      this.nrounds = 2;
+      this._nRounds = 2;
     }
 
     this.gameplan = gameplan(this._players, this._nRounds);
@@ -301,8 +301,13 @@ export class Game {
     this._phase = PHASES.REVEAL;
     this.log('revealing real prompt!');
 
+    // Calculate time required to display the animation; make it a multiple of 5
+    const animationDuration =
+      this.getCaptions().length * 4 + this._players.length + 1;
+    const timerDuration = 5 * Math.ceil(animationDuration / 5);
+
     this.sync();
-    this.startCountdown(this.startScorePhase, 10);
+    this.startCountdown(this.startScorePhase, timerDuration);
   }
 
   startScorePhase() {
