@@ -11,7 +11,8 @@
   "globals": {
     "fabric": "readonly",
     "io": "readonly",
-    "Vue": "readonly"
+    "Vue": "readonly",
+    "gsap": "readonly"
   },
   "rules": {}
 }

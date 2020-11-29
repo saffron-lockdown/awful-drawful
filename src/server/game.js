@@ -120,7 +120,16 @@ export class Game {
     if (!round) {
       return null;
     }
-    return round.getCurrentTurn().getCaptions();
+    return round
+      .getCurrentTurn()
+      .getCaptions()
+      .map((caption) => {
+        return {
+          playerName: caption.player.getName(),
+          text: caption.text,
+          chosenBy: caption.chosenBy.map((chooser) => chooser.getName()),
+        };
+      });
   }
 
   getRealPrompt() {
@@ -135,18 +144,9 @@ export class Game {
 
   getScores() {
     // return array of sorted player scores and names ready to be displayed
-    const scoreboard = [];
-
-    this.players.forEach((p) => {
-      scoreboard.push({
-        playerName: p.getName(),
-        score: this.scores[p.getId()],
-      });
-    });
-
-    return scoreboard.sort((a, b) => {
-      return b.score - a.score;
-    });
+    return Object.values(this.scores).sort(
+      (a, b) => b.previousScore - a.previousScore
+    );
   }
 
   // returns true if the player has completed their actions for the current game phase
@@ -180,13 +180,21 @@ export class Game {
 
     this.gameplan = gameplan(this.players, this.nRounds);
 
-    this.players.forEach((player) => {
-      this.scores[player.getId()] = 0;
-    });
+    this.initialiseScores();
 
     this.log('starting game');
     this.log(this.gameplan);
     this.startDrawingPhase();
+  }
+
+  initialiseScores() {
+    this.players.forEach((player) => {
+      this.scores[player.getId()] = {
+        playerName: player.getName(),
+        currentScore: 0,
+        previousScore: 0,
+      };
+    });
   }
 
   // kicks off a countdown which calls sync every second, until either:
@@ -265,11 +273,7 @@ export class Game {
   chooseCaption(player, captionText) {
     this.log('chooseCaption');
     const turn = this.getCurrentTurn();
-    const pointsUpdate = turn.chooseCaptionByText(player, captionText);
-
-    Object.entries(pointsUpdate).forEach(([id, points]) => {
-      this.scores[id] += points;
-    });
+    turn.chooseCaptionByText(player, captionText);
 
     if (turn.allPlayersChosen()) {
       this.startRevealPhase();
@@ -286,7 +290,37 @@ export class Game {
   }
 
   startScorePhase() {
+    this.cancelCountdown();
     this.phase = PHASES.SCORE;
+
+    // save each players previous score
+    Object.entries(this.scores).forEach(([playerId, row]) => {
+      this.scores[playerId].previousScore = row.currentScore;
+    });
+
+    // assign points
+    const turn = this.getCurrentTurn();
+    turn.getCaptions().forEach((caption) => {
+      const captioner = caption.getPlayer();
+      const artist = turn.getArtist();
+      const choosers = caption.getChosenBy();
+
+      // caption is correct, award points to artist for every chooser, and every chooser
+      if (captioner === artist) {
+        if (choosers.length > 0) {
+          this.scores[artist.getId()].currentScore += 1000;
+        }
+
+        choosers.forEach((chooser) => {
+          this.scores[chooser.getId()].currentScore += 500;
+        });
+      } else {
+        // caption is incorrect, award points to captioner for every chooser
+        this.scores[captioner.getId()].currentScore +=
+          500 * caption.getChosenBy().length;
+      }
+    });
+
     this.sync();
     this.startCountdown(this.advance, 10);
   }

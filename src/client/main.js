@@ -10,6 +10,10 @@ function setCanvasSize(canvas) {
   canvas.setDimensions({ width: 500, height: 500 }, { backstoreOnly: true });
 }
 
+async function sleep(time) {
+  await new Promise((res) => setTimeout(res, time));
+}
+
 const app = new Vue({
   el: '#app',
   data() {
@@ -19,7 +23,10 @@ const app = new Vue({
         gameId: '',
         prompt: '',
         players: [],
-        scores: [],
+        scores: {
+          current: [],
+          previous: [],
+        },
         errorMessage: null,
         viewDrawing: null,
         timerDuration: null,
@@ -31,6 +38,7 @@ const app = new Vue({
       gameId: '',
       caption: '',
       isDrawingPosted: false,
+      scores: [], // for local animation
     };
   },
   computed: {
@@ -47,9 +55,15 @@ const app = new Vue({
       }
       return 'landing';
     },
+    animatedScores() {
+      return this.scores.map((data) => ({
+        ...data,
+        score: data.score.toFixed(0),
+      }));
+    },
   },
   watch: {
-    state(newState, oldState) {
+    async state(newState, oldState) {
       // if they haven't posted a drawing but the phase moves from DRAW to CAPTION
       // just submit whatever they've got so far
       if (
@@ -59,6 +73,46 @@ const app = new Vue({
       ) {
         console.log('submitting whatever you have');
         this.postDrawing();
+      }
+
+      if (oldState.phase === 'REVEAL' && newState.phase === 'SCORE') {
+        console.log('running animation');
+        console.log(this.state.scores);
+
+        // sequentially push each score to the scores array
+        this.scores = [];
+        await this.state.scores.reduce(async (acc, row) => {
+          await acc;
+          this.scores.push({
+            ...row,
+            score: row.previousScore,
+          });
+          await sleep(500);
+        }, Promise.resolve());
+
+        await sleep(1000);
+
+        // sequentially update each row that has changed
+        await this.scores
+          .filter((row) => row.currentScore !== row.previousScore)
+          .reduce(async (acc, row) => {
+            await acc;
+            gsap.to(row, {
+              duration: 1,
+              score: row.currentScore,
+            });
+            await sleep(500);
+          }, Promise.resolve());
+
+        await sleep(1000);
+
+        this.scores.sort((a, b) => b.score - a.score);
+      } else if (this.state.scores && !this.scores.length) {
+        // only set scores if animation is not in progress
+        this.scores = this.state.scores.map((row) => ({
+          ...row,
+          score: row.currentScore,
+        }));
       }
     },
   },

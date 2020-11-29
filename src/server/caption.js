@@ -4,4 +4,12 @@ export class Caption {
     this.text = text;
     this.chosenBy = []; // players who choose this caption
   }
+
+  getPlayer() {
+    return this.player;
+  }
+
+  getChosenBy() {
+    return this.chosenBy;
+  }
 }

@@ -9,7 +9,7 @@ export class Turn {
     this.prompt = prompt;
     this.drawing = null;
     this.drawingSubmitted = false;
-    // Initialise the captions to be the initial prompt
+    // Initialise the captions with the original prompt
     this.captions = [new Caption(this.artist, this.prompt)];
     this.log = createLogger();
   }
@@ -27,13 +27,7 @@ export class Turn {
   }
 
   getCaptions() {
-    return this.captions.map((caption) => {
-      return {
-        playerName: caption.player.getName(),
-        text: caption.text,
-        chosenBy: caption.chosenBy.map((chooser) => chooser.getName()),
-      };
-    });
+    return this.captions;
   }
 
   isDrawingSubmitted() {
@@ -63,25 +57,15 @@ export class Turn {
   }
 
   chooseCaptionByText(player, captionText) {
-    // record who chose what caption, return an object describing points arising from this choice
+    // record who chose what caption
     this.log('chooseCaptionByText');
-    const points = {};
 
     if (player !== this.artist && !this.hasPlayerChosenCaption(player)) {
       const chosenCaption = this.captions.find(
         (caption) => caption.text === captionText
       );
       chosenCaption.chosenBy.push(player);
-
-      // 1000 points for a player that chooses the original prompt
-      if (chosenCaption.player === this.artist) {
-        points[player.getId()] = 1000;
-      }
-
-      // 200 points for the player who's caption is chosen (whether they're the artist or not)
-      points[chosenCaption.player.getId()] = 200;
     }
-    return points;
   }
 
   allPlayersChosen() {
