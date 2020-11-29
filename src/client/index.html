@@ -78,7 +78,7 @@
         <div class="d-flex mb-2">
           <b-progress
             class="flex-grow-1 mr-2"
-            height="100%"
+            height="auto"
             :value="state.timeRemaining"
             :max="state.timerDuration"
             striped
@@ -125,6 +125,7 @@
           </template>
         </template>
         <template v-if="state.phase === 'REVEAL'">
+          <drawing id="gallery"></drawing>
           <b-list-group flush key="reveal">
             <transition-group name="animated-list" appear>
               <b-list-group-item

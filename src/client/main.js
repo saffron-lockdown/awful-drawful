@@ -157,6 +157,17 @@ const app = new Vue({
         // clear old captions list
         this.captions = [];
 
+        // ensure real prompt is the last one
+        this.state.captions.sort((a, b) => {
+          if (a.text === this.state.realPrompt) {
+            return 1;
+          }
+          if (b.text === this.state.realPrompt) {
+            return -1;
+          }
+          return 0;
+        });
+
         // reveal each caption separately
         for (let i = 0; i < this.state.captions.length; i += 1) {
           const row = this.state.captions[i];
