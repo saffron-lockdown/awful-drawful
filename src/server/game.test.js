@@ -22,6 +22,6 @@ test('initialise and start game', () => {
   ]);
 
   game.start();
-  expect(game.gameplan.length).toBe(3);
-  expect(Object.keys(game.gameplan[0]).length).toBe(2);
+  expect(game._gameplan.length).toBe(3);
+  expect(Object.keys(game._gameplan[0]).length).toBe(2);
 });
