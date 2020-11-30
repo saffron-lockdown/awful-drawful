@@ -80,8 +80,11 @@ io.on('connect', (socket) => {
       ack({ error: "can't submit empty caption!" });
       return;
     }
-    const caption = new Caption(player, text.toLowerCase());
-    player.postCaption(caption);
+    const caption = new Caption(player, text);
+    const { error } = player.postCaption(caption);
+    if (error) {
+      ack({ error });
+    }
   });
 
   socket.on('choose-caption', (text) => {

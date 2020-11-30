@@ -67,9 +67,9 @@ export class Player {
 
   postCaption(caption) {
     if (this._game) {
-      this._game.postCaption(caption);
-      this.sync();
+      return this._game.postCaption(caption);
     }
+    return { error: 'not in a game' };
   }
 
   chooseCaption(caption) {

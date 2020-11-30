@@ -56,10 +56,15 @@ export class Turn {
   submitCaption(caption) {
     // only allow one caption per player
     if (this._captions.find((c) => c.getPlayer() === caption.getPlayer())) {
-      return;
+      return { error: "can't submit empty caption!" };
+    }
+    // don't allow duplicate captions
+    if (this._captions.find((c) => c.getText() === caption.getText())) {
+      return { error: 'somebody else already submitted that!' };
     }
     this._captions.push(caption);
     this._captions = shuffle(this._captions);
+    return {};
   }
 
   allCaptionsIn() {

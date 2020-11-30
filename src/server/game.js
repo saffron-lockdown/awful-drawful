@@ -261,12 +261,17 @@ export class Game {
   // submit a caption for a player in the current turn
   postCaption(caption) {
     const turn = this.getCurrentTurn();
-    turn.submitCaption(caption);
+    const { error } = turn.submitCaption(caption);
+    if (error) {
+      return { error };
+    }
 
     if (turn.allCaptionsIn()) {
       this.log('all captions are in: ', turn.captions);
       this.startGuessPhase();
     }
+
+    return {};
   }
 
   startGuessPhase() {
