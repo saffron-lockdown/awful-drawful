@@ -8,7 +8,6 @@ test('should send message to socket', () => {
   player.setSocket(mockSocket);
   expect(mockSocket.emit).toHaveBeenCalledWith('sync', {
     name: '',
-    errorMessage: null,
     gameId: null,
     players: null,
     scores: null,

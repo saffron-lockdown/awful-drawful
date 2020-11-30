@@ -7,7 +7,6 @@ export class Player {
     this._socket = null;
     this._game = null;
     this._name = '';
-    this._errorMessage = null;
     this.log = createLogger(this._id.substring(0, 5));
   }
 
@@ -59,13 +58,6 @@ export class Player {
     }
   }
 
-  sendError(err) {
-    this._errorMessage = err;
-    this.sync();
-    // clear the error message for future refreshes
-    this._errorMessage = null;
-  }
-
   postDrawing(drawing) {
     if (this._game) {
       this._game.postDrawing(this, drawing);
@@ -102,7 +94,6 @@ export class Player {
     const data = {
       // state saved aginst the player
       name: this._name,
-      errorMessage: this._errorMessage,
       // state saved against the game the player is currently in
       gameId: this._game && this._game.getId(),
       players: this._game && this._game.getPlayers(),
