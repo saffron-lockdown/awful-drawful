@@ -73,8 +73,6 @@ export class Turn {
 
   chooseCaptionByText(player, captionText) {
     // record who chose what caption
-    this.log('chooseCaptionByText');
-
     if (player !== this._artist && !this.hasPlayerChosenCaption(player)) {
       const chosenCaption = this._captions.find(
         (caption) => caption.getText() === captionText
@@ -84,7 +82,6 @@ export class Turn {
   }
 
   allPlayersChosen() {
-    this.log('allPlayersChosen');
     const totalChoices = this._captions.reduce((acc, caption) => {
       return acc + caption.getChosenBy().length;
     }, 0);

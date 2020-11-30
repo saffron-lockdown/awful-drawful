@@ -4,7 +4,7 @@ import { Turn } from './turn';
 import { createLogger } from './logger';
 import { getUniquePrompts } from './promptGenerator';
 
-const DEFAULT_COUNTDOWN = Number(process.env.DEFAULT_COUNTDOWN || 30);
+const DEFAULT_COUNTDOWN = Number(process.env.DEFAULT_COUNTDOWN || 60);
 
 const PHASES = {
   LOBBY: 'LOBBY',
@@ -47,7 +47,10 @@ export class Game {
     this._phase = PHASES.LOBBY; // defines which phase of the game we're in
     this._roundNum = 0; // defines which round is currently being played
     this._nRounds = 3;
-    this._timer = null;
+    this._gameplan = null;
+    this._timer = 0;
+    this._timerDuration = 0;
+    this._timeRemaining = 0;
     this.log = createLogger(this._id);
   }
 
@@ -78,28 +81,18 @@ export class Game {
   }
 
   getCurrentRound() {
-    if (!this.gameplan) {
+    if (!this._gameplan) {
       return null;
     }
-    return this.gameplan[this._roundNum];
+    return this._gameplan[this._roundNum];
   }
 
   getCurrentTurn() {
-    this.log('getCurrentTurn');
     return this.getCurrentRound().getCurrentTurn();
-  }
-
-  getTimeRemaining() {
-    return this.timeRemaining;
-  }
-
-  getTimerDuration() {
-    return this.timerDuration;
   }
 
   // get the prompt for a specific player for the current round
   getPrompt(player) {
-    this.log('getPrompt');
     const round = this.getCurrentRound();
     if (!round) {
       return null;
@@ -110,33 +103,28 @@ export class Game {
 
   // get the current drawing to be either captioned or guessed for the current turn
   getViewDrawing() {
-    this.log('getViewDrawing');
-    const round = this.getCurrentRound();
-    if (!round) {
-      return null;
+    if (this.getCurrentRound()) {
+      return this.getCurrentTurn().getDrawing();
     }
-    return this.getCurrentTurn().getDrawing();
+    return null;
   }
 
   // get the captions from the current turn
   getCaptions() {
-    this.log('getCaptions');
-    const round = this.getCurrentRound();
-    if (!round) {
-      return null;
+    if (this.getCurrentRound()) {
+      return this.getCurrentTurn()
+        .getCaptions()
+        .map((caption) => {
+          return {
+            playerName: caption.getPlayer().getName(),
+            text: caption.getText(),
+            chosenBy: caption.getChosenBy().map((chooser) => chooser.getName()),
+            isOriginal:
+              this.getPhase() === PHASES.REVEAL && caption.isOriginal(),
+          };
+        });
     }
-
-    return round
-      .getCurrentTurn()
-      .getCaptions()
-      .map((caption) => {
-        return {
-          playerName: caption.getPlayer().getName(),
-          text: caption.getText(),
-          chosenBy: caption.getChosenBy().map((chooser) => chooser.getName()),
-          isOriginal: this.getPhase() === PHASES.REVEAL && caption.isOriginal(),
-        };
-      });
+    return null;
   }
 
   getScores() {
@@ -148,7 +136,6 @@ export class Game {
 
   // returns true if the player has completed their actions for the current game phase
   isPlayerWaiting(player) {
-    this.log('isPlayerWaiting');
     const round = this.getCurrentRound();
     if (!round) {
       return false;
@@ -168,6 +155,21 @@ export class Game {
     return false;
   }
 
+  getState(player) {
+    return {
+      gameId: this.getId(),
+      players: this.getPlayers(),
+      scores: this.getScores(),
+      phase: this.getPhase(),
+      isWaiting: this.isPlayerWaiting(player),
+      timerDuration: this._timerDuration,
+      timeRemaining: this._timeRemaining,
+      prompt: this.getPrompt(player),
+      viewDrawing: this.getViewDrawing(),
+      captions: this.getCaptions(),
+    };
+  }
+
   isPermanent() {
     return this._id === TEST_GAME_ID;
   }
@@ -179,12 +181,12 @@ export class Game {
       this._nRounds = 2;
     }
 
-    this.gameplan = gameplan(this._players, this._nRounds);
+    this._gameplan = gameplan(this._players, this._nRounds);
 
     this.initialiseScores();
 
     this.log('starting game');
-    this.log(this.gameplan);
+    this.log(this._gameplan);
 
     this.startDrawPhase();
   }
@@ -204,8 +206,8 @@ export class Game {
   // 2. the countdown reaches 0. final is then executed
   startCountdown(final, seconds = DEFAULT_COUNTDOWN) {
     // start a timer
-    this.timerDuration = seconds;
-    this.timeRemaining = seconds;
+    this._timerDuration = seconds;
+    this._timeRemaining = seconds;
     this.sync();
 
     // cancel any existing countdown
@@ -213,10 +215,10 @@ export class Game {
 
     // this timer should be cancelled whenever starting a new phase
     this._timer = setInterval(() => {
-      this.timeRemaining -= 1;
+      this._timeRemaining -= 1;
       this.sync();
 
-      if (this.timeRemaining === 0) {
+      if (this._timeRemaining === 0) {
         final.call(this);
       }
     }, 1000);
@@ -232,8 +234,8 @@ export class Game {
   }
 
   startDrawPhase() {
+    this.cancelCountdown();
     this._phase = PHASES.DRAW;
-
     this.startCountdown(this.startCaptionPhase);
   }
 
@@ -253,8 +255,6 @@ export class Game {
   startCaptionPhase() {
     this.cancelCountdown();
     this._phase = PHASES.CAPTION;
-    this.log('Time to caption these masterpieces!');
-
     this.startCountdown(this.startGuessPhase);
   }
 
@@ -277,8 +277,6 @@ export class Game {
   startGuessPhase() {
     this.cancelCountdown();
     this._phase = PHASES.GUESS;
-    this.log('Guess the correct caption!');
-
     this.startCountdown(this.startRevealPhase);
   }
 
@@ -295,14 +293,12 @@ export class Game {
   startRevealPhase() {
     this.cancelCountdown();
     this._phase = PHASES.REVEAL;
-    this.log('revealing real prompt!');
 
     // Calculate time required to display the animation; make it a multiple of 5
     const animationDuration =
       this.getCaptions().length * 4 + this._players.length + 1;
     const timerDuration = 5 * Math.ceil(animationDuration / 5);
 
-    this.sync();
     this.startCountdown(this.startScorePhase, timerDuration);
   }
 
@@ -338,13 +334,12 @@ export class Game {
       }
     });
 
-    this.sync();
     this.startCountdown(this.advance, 10);
   }
 
   startFinalScorePhase() {
-    this._phase = PHASES.FINALSCORE;
     this.cancelCountdown();
+    this._phase = PHASES.FINALSCORE;
     this.sync();
   }
 
@@ -364,7 +359,7 @@ export class Game {
   // syncs players state for all players in the game
   sync() {
     this.log('syncing all players, current game plan:');
-    this.log(this.gameplan);
+    this.log(this._gameplan);
     this._players.forEach((player) => {
       player.sync();
     });

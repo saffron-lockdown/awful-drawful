@@ -1,4 +1,3 @@
-import { createHash } from 'crypto';
 import { createLogger } from './logger';
 
 export class Player {
@@ -33,10 +32,7 @@ export class Player {
   }
 
   getGame() {
-    if (this._game) {
-      return this._game;
-    }
-    return null;
+    return this._game;
   }
 
   setGame(game) {
@@ -67,7 +63,9 @@ export class Player {
 
   postCaption(caption) {
     if (this._game) {
-      return this._game.postCaption(caption);
+      const res = this._game.postCaption(caption);
+      this.sync();
+      return res;
     }
     return { error: 'not in a game' };
   }
@@ -91,33 +89,18 @@ export class Player {
 
   // syncs the player state with the client
   sync() {
-    const data = {
-      // state saved aginst the player
+    // state saved against the game the player is currently in
+    const gameState = this._game ? this._game.getState(this) : {};
+    // state saved aginst the player
+    const playerState = {
       name: this._name,
-      // state saved against the game the player is currently in
-      gameId: this._game && this._game.getId(),
-      players: this._game && this._game.getPlayers(),
-      scores: this._game && this._game.getScores(),
-      phase: this._game && this._game.getPhase(),
-      isWaiting: this._game && this._game.isPlayerWaiting(this),
-      timerDuration: this._game && this._game.getTimerDuration(),
-      timeRemaining: this._game && this._game.getTimeRemaining(),
-      prompt: this._game && this._game.getPrompt(this),
-      viewDrawing: this._game && this._game.getViewDrawing(),
-      captions: this._game && this._game.getCaptions(),
     };
-    const stripped = {
-      ...data,
-      viewDrawing:
-        data.viewDrawing &&
-        createHash('sha1')
-          .update(JSON.stringify(data.viewDrawing))
-          .digest('hex'),
+    const state = {
+      ...gameState,
+      ...playerState,
     };
-    this.log('sync:');
-    this.log(stripped);
 
-    this.emit('sync', data);
+    this.emit('sync', state);
   }
 
   emit(tag, message) {
