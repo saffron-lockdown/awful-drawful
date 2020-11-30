@@ -76,7 +76,7 @@ io.on('connect', (socket) => {
   });
 
   socket.on('post-caption', (text, ack) => {
-    if (!text.length) {
+    if (!text.length || /^\s+$/.test(text)) {
       ack({ error: "can't submit empty caption!" });
       return;
     }
