@@ -113,7 +113,7 @@ export class Game {
     this.log('getViewDrawing');
     const round = this.getCurrentRound();
     if (!round) {
-      console.log('getViewDrawing:getCurrentRound returned null');
+      this.log('getViewDrawing:getCurrentRound returned null');
       return null;
     }
     return round.getCurrentTurn().getDrawing();
@@ -262,6 +262,10 @@ export class Game {
 
   startCaptionPhase() {
     this.cancelCountdown();
+
+    if (!this.getCurrentRound().allDrawingsIn()) {
+      this.log('Caption phase started but not all drawings in');
+    }
     this._phase = PHASES.CAPTION;
     this.log('Time to caption these masterpieces!');
 

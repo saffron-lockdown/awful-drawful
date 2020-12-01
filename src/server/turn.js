@@ -45,6 +45,9 @@ export class Turn {
   }
 
   submitDrawing(drawing) {
+    if (drawing === null) {
+      this.log('null drawing submitted to turn');
+    }
     this._drawing = drawing;
     this._drawingSubmitted = true;
   }
