@@ -113,9 +113,10 @@ export class Game {
     this.log('getViewDrawing');
     const round = this.getCurrentRound();
     if (!round) {
+      console.log('getViewDrawing:getCurrentRound returned null');
       return null;
     }
-    return this.getCurrentTurn().getDrawing();
+    return round.getCurrentTurn().getDrawing();
   }
 
   // get the captions from the current turn
