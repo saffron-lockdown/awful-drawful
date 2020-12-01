@@ -373,7 +373,6 @@ export class Game {
   // syncs players state for all players in the game
   sync() {
     this.log('syncing all players, current game plan:');
-    this.log(this.gameplan);
     this._players.forEach((player) => {
       player.sync();
     });

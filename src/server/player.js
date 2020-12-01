@@ -124,8 +124,11 @@ export class Player {
           .update(JSON.stringify(data.viewDrawing))
           .digest('hex'),
     };
-    this.log('sync:');
-    this.log(stripped);
+    if (data.timeRemaining === data.timerDuration) {
+      this.log('sync:');
+      this.log(this._game && this._game.gameplan);
+      this.log(stripped);
+    }
 
     this.emit('sync', data);
   }
