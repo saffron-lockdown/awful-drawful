@@ -53,10 +53,10 @@ io.on('connect', (socket) => {
     mgr.addPlayerToGame(player, game.getId());
   });
 
-  socket.on('join-game', (gameId) => {
+  socket.on('join-game', (gameId, ack) => {
     const game = mgr.getGame(gameId);
     if (!game) {
-      player.sendError('game does not exist');
+      ack({ error: 'game does not exist' });
       return;
     }
 
@@ -75,9 +75,16 @@ io.on('connect', (socket) => {
     player.postDrawing(drawing);
   });
 
-  socket.on('post-caption', (text) => {
-    const caption = new Caption(player, text.toLowerCase());
-    player.postCaption(caption);
+  socket.on('post-caption', (text, ack) => {
+    if (!text.length || /^\s+$/.test(text)) {
+      ack({ error: "can't submit empty caption!" });
+      return;
+    }
+    const caption = new Caption(player, text);
+    const { error } = player.postCaption(caption);
+    if (error) {
+      ack({ error });
+    }
   });
 
   socket.on('choose-caption', (text) => {

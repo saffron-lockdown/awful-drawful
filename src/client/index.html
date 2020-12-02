@@ -43,9 +43,7 @@
             maxlength="4"
           ></b-form-input>
         </b-form-group>
-        <b-alert id="error-display" show fade v-if="state.errorMessage" variant="danger">
-          Error: {{ state.errorMessage }}
-        </b-alert>
+        <error-display :error="error"></error-display>
         <b-button id="join-game-button" class="mb-2" @click="joinGame" variant="success">Join game</b-button>
         <b-button id="create-game-button" class="mb-2" @click="createGame" variant="info">Create game</b-button>
         <b-badge pill variant="light">Built __BUILD_ID__</b-badge>
@@ -106,6 +104,7 @@
             <b-form-group label="What is this?">
               <b-form-input v-model="caption" @keyup.enter="postCaption"></b-form-input>
             </b-form-group>
+            <error-display :error="error"></error-display>
             <b-button id="caption-button" class="mb-2" @click="postCaption" variant="primary">Submit</b-button>
           </template>
           <template v-if="state.phase === 'GUESS'">
@@ -135,19 +134,17 @@
                 class="animated-list-item"
               >
                 <span class="mb-1">{{ caption.text }}</span>
-                <transition name="bounce" appear>
-                  <template v-if="caption.playerName">
-                    <b-badge v-if="caption.text !== state.realPrompt" variant="danger">
-                      {{ caption.playerName }}'s Lie!
-                    </b-badge>
-                    <b-badge v-else variant="success"> The Truth! </b-badge>
-                  </template>
-                </transition>
                 <transition-group name="bounce" appear>
                   <b-badge v-for="chooserName in caption.chosenBy" :key="chooserName" variant="primary">
                     {{ chooserName }}
                   </b-badge>
                 </transition-group>
+                <transition name="bounce" appear>
+                  <template v-if="caption.playerName">
+                    <b-badge v-if="caption.isOriginal" variant="success"> The Truth! </b-badge>
+                    <b-badge v-else variant="danger"> {{ caption.playerName }}'s Lie! </b-badge>
+                  </template>
+                </transition>
               </b-list-group-item>
             </transition-group>
           </b-list-group>
