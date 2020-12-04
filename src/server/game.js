@@ -103,10 +103,13 @@ export class Game {
 
   // get the current drawing to be either captioned or guessed for the current turn
   getViewDrawing() {
-    if (this.getCurrentRound()) {
-      return this.getCurrentTurn().getDrawing();
+    this.log('getViewDrawing');
+    const round = this.getCurrentRound();
+    if (!round) {
+      this.log('getViewDrawing:getCurrentRound returned null');
+      return null;
     }
-    return null;
+    return round.getCurrentTurn().getDrawing();
   }
 
   // get the captions from the current turn
@@ -254,6 +257,10 @@ export class Game {
 
   startCaptionPhase() {
     this.cancelCountdown();
+
+    if (!this.getCurrentRound().allDrawingsIn()) {
+      this.log('Caption phase started but not all drawings in');
+    }
     this._phase = PHASES.CAPTION;
     this.startCountdown(this.startGuessPhase);
   }
@@ -360,6 +367,7 @@ export class Game {
   sync() {
     this.log('syncing all players, current game plan:');
     this.log(this._gameplan);
+
     this._players.forEach((player) => {
       player.sync();
     });

@@ -100,6 +100,11 @@ export class Player {
       ...playerState,
     };
 
+    if (gameState.timeRemaining === gameState.timerDuration) {
+      this.log(this._game && this._game.gameplan);
+      this.log(gameState);
+    }
+
     this.emit('sync', state);
   }
 

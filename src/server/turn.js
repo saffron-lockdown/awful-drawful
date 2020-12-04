@@ -45,10 +45,15 @@ export class Turn {
   }
 
   submitDrawing(drawing) {
+    if (drawing === null) {
+      this.log('null drawing submitted to turn');
+    }
+
     // only allow one drawing to be submitted
     if (this._drawingSubmitted) {
       return;
     }
+
     this._drawing = drawing;
     this._drawingSubmitted = true;
   }
