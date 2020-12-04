@@ -44,6 +44,9 @@ export const subjects = [
 ];
 
 export const objects = [
+  'fried chicken',
+  'bass guitar',
+  'spicy food',
   'actor',
   'advert',
   'afternoon',

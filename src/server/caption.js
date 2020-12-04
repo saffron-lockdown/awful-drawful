@@ -1,8 +1,9 @@
 export class Caption {
-  constructor(player, text) {
+  constructor(player, text, isOriginal = false) {
     this._player = player;
-    this._text = text;
+    this._text = text.toLowerCase();
     this._chosenBy = []; // players who choose this caption
+    this._isOriginal = isOriginal;
   }
 
   getPlayer() {
@@ -19,5 +20,9 @@ export class Caption {
 
   choose(player) {
     this._chosenBy.push(player);
+  }
+
+  isOriginal() {
+    return this._isOriginal;
   }
 }

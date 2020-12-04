@@ -16,32 +16,29 @@ async function sleep(time) {
 
 const app = new Vue({
   el: '#app',
-  data() {
-    return {
-      state: {
-        name: '',
-        errorMessage: null,
-        gameId: '',
-        players: [],
-        scores: [],
-        phase: null,
-        isWaiting: null,
-        timerDuration: null,
-        timeRemaining: null,
-        prompt: '',
-        viewDrawing: null,
-        captions: [],
-        realPrompt: null,
-      },
-      // local client state
-      editName: false,
+  data: {
+    state: {
       name: '',
       gameId: '',
-      caption: '',
-      isDrawingPosted: false,
-      scores: [], // for local animation
-      captions: [], // for local animation
-    };
+      players: [],
+      scores: [],
+      phase: null,
+      isWaiting: null,
+      timerDuration: null,
+      timeRemaining: null,
+      prompt: '',
+      viewDrawing: null,
+      captions: [],
+    },
+    // local client state
+    editName: false,
+    name: '',
+    gameId: '',
+    caption: '',
+    isDrawingPosted: false,
+    scores: [], // for local animation
+    captions: [], // for local animation
+    error: '',
   },
   computed: {
     page() {
@@ -157,35 +154,52 @@ const app = new Vue({
         // clear old captions list
         this.captions = [];
 
+        // ensure real prompt is the last one
+        const captions = this.state.captions.sort((a, b) => {
+          if (a.isOriginal) {
+            return 1;
+          }
+          if (b.isOriginal) {
+            return -1;
+          }
+          return 0;
+        });
+
         // reveal each caption separately
-        for (let i = 0; i < this.state.captions.length; i += 1) {
-          const row = this.state.captions[i];
+        for (let i = 0; i < captions.length; i += 1) {
+          const row = captions[i];
 
           // reveal just the caption text
           const caption = {
-            key: row.playerName,
-            text: row.text,
-            playerName: '',
+            ...row,
+            key: row.playerName, // for maintaining consistent DOM changes
+            playerName: '', // don't reveal captioner yet
             chosenBy: [], // don't reveal choosers yet
           };
           this.captions.push(caption);
 
           await sleep(2000);
 
-          // reveal captioner
-          caption.playerName = row.playerName;
-
-          await sleep(2000);
-
           // reveal choosers
           for (let j = 0; j < row.chosenBy.length; j += 1) {
-            this.captions[i].chosenBy.push(row.chosenBy[j]);
+            caption.chosenBy.push(row.chosenBy[j]);
             await sleep(1000);
           }
 
           await sleep(1000);
+
+          // reveal captioner
+          caption.playerName = row.playerName;
+
+          await sleep(2000);
         }
       }
+    },
+    error() {
+      // reset error after 5s
+      setTimeout(() => {
+        this.error = null;
+      }, 5000);
     },
   },
   methods: {
@@ -196,7 +210,9 @@ const app = new Vue({
       socket.emit('create-game');
     },
     joinGame() {
-      socket.emit('join-game', this.gameId);
+      socket.emit('join-game', this.gameId, ({ error }) => {
+        this.error = error;
+      });
     },
     leaveGame() {
       socket.emit('leave-game');
@@ -216,7 +232,9 @@ const app = new Vue({
       socket.emit('post-drawing', JSON.stringify(easel));
     },
     postCaption() {
-      socket.emit('post-caption', this.caption);
+      socket.emit('post-caption', this.caption, ({ error }) => {
+        this.error = error;
+      });
     },
     chooseCaption(caption) {
       socket.emit('choose-caption', caption.text);
@@ -226,10 +244,10 @@ const app = new Vue({
       if (!caption.playerName) {
         return null;
       }
-      if (caption.text !== this.state.realPrompt) {
-        return 'danger';
+      if (caption.isOriginal) {
+        return 'success';
       }
-      return 'success';
+      return 'danger';
     },
     playerVariant(player) {
       return player.connected ? 'success' : 'danger';
@@ -275,6 +293,13 @@ Vue.component('drawing', {
     <div :key="id" class="d-flex flex-grow-1 mb-2">
       <canvas :id="id"></canvas>
     </div>
+  `,
+});
+
+Vue.component('error-display', {
+  props: ['error'],
+  template: `
+    <b-alert id="error-display" show fade v-if="error" variant="danger"> Error: {{ error }} </b-alert>
   `,
 });
 

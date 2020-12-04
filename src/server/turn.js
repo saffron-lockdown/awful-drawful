@@ -10,7 +10,7 @@ export class Turn {
     this._drawing = null;
     this._drawingSubmitted = false;
     // Initialise the captions with the original prompt
-    this._captions = [new Caption(this._artist, this._prompt)];
+    this._captions = [new Caption(this._artist, this._prompt, true)];
     this.log = createLogger();
   }
 
@@ -48,13 +48,28 @@ export class Turn {
     if (drawing === null) {
       this.log('null drawing submitted to turn');
     }
+
+    // only allow one drawing to be submitted
+    if (this._drawingSubmitted) {
+      return;
+    }
+
     this._drawing = drawing;
     this._drawingSubmitted = true;
   }
 
   submitCaption(caption) {
+    // only allow one caption per player
+    if (this._captions.find((c) => c.getPlayer() === caption.getPlayer())) {
+      return { error: "can't submit empty caption!" };
+    }
+    // don't allow duplicate captions
+    if (this._captions.find((c) => c.getText() === caption.getText())) {
+      return { error: 'somebody else already submitted that!' };
+    }
     this._captions.push(caption);
     this._captions = shuffle(this._captions);
+    return {};
   }
 
   allCaptionsIn() {
@@ -63,8 +78,6 @@ export class Turn {
 
   chooseCaptionByText(player, captionText) {
     // record who chose what caption
-    this.log('chooseCaptionByText');
-
     if (player !== this._artist && !this.hasPlayerChosenCaption(player)) {
       const chosenCaption = this._captions.find(
         (caption) => caption.getText() === captionText
@@ -74,7 +87,6 @@ export class Turn {
   }
 
   allPlayersChosen() {
-    this.log('allPlayersChosen');
     const totalChoices = this._captions.reduce((acc, caption) => {
       return acc + caption.getChosenBy().length;
     }, 0);
