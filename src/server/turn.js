@@ -82,8 +82,13 @@ export class Turn {
       const chosenCaption = this._captions.find(
         (caption) => caption.getText() === captionText
       );
-      chosenCaption.choose(player);
+      if (chosenCaption.getPlayer() !== player) {
+        chosenCaption.choose(player);
+      } else {
+        return { error: "you can't choose your own caption" };
+      }
     }
+    return {};
   }
 
   allPlayersChosen() {

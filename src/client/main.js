@@ -237,7 +237,9 @@ const app = new Vue({
       });
     },
     chooseCaption(caption) {
-      socket.emit('choose-caption', caption.text);
+      socket.emit('choose-caption', caption.text, ({ error }) => {
+        this.error = error;
+      });
     },
     answerVariant(caption) {
       // don't reveal colour until player is shown

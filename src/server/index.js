@@ -87,8 +87,11 @@ io.on('connect', (socket) => {
     }
   });
 
-  socket.on('choose-caption', (text) => {
-    player.chooseCaption(text);
+  socket.on('choose-caption', (text, ack) => {
+    const { error } = player.chooseCaption(text);
+    if (error) {
+      ack({ error });
+    }
   });
 
   socket.on('disconnect', () => {

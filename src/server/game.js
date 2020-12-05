@@ -290,11 +290,13 @@ export class Game {
   chooseCaption(player, captionText) {
     this.log('chooseCaption');
     const turn = this.getCurrentTurn();
-    turn.chooseCaptionByText(player, captionText);
+    const res = turn.chooseCaptionByText(player, captionText);
 
     if (turn.allPlayersChosen()) {
       this.startRevealPhase();
     }
+
+    return res;
   }
 
   startRevealPhase() {
