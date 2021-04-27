@@ -72,9 +72,11 @@ export class Player {
 
   chooseCaption(caption) {
     if (this._game) {
-      this._game.chooseCaption(this, caption);
+      const res = this._game.chooseCaption(this, caption);
       this.sync();
+      return res;
     }
+    return {};
   }
 
   // pushes game updates to all other players in the current game,
