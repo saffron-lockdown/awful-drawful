@@ -44,5 +44,7 @@ jobs:
         with:
           browser: chrome
           headless: true
+          env: ENV=production
+          build: npm run build
           start: npm start
           spec: cypress/integration/main.test.js
