@@ -5,6 +5,7 @@ import { createLogger } from './logger';
 import { createServer } from 'http';
 import express from 'express';
 import path from 'path';
+import proxy from 'express-http-proxy';
 import serveStatic from 'serve-static';
 import session from 'express-session';
 import sio from 'socket.io';
@@ -99,7 +100,12 @@ io.on('connect', (socket) => {
     player.setSocket(null);
   });
 });
-app.use(serveStatic(path.join(__dirname, '../client')));
+
+if (process.env.ENV === 'production') {
+  app.use(serveStatic(path.join(__dirname, '../client')));
+} else {
+  app.use('/', proxy('http://localhost:3001'));
+}
 
 const log = createLogger();
 
