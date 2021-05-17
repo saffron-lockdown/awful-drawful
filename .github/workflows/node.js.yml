@@ -41,7 +41,8 @@ jobs:
       # and run all Cypress tests
       - name: Cypress run
         uses: cypress-io/github-action@v2
-        env: ENV=production
+        env:
+          ENV: production
         with:
           browser: chrome
           headless: true
