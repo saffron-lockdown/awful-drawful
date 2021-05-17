@@ -19,7 +19,7 @@
       <error-display :error="error"></error-display>
       <b-button id="join-game-button" class="mb-2" @click="joinGame" variant="success">Join game</b-button>
       <b-button id="create-game-button" class="mb-2" @click="createGame" variant="info">Create game</b-button>
-      <b-badge pill variant="light">Built __BUILD_ID__</b-badge>
+      <b-badge pill variant="light">Built {{ viteBuildId }}</b-badge>
     </template>
     <template id="page-lobby" v-else-if="page === 'lobby'">
       <div class="d-flex justify-content-end mb-2">
@@ -189,6 +189,7 @@ export default {
       scores: [], // for local animation
       captions: [], // for local animation
       error: '',
+      viteBuildId: import.meta.env.VITE_BUILD_ID
     };
   },
   sockets: {
@@ -366,37 +367,37 @@ export default {
       this.gameId = val.toUpperCase();
     },
     createGame() {
-      this.$socket.emit('create-game');
+      this.$socket.client.emit('create-game');
     },
     joinGame() {
-      this.$socket.emit('join-game', this.gameId, ({ error }) => {
+      this.$socket.client.emit('join-game', this.gameId, ({ error }) => {
         this.error = error;
       });
     },
     leaveGame() {
-      this.$socket.emit('leave-game');
+      this.$socket.client.emit('leave-game');
     },
     setName() {
       if (!this.name.length) {
         return;
       }
-      this.$socket.emit('set-name', this.name);
+      this.$socket.client.emit('set-name', this.name);
       this.editName = false;
     },
     startGame() {
-      this.$socket.emit('start-game');
+      this.$socket.client.emit('start-game');
     },
     postDrawing() {
       this.isDrawingPosted = true;
-      this.$socket.emit('post-drawing', JSON.stringify(easel));
+      this.$socket.client.emit('post-drawing', JSON.stringify(easel));
     },
     postCaption() {
-      this.$socket.emit('post-caption', this.caption, ({ error }) => {
+      this.$socket.client.emit('post-caption', this.caption, ({ error }) => {
         this.error = error;
       });
     },
     chooseCaption(caption) {
-      this.$socket.emit('choose-caption', caption.text, ({ error }) => {
+      this.$socket.client.emit('choose-caption', caption.text, ({ error }) => {
         this.error = error;
       });
     },

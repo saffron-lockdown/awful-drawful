@@ -102,7 +102,7 @@ io.on('connect', (socket) => {
 });
 
 if (process.env.ENV === 'production') {
-  app.use(serveStatic(path.join(__dirname, '../client')));
+  app.use(serveStatic(path.join(__dirname, '../client/dist')));
 } else {
   app.use('/', proxy('http://localhost:3001'));
 }

@@ -7,13 +7,13 @@
     "dev": "nodemon -r esm -r dotenv/config --watch src/server",
     "client:dev": "vite serve src/client",
     "client:serve": "vite preview src/client",
-    "client:build": "vue-tsc --noEmit --project src/client && vite build src/client",
+    "client:build": "tsc --noEmit --project src/client && vite build src/client",
     "lint": "eslint .",
     "test": "npm run test:unit",
     "test:unit": "jest --verbose src",
     "test:unit:watch": "npm run test:unit -- --watch",
     "test:integration": "cypress open",
-    "build": "node -r esm ./generateVersion.js && npm run client:build",
+    "build": "VITE_BUILD_ID=$(date -u) npm run client:build",
     "start": "DEBUG=app* node -r esm src/server"
   },
   "dependencies": {
@@ -31,16 +31,16 @@
     "nodemon": "^2.0.4",
     "serve-static": "^1.14.1",
     "socket.io": "^2.4.1",
-    "socket.io-client": "^2.4.0",
     "source-map-support": "^0.5.19",
     "vite-plugin-vue2": "^1.5.1",
     "vue": "^2.6.12",
-    "vue-socket.io": "^3.0.10"
+    "vue-class-component": "^7.2.6",
+    "vue-socket.io-extended": "^4.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.11.6",
     "@babel/preset-env": "^7.11.5",
-    "@vitejs/plugin-vue": "^1.2.2",
+    "@types/fabric": "^4.2.6",
     "@vue/compiler-sfc": "^3.0.5",
     "babel-jest": "^26.5.2",
     "cypress": "^5.4.0",
@@ -54,8 +54,7 @@
     "jest": "^26.5.3",
     "prettier": "^2.1.2",
     "typescript": "^4.1.3",
-    "vite": "^2.3.3",
-    "vue-tsc": "^0.0.24"
+    "vite": "^2.3.3"
   },
   "repository": {
     "type": "git",

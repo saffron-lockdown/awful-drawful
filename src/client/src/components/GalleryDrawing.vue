@@ -7,6 +7,8 @@
 <script lang="ts">
 export default {
   name: 'gallery-drawing',
-  props: ['id']
+  props: {
+    id: String
+  }
 }
 </script>
