@@ -1,14 +1,14 @@
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
-import './main.css'
+import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap-vue/dist/bootstrap-vue.css';
+import './main.css';
 
-import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue'
+import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue';
 
-import App from './App.vue'
-import Vue from 'vue'
+import Vue from 'vue';
 import VueSocketIOExt from 'vue-socket.io-extended';
+import App from './App.vue';
 
-const socket = io()
+const socket = io();
 
 Vue.use(VueSocketIOExt, socket);
 Vue.use(BootstrapVue);
