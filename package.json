@@ -4,17 +4,17 @@
   "description": "Clone of Drawful",
   "main": "src/server/index.js",
   "scripts": {
-    "dev": "nodemon -r esm -r dotenv/config --watch src/server",
-    "client:dev": "vite serve src/client",
-    "client:serve": "vite preview src/client",
-    "client:build": "tsc --noEmit --project src/client && vite build src/client",
+    "dev": "nodemon -r esm -r dotenv/config --watch packages/server",
+    "client:dev": "vite serve packages/client",
+    "client:serve": "vite preview packages/client",
+    "client:build": "tsc --noEmit --project packages/client && vite build packages/client",
     "lint": "eslint .",
     "test": "npm run test:unit",
-    "test:unit": "jest --verbose src",
+    "test:unit": "jest --verbose packages",
     "test:unit:watch": "npm run test:unit -- --watch",
     "test:integration": "cypress open",
     "build": "VITE_BUILD_ID=$(date -u) npm run client:build",
-    "start": "DEBUG=app* node -r esm src/server"
+    "start": "DEBUG=app* node -r esm packages/server"
   },
   "dependencies": {
     "bootstrap": "^4.6.0",
