@@ -495,7 +495,13 @@ export default Vue.extend({
     },
     postDrawing() {
       this.isDrawingPosted = true;
-      this.$socket.client.emit('post-drawing', JSON.stringify(easel));
+      this.$socket.client.emit(
+        'post-drawing',
+        JSON.stringify(easel),
+        ({ error }) => {
+          this.error = error;
+        }
+      );
     },
     postCaption() {
       this.$socket.client.emit('post-caption', this.caption, ({ error }) => {

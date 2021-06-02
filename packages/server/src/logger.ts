@@ -3,10 +3,13 @@ import { wrapCallSite } from 'source-map-support';
 
 const APP_PREFIX = 'app';
 
-export const createLogger = (id) => {
+export type Logger = debug.Debugger;
+
+export const createLogger = (id?: string) => {
   const orig = Error.prepareStackTrace;
   Error.prepareStackTrace = (err, stack) => stack.map(wrapCallSite);
-  const callSite = new Error().stack[1];
+  const callSite = new Error().stack?.[1];
+  // @ts-ignore TODO: fix this
   const path = callSite.getFileName().replace('.js', '').split('/');
   Error.prepareStackTrace = orig;
 

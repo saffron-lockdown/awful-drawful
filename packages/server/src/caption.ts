@@ -1,4 +1,11 @@
+import { Player } from './player';
+
 export class Caption {
+  _player: Player;
+  _text: string;
+  _chosenBy: Player[];
+  _isOriginal: boolean;
+
   constructor(player, text, isOriginal = false) {
     this._player = player;
     this._text = text.toLowerCase();

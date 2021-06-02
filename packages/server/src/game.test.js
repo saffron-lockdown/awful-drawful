@@ -1,5 +1,5 @@
-import { Game } from './game.js';
-import { Player } from './player.js';
+import { Game } from './game';
+import { Player } from './player';
 
 function mockPlayer(name) {
   const player = new Player(`MOCK_${name}`);

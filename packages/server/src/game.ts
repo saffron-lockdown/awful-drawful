@@ -1,8 +1,9 @@
 import { Round } from './round';
 import { TEST_GAME_ID } from './constants';
 import { Turn } from './turn';
-import { createLogger } from './logger';
+import { createLogger, Logger } from './logger';
 import { getUniquePrompts } from './promptGenerator';
+import { Player } from './player';
 
 const DEFAULT_COUNTDOWN = Number(process.env.DEFAULT_COUNTDOWN || 60);
 
@@ -20,14 +21,14 @@ const PHASES = {
 // of rounds and players.
 // each round has one object per player. The object contains
 // the player id, prompt, and spaces for the image and captions.
-export function gameplan(players, nRounds) {
+export function gameplan(players: Player[], nRounds: number) {
   // Prompts are ensured to be unique over the whole game
   const prompts = getUniquePrompts(Object.keys(players).length * nRounds);
-  const rounds = [];
+  const rounds: Round[] = [];
 
   for (let i = 0, promptIndex = 0; i < nRounds; i += 1) {
     // for each round, create a set of turns equal to the number of players
-    const turns = [];
+    const turns: Turn[] = [];
     for (let j = 0; j < players.length; j += 1) {
       turns.push(new Turn(players.length, players[j], prompts[promptIndex]));
       promptIndex += 1;
@@ -40,6 +41,24 @@ export function gameplan(players, nRounds) {
 }
 
 export class Game {
+  _id: string;
+  _players: Player[];
+  _scores: {
+    [playerId: string]: {
+      playerName: string;
+      currentScore: number;
+      previousScore: number;
+    };
+  };
+  _phase: string;
+  _roundNum: number;
+  _nRounds: number;
+  _timerDuration: number;
+  _timeRemaining: number;
+  _gameplan?: Round[];
+  _timer?: NodeJS.Timeout;
+  log: Logger;
+
   constructor(id) {
     this._id = id;
     this._players = [];
@@ -47,8 +66,6 @@ export class Game {
     this._phase = PHASES.LOBBY; // defines which phase of the game we're in
     this._roundNum = 0; // defines which round is currently being played
     this._nRounds = 3;
-    this._gameplan = null;
-    this._timer = 0;
     this._timerDuration = 0;
     this._timeRemaining = 0;
     this.log = createLogger(this._id);
@@ -58,12 +75,12 @@ export class Game {
     return this._id;
   }
 
-  addPlayer(player) {
+  addPlayer(player: Player) {
     this._players.push(player);
     this.sync();
   }
 
-  removePlayer(player) {
+  removePlayer(player: Player) {
     this._players = this._players.filter((p) => p !== player);
     this.sync();
   }
@@ -88,17 +105,17 @@ export class Game {
   }
 
   getCurrentTurn() {
-    return this.getCurrentRound().getCurrentTurn();
+    return this.getCurrentRound()?.getCurrentTurn();
   }
 
   // get the prompt for a specific player for the current round
   getPrompt(player) {
     const round = this.getCurrentRound();
     if (!round) {
-      return null;
+      return undefined;
     }
     const turn = round.getTurnByArtist(player);
-    return turn.getPrompt();
+    return turn?.getPrompt();
   }
 
   // get the current drawing to be either captioned or guessed for the current turn
@@ -116,7 +133,7 @@ export class Game {
   getCaptions() {
     if (this.getCurrentRound()) {
       return this.getCurrentTurn()
-        .getCaptions()
+        ?.getCaptions()
         .map((caption) => {
           return {
             playerName: caption.getPlayer().getName(),
@@ -145,14 +162,14 @@ export class Game {
     }
     const phase = this.getPhase();
     if (phase === PHASES.DRAW) {
-      return round.getTurnByArtist(player).isDrawingSubmitted();
+      return round.getTurnByArtist(player)?.isDrawingSubmitted();
     }
     if (phase === PHASES.CAPTION) {
-      return this.getCurrentTurn().hasPlayerSubmittedCaption(player);
+      return this.getCurrentTurn()?.hasPlayerSubmittedCaption(player);
     }
     // player should wait if they have selected a caption
     if (phase === PHASES.GUESS) {
-      return this.getCurrentTurn().hasPlayerChosenCaption(player);
+      return this.getCurrentTurn()?.hasPlayerChosenCaption(player);
     }
     // otherwise PHASE.REVEAL
     return false;
@@ -228,7 +245,9 @@ export class Game {
   }
 
   cancelCountdown() {
-    clearInterval(this._timer);
+    if (this._timer) {
+      clearInterval(this._timer);
+    }
   }
 
   destroy() {
@@ -243,22 +262,28 @@ export class Game {
   }
 
   // submit a drawing for a player in the current round
-  postDrawing(player, drawing) {
+  postDrawing(player: Player, drawing: string) {
     const round = this.getCurrentRound();
-    const turn = round.getTurnByArtist(player);
+    const turn = round?.getTurnByArtist(player);
+    if (!turn) {
+      return {
+        error: 'current turn does not exist',
+      };
+    }
     turn.submitDrawing(drawing);
 
     this.log(`wow ${player.getId().substring(1, 6)}, thats beautiful!`);
-    if (round.allDrawingsIn()) {
+    if (round?.allDrawingsIn()) {
       this.log('all the artwork has been collected');
       this.startCaptionPhase();
     }
+    return {};
   }
 
   startCaptionPhase() {
     this.cancelCountdown();
 
-    if (!this.getCurrentRound().allDrawingsIn()) {
+    if (!this.getCurrentRound()?.allDrawingsIn()) {
       this.log('Caption phase started but not all drawings in');
     }
     this._phase = PHASES.CAPTION;
@@ -268,13 +293,18 @@ export class Game {
   // submit a caption for a player in the current turn
   postCaption(caption) {
     const turn = this.getCurrentTurn();
+    if (!turn) {
+      return {
+        error: 'invalid turn',
+      };
+    }
     const { error } = turn.submitCaption(caption);
     if (error) {
       return { error };
     }
 
     if (turn.allCaptionsIn()) {
-      this.log('all captions are in: ', turn.captions);
+      this.log('all captions are in: ', turn._captions);
       this.startGuessPhase();
     }
 
@@ -287,9 +317,12 @@ export class Game {
     this.startCountdown(this.startRevealPhase);
   }
 
-  chooseCaption(player, captionText) {
+  chooseCaption(player: Player, captionText: string) {
     this.log('chooseCaption');
     const turn = this.getCurrentTurn();
+    if (!turn) {
+      return {};
+    }
     const res = turn.chooseCaptionByText(player, captionText);
 
     if (turn.allPlayersChosen()) {
@@ -302,10 +335,13 @@ export class Game {
   startRevealPhase() {
     this.cancelCountdown();
     this._phase = PHASES.REVEAL;
+    const captions = this.getCaptions();
+    if (!captions) {
+      throw new Error('No captions found');
+    }
 
     // Calculate time required to display the animation; make it a multiple of 5
-    const animationDuration =
-      this.getCaptions().length * 4 + this._players.length + 1;
+    const animationDuration = captions.length * 4 + this._players.length + 1;
     const timerDuration = 5 * Math.ceil(animationDuration / 5);
 
     this.startCountdown(this.startScorePhase, timerDuration);
@@ -322,6 +358,9 @@ export class Game {
 
     // assign points
     const turn = this.getCurrentTurn();
+    if (!turn) {
+      throw new Error('Turn does not exist');
+    }
     turn.getCaptions().forEach((caption) => {
       const choosers = caption.getChosenBy();
 
@@ -354,14 +393,17 @@ export class Game {
 
   advance() {
     // advance to next turn or round
-    if (!this.getCurrentRound().isOver()) {
-      this.getCurrentRound().advance();
-      this.startCaptionPhase();
-    } else if (this._roundNum === this._nRounds - 1) {
-      this.startFinalScorePhase();
-    } else {
-      this._roundNum += 1;
-      this.startDrawPhase();
+    const round = this.getCurrentRound();
+    if (round) {
+      if (round.isOver()) {
+        round.advance();
+        this.startCaptionPhase();
+      } else if (this._roundNum === this._nRounds - 1) {
+        this.startFinalScorePhase();
+      } else {
+        this._roundNum += 1;
+        this.startDrawPhase();
+      }
     }
   }
 

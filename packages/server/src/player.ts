@@ -1,9 +1,16 @@
-import { createLogger } from './logger';
+import { Socket } from 'socket.io';
+import { Game } from './game';
+import { createLogger, Logger } from './logger';
 
 export class Player {
+  _id: string;
+  _game: Game | null;
+  _name: string;
+  log: Logger;
+  _socket?: Socket;
+
   constructor(id) {
     this._id = id;
-    this._socket = null;
     this._game = null;
     this._name = '';
     this.log = createLogger(this._id.substring(0, 5));
@@ -56,9 +63,11 @@ export class Player {
 
   postDrawing(drawing) {
     if (this._game) {
-      this._game.postDrawing(this, drawing);
+      const res = this._game.postDrawing(this, drawing);
       this.sync();
+      return res;
     }
+    return { error: 'not in a game' };
   }
 
   postCaption(caption) {
@@ -92,8 +101,8 @@ export class Player {
   // syncs the player state with the client
   sync() {
     // state saved against the game the player is currently in
-    const gameState = this._game ? this._game.getState(this) : {};
-    // state saved aginst the player
+    const gameState = this._game?.getState(this);
+    // state saved against the player
     const playerState = {
       name: this._name,
     };
@@ -102,8 +111,8 @@ export class Player {
       ...playerState,
     };
 
-    if (gameState.timeRemaining === gameState.timerDuration) {
-      this.log(this._game && this._game.gameplan);
+    if (gameState && gameState.timeRemaining === gameState.timerDuration) {
+      this.log(this._game && this._game._gameplan);
       this.log(gameState);
     }
 

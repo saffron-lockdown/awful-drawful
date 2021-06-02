@@ -1,9 +1,17 @@
-import { Game } from './game.js';
-import { Player } from './player.js';
-import { createLogger } from './logger';
+import { Game } from './game';
+import { Player } from './player';
+import { createLogger, Logger } from './logger';
 import cryptoRandomString from 'crypto-random-string';
 
 export class Manager {
+  _games: {
+    [id: string]: Game;
+  };
+  _players: {
+    [id: string]: Player;
+  };
+  log: Logger;
+
   constructor() {
     this._games = {}; // id to game object dictionary (games have references to player ids)
     this._players = {}; // id to player object dictionary
