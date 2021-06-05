@@ -1,14 +1,15 @@
+import express, { RequestHandler, Response } from 'express';
+import sio, { Socket } from 'socket.io';
+
 import { Caption } from './caption';
 import { Manager } from './manager';
 import { TEST_GAME_ID } from './constants';
 import { createLogger } from './logger';
 import { createServer } from 'http';
-import express, { RequestHandler, Response } from 'express';
 import path from 'path';
 import proxy from 'express-http-proxy';
 import serveStatic from 'serve-static';
 import session from 'express-session';
-import sio, { Socket } from 'socket.io';
 
 const app = express();
 const server = createServer(app);
@@ -21,7 +22,7 @@ const sesh = session({
   cookie: { path: '/', httpOnly: true, secure: false },
 });
 
-const mgr = new Manager();
+const log = createLogger();
 
 const wrap = (
   middleware: RequestHandler
@@ -34,6 +35,16 @@ app.use(sesh);
 
 // also attach to session middleware to make the session available on socket.request
 io.use(wrap(sesh));
+
+if (process.env.ENV === 'production') {
+  log('running in production');
+  app.use(serveStatic(path.join(__dirname, '../../client/dist')));
+} else {
+  log('running in development');
+  app.use('/', proxy('http://localhost:3001'));
+}
+
+const mgr = new Manager();
 
 // for testing always create TEST_GAME_ID room
 mgr.createGame(TEST_GAME_ID);
@@ -103,16 +114,6 @@ io.on('connect', (socket) => {
     player.setSocket(null);
   });
 });
-
-const log = createLogger();
-
-if (process.env.ENV === 'production') {
-  log('running in production');
-  app.use(serveStatic(path.join(__dirname, '../../client/dist')));
-} else {
-  log('running in development');
-  app.use('/', proxy('http://localhost:3001'));
-}
 
 const port = process.env.PORT || 3000;
 

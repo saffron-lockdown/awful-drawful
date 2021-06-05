@@ -13,13 +13,14 @@ describe('Main', () => {
     cy.get('input[name=name]').should('have.value', '');
   });
 
-  it('sets name', () => {
+  it('sets and saves name', () => {
     cy.get('input[name=name]').clear();
     cy.get('input[name=name]').type('wz');
     cy.get('#set-name-button').click();
 
     cy.get('#name-display').should('contain', 'wz');
 
+    // name should persist between page refreshes
     cy.visit('/');
 
     cy.get('#name-display').should('contain', 'wz');
