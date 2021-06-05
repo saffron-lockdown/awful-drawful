@@ -1,5 +1,5 @@
-import { Game } from './game.js';
-import { Player } from './player.js';
+import { Game } from './game';
+import { Player } from './player';
 
 function mockPlayer(name) {
   const player = new Player(`MOCK_${name}`);
@@ -22,6 +22,6 @@ test('initialise and start game', () => {
   ]);
 
   game.start();
-  expect(game._gameplan.length).toBe(3);
-  expect(Object.keys(game._gameplan[0]).length).toBe(2);
+  expect(game._gameplan?.length).toBe(3);
+  expect(game._gameplan?.[0]._turns.length).toBe(2);
 });

@@ -2,23 +2,57 @@
   <b-container class="d-flex flex-column pt-2 pb-2 h-100" v-cloak>
     <template v-if="page === 'set-name'">
       <b-form-group label="Name">
-        <b-form-input name="name" v-model="name" @keyup.enter="setName"></b-form-input>
+        <b-form-input
+          name="name"
+          v-model="name"
+          @keyup.enter="setName"
+        ></b-form-input>
       </b-form-group>
-      <b-button id="set-name-button" key="set-name-button" class="mb-2" @click="setName" variant="primary">
+      <b-button
+        id="set-name-button"
+        key="set-name-button"
+        class="mb-2"
+        @click="setName"
+        variant="primary"
+      >
         Set name
       </b-button>
     </template>
     <template id="page-landing" v-if="page === 'landing'">
-      <b-button id="name-display" @click="editName = true" variant="light" v-if="page === 'landing'" class="mb-2">
+      <b-button
+        id="name-display"
+        @click="editName = true"
+        variant="light"
+        v-if="page === 'landing'"
+        class="mb-2"
+      >
         {{ state.name }} <b-badge variant="primary">tap to edit</b-badge>
       </b-button>
       <b-form-group label="Game ID">
-        <b-form-input name="gameId" v-bind:value="gameId" @input="setGameId" @keyup.enter="joinGame" maxlength="4">
+        <b-form-input
+          name="gameId"
+          v-bind:value="gameId"
+          @input="setGameId"
+          @keyup.enter="joinGame"
+          maxlength="4"
+        >
         </b-form-input>
       </b-form-group>
       <error-display :error="error"></error-display>
-      <b-button id="join-game-button" class="mb-2" @click="joinGame" variant="success">Join game</b-button>
-      <b-button id="create-game-button" class="mb-2" @click="createGame" variant="info">Create game</b-button>
+      <b-button
+        id="join-game-button"
+        class="mb-2"
+        @click="joinGame"
+        variant="success"
+        >Join game</b-button
+      >
+      <b-button
+        id="create-game-button"
+        class="mb-2"
+        @click="createGame"
+        variant="info"
+        >Create game</b-button
+      >
       <b-badge pill variant="light">Built {{ viteBuildId }}</b-badge>
     </template>
     <template id="page-lobby" v-else-if="page === 'lobby'">
@@ -26,7 +60,12 @@
         <b-dropdown right variant="primary" id="game-id-display">
           <template #button-content> Game ID: {{ state.gameId }} </template>
           <b-dropdown-item>
-            <b-button id="leave-game-button" key="leave-game-button" @click="leaveGame" variant="outline-danger">
+            <b-button
+              id="leave-game-button"
+              key="leave-game-button"
+              @click="leaveGame"
+              variant="outline-danger"
+            >
               Leave game
             </b-button>
           </b-dropdown-item>
@@ -35,25 +74,54 @@
       <b-alert id="player-list-display" show>
         Players:
         <template v-for="player in state.players">
-          <b-badge class="mr-1" :variant="playerVariant(player)" v-bind:key="player.name">
+          <b-badge
+            class="mr-1"
+            :variant="playerVariant(player)"
+            v-bind:key="player.name"
+          >
             {{ player.name }}
-            <b-icon-exclamation-triangle-fill v-if="playerVariant(player) === 'danger'">
+            <b-icon-exclamation-triangle-fill
+              v-if="playerVariant(player) === 'danger'"
+            >
             </b-icon-exclamation-triangle-fill>
           </b-badge>
         </template>
       </b-alert>
-      <b-button id="start-game-button" variant="success" class="mb-2" @click="startGame">Everybody's in!</b-button>
+      <b-button
+        id="start-game-button"
+        variant="success"
+        class="mb-2"
+        @click="startGame"
+        >Everybody's in!</b-button
+      >
     </template>
-    <div id="page-ingame" v-else-if="page === 'ingame'" class="flex-grow-1 d-flex flex-column mb-2">
+    <div
+      id="page-ingame"
+      v-else-if="page === 'ingame'"
+      class="flex-grow-1 d-flex flex-column mb-2"
+    >
       <div class="d-flex mb-2">
-        <b-progress class="flex-grow-1 mr-2" height="auto" :value="state.timeRemaining" :max="state.timerDuration"
-          striped animated variant="primary" show-value></b-progress>
+        <b-progress
+          class="flex-grow-1 mr-2"
+          height="auto"
+          :value="state.timeRemaining"
+          :max="state.timerDuration"
+          striped
+          animated
+          variant="primary"
+          show-value
+        ></b-progress>
         <b-dropdown right variant="light">
           <template #button-content>
             <b-icon-gear-fill></b-icon-gear-fill>
           </template>
           <b-dropdown-item>
-            <b-button id="leave-game-button" key="leave-game-button" @click="leaveGame" variant="outline-danger">
+            <b-button
+              id="leave-game-button"
+              key="leave-game-button"
+              @click="leaveGame"
+              variant="outline-danger"
+            >
               Leave game
             </b-button>
           </b-dropdown-item>
@@ -63,22 +131,37 @@
       <template v-if="!state.isWaiting">
         <template v-if="state.phase === 'DRAW'">
           <gallery-drawing id="easel"></gallery-drawing>
-          <b-button id="post" @click="postDrawing" variant="success">Post</b-button>
+          <b-button id="post" @click="postDrawing" variant="success"
+            >Post</b-button
+          >
         </template>
         <template v-if="state.phase === 'CAPTION'">
           <gallery-drawing id="gallery"></gallery-drawing>
           <b-form-group label="What is this?">
-            <b-form-input v-model="caption" @keyup.enter="postCaption"></b-form-input>
+            <b-form-input
+              v-model="caption"
+              @keyup.enter="postCaption"
+            ></b-form-input>
           </b-form-group>
           <error-display :error="error"></error-display>
-          <b-button id="caption-button" class="mb-2" @click="postCaption" variant="primary">Submit</b-button>
+          <b-button
+            id="caption-button"
+            class="mb-2"
+            @click="postCaption"
+            variant="primary"
+            >Submit</b-button
+          >
         </template>
         <template v-if="state.phase === 'GUESS'">
           <gallery-drawing id="gallery"></gallery-drawing>
           <b-card no-body>
             <b-list-group flush>
-              <b-list-group-item v-for="caption in state.captions" :key="caption.playerName" button
-                @click="chooseCaption(caption)">
+              <b-list-group-item
+                v-for="caption in state.captions"
+                :key="caption.playerName"
+                button
+                @click="chooseCaption(caption)"
+              >
                 {{ caption.text }}
               </b-list-group-item>
             </b-list-group>
@@ -90,18 +173,30 @@
         <gallery-drawing id="gallery"></gallery-drawing>
         <b-list-group flush key="reveal">
           <transition-group name="animated-list" appear>
-            <b-list-group-item v-for="caption in captions" :variant="answerVariant(caption)" :key="caption.key"
-              class="animated-list-item">
+            <b-list-group-item
+              v-for="caption in captions"
+              :variant="answerVariant(caption)"
+              :key="caption.key"
+              class="animated-list-item"
+            >
               <span class="mb-1">{{ caption.text }}</span>
               <transition-group name="bounce" appear>
-                <b-badge v-for="chooserName in caption.chosenBy" :key="chooserName" variant="primary">
+                <b-badge
+                  v-for="chooserName in caption.chosenBy"
+                  :key="chooserName"
+                  variant="primary"
+                >
                   {{ chooserName }}
                 </b-badge>
               </transition-group>
               <transition name="bounce" appear>
                 <template v-if="caption.playerName">
-                  <b-badge v-if="caption.isOriginal" variant="success"> The Truth! </b-badge>
-                  <b-badge v-else variant="danger"> {{ caption.playerName }}'s Lie! </b-badge>
+                  <b-badge v-if="caption.isOriginal" variant="success">
+                    The Truth!
+                  </b-badge>
+                  <b-badge v-else variant="danger">
+                    {{ caption.playerName }}'s Lie!
+                  </b-badge>
                 </template>
               </transition>
             </b-list-group-item>
@@ -111,8 +206,11 @@
       <template v-if="state.phase === 'SCORE'">
         <b-list-group flush key="score">
           <transition-group name="animated-list" appear>
-            <b-list-group-item v-for="data in animatedScores" :key="data.playerName"
-              class="d-flex justify-content-between align-items-center animated-list-item">
+            <b-list-group-item
+              v-for="data in animatedScores"
+              :key="data.playerName"
+              class="d-flex justify-content-between align-items-center animated-list-item"
+            >
               <span>{{ data.playerName }}</span>
               <b-badge variant="primary" pill>{{ data.score }}</b-badge>
             </b-list-group-item>
@@ -128,7 +226,10 @@
         </b-alert>
         <h1>Final Scoreboard</h1>
         <template v-for="data in animatedScores">
-          <b-list-group-item class="d-flex justify-content-between align-items-center" v-bind:key="data.playerName">
+          <b-list-group-item
+            class="d-flex justify-content-between align-items-center"
+            v-bind:key="data.playerName"
+          >
             {{ data.playerName }}
             <b-badge variant="primary" pill>{{ data.score }}</b-badge>
           </b-list-group-item>
@@ -139,13 +240,14 @@
 </template>
 
 <script lang="ts">
-import { gsap } from "gsap";
-import { fabric } from "fabric";
+import { gsap } from 'gsap';
+import { fabric } from 'fabric';
+import Vue from 'vue';
 
 import ErrorDisplay from './components/ErrorDisplay.vue';
 import GalleryDrawing from './components/GalleryDrawing.vue';
 
-let easel = null;
+let easel: fabric.Canvas | null = null;
 let gallery = null;
 
 function setCanvasSize(canvas) {
@@ -155,11 +257,15 @@ function setCanvasSize(canvas) {
   canvas.setDimensions({ width: 500, height: 500 }, { backstoreOnly: true });
 }
 
-async function sleep(time) {
+async function sleep(time: number) {
   await new Promise((res) => setTimeout(res, time));
 }
 
-export default {
+type Player = {
+  name: string;
+};
+
+export default Vue.extend({
   name: 'App',
   components: {
     ErrorDisplay,
@@ -170,7 +276,7 @@ export default {
       state: {
         name: '',
         gameId: '',
-        players: [],
+        players: [] as Player[],
         scores: [],
         phase: null,
         isWaiting: null,
@@ -189,7 +295,7 @@ export default {
       scores: [], // for local animation
       captions: [], // for local animation
       error: '',
-      viteBuildId: import.meta.env.VITE_BUILD_ID
+      viteBuildId: import.meta.env.VITE_BUILD_ID,
     };
   },
   sockets: {
@@ -198,7 +304,7 @@ export default {
       if (this.state.name) {
         this.name = this.state.name;
       }
-    }
+    },
   },
   computed: {
     page() {
@@ -389,7 +495,13 @@ export default {
     },
     postDrawing() {
       this.isDrawingPosted = true;
-      this.$socket.client.emit('post-drawing', JSON.stringify(easel));
+      this.$socket.client.emit(
+        'post-drawing',
+        JSON.stringify(easel),
+        ({ error }) => {
+          this.error = error;
+        }
+      );
     },
     postCaption() {
       this.$socket.client.emit('post-caption', this.caption, ({ error }) => {
@@ -447,7 +559,7 @@ export default {
       gallery = null;
     }
   },
-}
+});
 </script>
 
 <style scoped>

@@ -1,13 +1,21 @@
 import { Caption } from './caption';
-import { createLogger } from './logger';
+import { createLogger, Logger } from './logger';
+import { Player } from './player';
 import { shuffle } from './utils';
 
 export class Turn {
+  _totalPlayers: number;
+  _artist: Player;
+  _prompt: string;
+  _drawingSubmitted: boolean;
+  _drawing?: string;
+  _captions: Caption[];
+  log: Logger;
+
   constructor(totalPlayers, artist, prompt) {
     this._totalPlayers = totalPlayers;
     this._artist = artist;
     this._prompt = prompt;
-    this._drawing = null;
     this._drawingSubmitted = false;
     // Initialise the captions with the original prompt
     this._captions = [new Caption(this._artist, this._prompt, true)];
@@ -44,7 +52,7 @@ export class Turn {
     );
   }
 
-  submitDrawing(drawing) {
+  submitDrawing(drawing: string) {
     if (drawing === null) {
       this.log('null drawing submitted to turn');
     }
@@ -58,7 +66,7 @@ export class Turn {
     this._drawingSubmitted = true;
   }
 
-  submitCaption(caption) {
+  submitCaption(caption: Caption) {
     // only allow one caption per player
     if (this._captions.find((c) => c.getPlayer() === caption.getPlayer())) {
       return { error: "can't submit empty caption!" };
@@ -76,12 +84,15 @@ export class Turn {
     return this._captions.length === this._totalPlayers;
   }
 
-  chooseCaptionByText(player, captionText) {
+  chooseCaptionByText(player: Player, captionText: string) {
     // record who chose what caption
     if (player !== this._artist && !this.hasPlayerChosenCaption(player)) {
       const chosenCaption = this._captions.find(
         (caption) => caption.getText() === captionText
       );
+      if (!chosenCaption) {
+        return { error: 'that doesnt match any of the available captions :(' };
+      }
       if (chosenCaption.getPlayer() !== player) {
         chosenCaption.choose(player);
       } else {
