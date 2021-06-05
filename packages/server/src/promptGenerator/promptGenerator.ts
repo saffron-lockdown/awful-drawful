@@ -9,7 +9,9 @@ import {
 
 import { shuffle } from '../utils';
 
-function* loopingGet(arr) {
+interface InfiniteGenerator<T> extends Generator<T, T> {}
+
+function* loopingGet<T>(arr: T[]): InfiniteGenerator<T> {
   let index = 0;
   while (true) {
     yield arr[index % arr.length];
@@ -17,14 +19,18 @@ function* loopingGet(arr) {
   }
 }
 
-function addArticle(word) {
+function addArticle(word: string) {
   if (['a', 'e', 'i', 'o', 'u'].includes(word.substring(0, 1).toLowerCase())) {
     return `an ${word}`;
   }
   return `a ${word}`;
 }
 
-const formats = [
+interface Formatter {
+  (...args: InfiniteGenerator<string>[]): string;
+}
+
+const formats: Formatter[] = [
   // apple cooking a squirrel
   (a, tg, itg, n, s, o) =>
     `${s.next().value} ${tg.next().value} ${addArticle(o.next().value)}`,
@@ -59,7 +65,7 @@ const formats = [
 ];
 
 // Return a list of n unique prompts
-export function getUniquePrompts(nPrompts) {
+export function getUniquePrompts(nPrompts: number) {
   // prompts should be unique throughout a game, so sort all prompts by random order and loop
   // through them sequentially
   const [
@@ -70,7 +76,6 @@ export function getUniquePrompts(nPrompts) {
     objectGenerator,
     nounGenerator,
     prepositionGenerator,
-    formatsGenerator,
   ] = [
     adjectives,
     transitiveGerunds,
@@ -79,13 +84,13 @@ export function getUniquePrompts(nPrompts) {
     objects,
     subjects.concat(objects),
     prepositions,
-    formats,
   ].map((arr) => {
     const shuffled = shuffle(arr);
     return loopingGet(shuffled);
   });
+  const formatsGenerator = loopingGet(shuffle(formats));
 
-  const prompts = [];
+  const prompts: string[] = [];
   for (let i = 0; i < nPrompts; i += 1) {
     const format = formatsGenerator.next().value;
     const prompt = format(
