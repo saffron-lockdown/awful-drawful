@@ -22,7 +22,11 @@ const PHASES = {
 // of rounds and players.
 // each round has one object per player. The object contains
 // the player id, prompt, and spaces for the image and captions.
-export function gameplan(players: Player[], nRounds: number) {
+export function gameplan(
+  players: Player[],
+  nRounds: number,
+  fixedPrompts: boolean
+) {
   // Prompts are ensured to be unique over the whole game
   const prompts = getUniquePrompts(Object.keys(players).length * nRounds);
   const rounds: Round[] = [];
@@ -31,7 +35,13 @@ export function gameplan(players: Player[], nRounds: number) {
     // for each round, create a set of turns equal to the number of players
     const turns: Turn[] = [];
     for (let j = 0; j < players.length; j += 1) {
-      turns.push(new Turn(players.length, players[j], prompts[promptIndex]));
+      turns.push(
+        new Turn(
+          players.length,
+          players[j],
+          fixedPrompts ? 'test prompt' : prompts[promptIndex]
+        )
+      );
       promptIndex += 1;
     }
     const round = new Round(turns);
@@ -60,7 +70,7 @@ export class Game {
   _timer?: NodeJS.Timeout;
   log: Logger;
 
-  constructor(id) {
+  constructor(id: string) {
     this._id = id;
     this._players = [];
     this._scores = {};
@@ -191,7 +201,7 @@ export class Game {
     };
   }
 
-  isPermanent() {
+  isTestGame() {
     return this._id === TEST_GAME_ID;
   }
 
@@ -202,7 +212,7 @@ export class Game {
       this._nRounds = 2;
     }
 
-    this._gameplan = gameplan(this._players, this._nRounds);
+    this._gameplan = gameplan(this._players, this._nRounds, this.isTestGame());
 
     this.initialiseScores();
 

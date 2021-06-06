@@ -131,14 +131,15 @@
       <template v-if="!state.isWaiting">
         <template v-if="state.phase === 'DRAW'">
           <gallery-drawing id="easel"></gallery-drawing>
-          <b-button id="post" @click="postDrawing" variant="success"
-            >Post</b-button
-          >
+          <b-button id="post" @click="postDrawing" variant="success">
+            Post
+          </b-button>
         </template>
         <template v-if="state.phase === 'CAPTION'">
           <gallery-drawing id="gallery"></gallery-drawing>
           <b-form-group label="What is this?">
             <b-form-input
+              id="caption-input"
               v-model="caption"
               @keyup.enter="postCaption"
             ></b-form-input>
@@ -250,7 +251,7 @@ import GalleryDrawing from './components/GalleryDrawing.vue';
 let easel: fabric.Canvas | null = null;
 let gallery = null;
 
-function setCanvasSize(canvas) {
+function setCanvasSize(canvas: fabric.Canvas) {
   // expand canvas to fill remaining screen real estate
   canvas.setDimensions({ width: '100%', height: 'auto' }, { cssOnly: true });
 

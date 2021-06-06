@@ -63,10 +63,10 @@ export class Manager {
     }
   }
 
-  removePlayer(player) {
+  removePlayer(player: Player) {
     const game = player.getGame();
     player.leaveGame();
-    if (!game.isPermanent() && game.getPlayers().length === 0) {
+    if (game && !game.isTestGame() && game.getPlayers().length === 0) {
       this.log('no players left, destroying game');
       game.destroy();
       delete this._games[game.getId()];

@@ -1,6 +1,6 @@
 <template>
   <div :key="id" class="d-flex flex-grow-1 mb-2">
-    <canvas :id="id"></canvas>
+    <canvas :id="id" class="canvas"></canvas>
   </div>
 </template>
 
@@ -14,3 +14,9 @@ export default Vue.extend({
   },
 });
 </script>
+
+<style scoped>
+.canvas {
+  border: 2px solid grey;
+}
+</style>
