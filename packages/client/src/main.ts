@@ -4,15 +4,18 @@ import './main.css';
 
 import { BootstrapVue, BootstrapVueIcons } from 'bootstrap-vue';
 
+import App from './App.vue';
 import Vue from 'vue';
 import VueSocketIOExt from 'vue-socket.io-extended';
-import App from './App.vue';
+import io from 'socket.io-client';
 
 const socket = io();
 
-Vue.use(VueSocketIOExt, socket);
+console.log({ socket });
+
 Vue.use(BootstrapVue);
 Vue.use(BootstrapVueIcons);
+Vue.use(VueSocketIOExt, socket);
 
 new Vue({
   render: (h) => h(App),

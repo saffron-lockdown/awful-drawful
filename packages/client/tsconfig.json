@@ -12,7 +12,10 @@
     "sourceMap": true,
     "baseUrl": ".",
     "types": ["vite/client"],
-    "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
+    "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
+    "paths": {
+      "vue": ["@vue/compat"]
+    }
   },
   "include": [
     "src/**/*.ts",

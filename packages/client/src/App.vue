@@ -73,12 +73,8 @@
       </div>
       <b-alert id="player-list-display" show>
         Players:
-        <template v-for="player in state.players">
-          <b-badge
-            class="mr-1"
-            :variant="playerVariant(player)"
-            v-bind:key="player.name"
-          >
+        <template v-for="player in state.players" v-bind:key="player.name">
+          <b-badge class="mr-1" :variant="playerVariant(player)">
             {{ player.name }}
             <b-icon-exclamation-triangle-fill
               v-if="playerVariant(player) === 'danger'"
@@ -225,10 +221,9 @@
           </div>
         </b-alert>
         <h1>Final Scoreboard</h1>
-        <template v-for="data in animatedScores">
+        <template v-for="data in animatedScores" v-bind:key="data.playerName">
           <b-list-group-item
             class="d-flex justify-content-between align-items-center"
-            v-bind:key="data.playerName"
           >
             {{ data.playerName }}
             <b-badge variant="primary" pill>{{ data.score }}</b-badge>
