@@ -21,6 +21,7 @@
   "dependencies": {
     "bootstrap": "^4.6.0",
     "bootstrap-vue": "^2.21.2",
+    "connect-redis": "^6.0.0",
     "crypto-random-string": "^3.3.0",
     "debug": "^4.2.0",
     "dotenv": "^8.2.0",
@@ -31,6 +32,7 @@
     "express-session": "^1.17.1",
     "fabric": "^4.4.0",
     "gsap": "^3.6.1",
+    "ioredis": "^4.27.6",
     "nodemon": "^2.0.4",
     "serve-static": "^1.14.1",
     "socket.io": "^2.4.1",
@@ -50,6 +52,7 @@
     "@types/express-http-proxy": "^1.6.1",
     "@types/express-session": "^1.17.3",
     "@types/fabric": "^4.2.6",
+    "@types/ioredis": "^4.26.4",
     "@types/jest": "^26.0.23",
     "@types/socket.io": "^2.1.13",
     "@types/source-map-support": "^0.5.3",

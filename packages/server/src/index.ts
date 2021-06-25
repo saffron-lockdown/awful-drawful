@@ -1,42 +1,27 @@
-import express, { RequestHandler, Response } from 'express';
-import sio, { Socket } from 'socket.io';
-
 import { Caption } from './caption';
 import { Manager } from './manager';
+import Redis from 'ioredis';
 import { TEST_GAME_ID } from './constants';
 import { createLogger } from './logger';
 import { createServer } from 'http';
+import express from 'express';
 import path from 'path';
 import proxy from 'express-http-proxy';
 import serveStatic from 'serve-static';
-import session from 'express-session';
+import sio from 'socket.io';
+import { useSession } from './middleware/session';
 
+const IS_PROD = process.env.ENV === 'production';
+
+const log = createLogger();
 const app = express();
 const server = createServer(app);
 const io = sio(server);
+const redisClient = IS_PROD ? new Redis(process.env.REDIS_URL) : undefined;
 
-const sesh = session({
-  secret: 'keyboard cat',
-  resave: false,
-  saveUninitialized: true,
-  cookie: { path: '/', httpOnly: true, secure: false },
-});
+useSession(app, io, redisClient);
 
-const log = createLogger();
-
-const wrap = (
-  middleware: RequestHandler
-): ((socket: Socket, fn: (err?: any) => void) => void) => {
-  return (socket, next) => middleware(socket.request, {} as Response, next);
-};
-
-// attach session middleware to app so that cookies are set on page GETs
-app.use(sesh);
-
-// also attach to session middleware to make the session available on socket.request
-io.use(wrap(sesh));
-
-if (process.env.ENV === 'production') {
+if (IS_PROD) {
   log('running in production');
   app.use(serveStatic(path.join(__dirname, '../../client/dist')));
 } else {
@@ -44,7 +29,7 @@ if (process.env.ENV === 'production') {
   app.use('/', proxy('http://localhost:3001'));
 }
 
-const mgr = new Manager();
+const mgr = new Manager(redisClient);
 
 // for testing always create TEST_GAME_ID room
 mgr.createGame(TEST_GAME_ID);
