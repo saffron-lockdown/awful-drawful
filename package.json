@@ -1,5 +1,5 @@
 {
-  "name": "drawful-clone",
+  "name": "awful-drawful",
   "version": "1.0.0",
   "description": "Clone of Drawful",
   "main": "packages/server/src/index",
@@ -70,14 +70,14 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/saffron-lockdown/drawful-clone.git"
+    "url": "git+https://github.com/saffron-lockdown/awful-drawful.git"
   },
   "author": "weizhongtan, tjperr",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/saffron-lockdown/drawful-clone/issues"
+    "url": "https://github.com/saffron-lockdown/awful-drawful/issues"
   },
-  "homepage": "https://github.com/saffron-lockdown/drawful-clone#readme",
+  "homepage": "https://github.com/saffron-lockdown/awful-drawful#readme",
   "jest": {
     "transform": {
       "^.+\\.tsx?$": "babel-jest"

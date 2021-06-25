@@ -1,6 +1,6 @@
-# drawful-clone
+# awful-drawful
 
-A clone of Drawful using express, socket.io and Vue.js.
+A clone of [Drawful](https://www.jackboxgames.com/drawful/) using express, socket.io and Vue.js.
 
 ## Getting started
 
