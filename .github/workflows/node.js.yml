@@ -34,19 +34,15 @@ jobs:
     runs-on: ubuntu-16.04
     steps:
       - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 14.x
-      # Install NPM dependencies, cache them correctly
-      # and run all Cypress tests
+      - name: Build stack
+        run: docker-compose up -d
       - name: Cypress run
         uses: cypress-io/github-action@v2
-        env:
+        env: # use default REDIS_URL
           ENV: production
         with:
           browser: chrome
           headless: true
-          build: npm run build
-          prune: npm prune
+          build: npm run build && npm prune
           start: npm start
           spec: cypress/integration/main.test.js
