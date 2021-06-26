@@ -1,0 +1,8 @@
+version: '3.7'
+
+services:
+  redis:
+    image: redis
+    container_name: session-redis
+    ports:
+      - 6379:6379

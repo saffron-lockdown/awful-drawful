@@ -1,6 +1,7 @@
+import { Logger, createLogger } from './logger';
+
 import { Game } from './game';
 import { Player } from './player';
-import { createLogger, Logger } from './logger';
 import cryptoRandomString from 'crypto-random-string';
 
 export class Manager {

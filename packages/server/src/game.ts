@@ -1,9 +1,10 @@
+import { Logger, createLogger } from './logger';
+
+import { Player } from './player';
 import { Round } from './round';
 import { TEST_GAME_ID } from './constants';
 import { Turn } from './turn';
-import { createLogger, Logger } from './logger';
 import { getUniquePrompts } from './promptGenerator';
-import { Player } from './player';
 
 const DEFAULT_COUNTDOWN = Number(process.env.DEFAULT_COUNTDOWN || 60);
 
