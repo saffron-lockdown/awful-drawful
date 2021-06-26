@@ -2,7 +2,6 @@ import { Logger, createLogger } from './logger';
 
 import { Game } from './game';
 import { Player } from './player';
-import { Redis } from 'ioredis';
 import cryptoRandomString from 'crypto-random-string';
 
 export class Manager {
@@ -13,13 +12,11 @@ export class Manager {
     [id: string]: Player;
   };
   log: Logger;
-  redis?: Redis;
 
-  constructor(redisClient?: Redis) {
+  constructor() {
     this._games = {}; // id to game object dictionary (games have references to player ids)
     this._players = {}; // id to player object dictionary
     this.log = createLogger();
-    this.redis = redisClient;
   }
 
   getGame(gameId) {

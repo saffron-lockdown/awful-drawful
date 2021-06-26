@@ -29,7 +29,7 @@ if (IS_PROD) {
   app.use('/', proxy('http://localhost:3001'));
 }
 
-const mgr = new Manager(redisClient);
+const mgr = new Manager();
 
 // for testing always create TEST_GAME_ID room
 mgr.createGame(TEST_GAME_ID);
