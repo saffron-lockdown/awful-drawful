@@ -6,8 +6,11 @@ A clone of [Drawful](https://www.jackboxgames.com/drawful/) using express, socke
 
 ```sh
 npm install
-npm run dev
+npm run client:dev   # watches and builds UI app and serves on port 3001
+npm run server:dev   # watches and rebuilds app server and proxies UI requests to UI server
 ```
+
+Open http://localhost:3000.
 
 ## Running in production
 
